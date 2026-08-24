@@ -1,0 +1,155 @@
+{
+  "status": "success",
+  "data": [
+    {
+      "id": "EPS-20260824-9182",
+      "createdAt": "2026-08-24T09:30:00.000Z",
+      "paidAt": "2026-08-24T09:35:00.000Z",
+      "lifecycleStatus": "ACTIVE_RENTAL",
+      "paymentStatus": "PAID",
+      "paymentMethod": "QRIS",
+      "customer": {
+        "fullName": "Auri Fuad",
+        "email": "auri.fuad@example.com",
+        "phone": "081234567890",
+        "deliveryMethod": "DELIVERY",
+        "deliveryAddress": "Jl. Senopati No. 42, Kebayoran Baru, Jakarta Selatan",
+        "ktpPhotoName": "ktp_auri_fuad_verified.jpg"
+      },
+      "items": [
+        {
+          "productId": "eps_cam_01",
+          "productName": "Sony Alpha 7 IV Mirrorless Camera Kit",
+          "primaryImage": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=800&auto=format&fit=crop",
+          "quantity": 1,
+          "rentalDays": 3,
+          "startDate": "2026-08-24",
+          "endDate": "2026-08-27",
+          "dailyRate": 350000,
+          "depositRate": 1500000,
+          "totalAmount": 1050000
+        }
+      ],
+      "pricing": {
+        "subtotalRental": 1050000,
+        "totalDeposit": 0,
+        "isDepositWaived": true,
+        "deliveryFee": 0,
+        "grandTotal": 1050000
+      },
+      "tracking": {
+        "courierName": "Kurir Internal e-punyasewa Express",
+        "courierPhone": "0812-9988-7766",
+        "resiNumber": "EPS-EXP-889102",
+        "unitHandoverTime": "2026-08-24T11:00:00.000Z",
+        "returnDueTime": "2026-08-27T18:00:00.000Z",
+        "currentStep": 3,
+        "steps": [
+          { "title": "Pembayaran Terverifikasi", "time": "24 Ags 2026, 09:35", "completed": true },
+          { "title": "QC & Sterilisasi Unit", "time": "24 Ags 2026, 10:15", "completed": true },
+          { "title": "Unit Diterima Penyewa", "time": "24 Ags 2026, 11:30", "completed": true },
+          { "title": "Sewa Aktif Berjalan", "time": "Hingga 27 Ags 2026, 18:00", "completed": true, "isCurrent": true },
+          { "title": "Pengembalian & Tutup Sewa", "time": "Menunggu jadwal pengembalian", "completed": false }
+        ]
+      }
+    },
+    {
+      "id": "EPS-20260824-7450",
+      "createdAt": "2026-08-24T14:15:00.000Z",
+      "paidAt": "2026-08-24T14:20:00.000Z",
+      "lifecycleStatus": "SHIPPING",
+      "paymentStatus": "PAID",
+      "paymentMethod": "BCA_VA",
+      "vaNumber": "8077712345678",
+      "customer": {
+        "fullName": "Auri Fuad",
+        "email": "auri.fuad@example.com",
+        "phone": "081234567890",
+        "deliveryMethod": "DELIVERY",
+        "deliveryAddress": "The Breeze BSD Blok L-12, Tangerang Selatan",
+        "ktpPhotoName": "ktp_auri_fuad_verified.jpg"
+      },
+      "items": [
+        {
+          "productId": "eps_drone_01",
+          "productName": "DJI Mavic 3 Pro Cine Combo Drone",
+          "primaryImage": "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?q=80&w=800&auto=format&fit=crop",
+          "quantity": 1,
+          "rentalDays": 2,
+          "startDate": "2026-08-25",
+          "endDate": "2026-08-27",
+          "dailyRate": 550000,
+          "depositRate": 2500000,
+          "totalAmount": 1100000
+        }
+      ],
+      "pricing": {
+        "subtotalRental": 1100000,
+        "totalDeposit": 0,
+        "isDepositWaived": true,
+        "deliveryFee": 0,
+        "grandTotal": 1100000
+      },
+      "tracking": {
+        "courierName": "Kurir dedicated armada e-punyasewa",
+        "courierPhone": "0813-4455-6677",
+        "resiNumber": "EPS-EXP-990142",
+        "estimatedArrival": "Hari ini, Estimasi 16:30 WIB",
+        "currentStep": 2,
+        "steps": [
+          { "title": "Pembayaran Terverifikasi", "time": "24 Ags 2026, 14:20", "completed": true },
+          { "title": "QC Fungsi Kamera & Sensor Drone", "time": "24 Ags 2026, 14:45", "completed": true },
+          { "title": "Kurir Dalam Perjalanan Mengantar", "time": "Sedang OTW ke lokasi penyewa", "completed": true, "isCurrent": true },
+          { "title": "Unit Diterima & Sewa Aktif", "time": "Estimasi 24 Ags 2026, 16:30", "completed": false },
+          { "title": "Pengembalian Unit", "time": "27 Ags 2026, 18:00", "completed": false }
+        ]
+      }
+    },
+    {
+      "id": "EPS-20260820-4321",
+      "createdAt": "2026-08-20T10:00:00.000Z",
+      "paidAt": "2026-08-20T10:05:00.000Z",
+      "lifecycleStatus": "COMPLETED",
+      "paymentStatus": "PAID",
+      "paymentMethod": "MANDIRI_VA",
+      "customer": {
+        "fullName": "Auri Fuad",
+        "email": "auri.fuad@example.com",
+        "phone": "081234567890",
+        "deliveryMethod": "PICKUP",
+        "pickupHub": "Hub Jakarta Selatan (Gandaria / Pondok Indah)"
+      },
+      "items": [
+        {
+          "productId": "eps_gad_01",
+          "productName": "Apple MacBook Pro 16\" M3 Max 64GB",
+          "primaryImage": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=800&auto=format&fit=crop",
+          "quantity": 1,
+          "rentalDays": 3,
+          "startDate": "2026-08-20",
+          "endDate": "2026-08-23",
+          "dailyRate": 450000,
+          "depositRate": 3000000,
+          "totalAmount": 1350000
+        }
+      ],
+      "pricing": {
+        "subtotalRental": 1350000,
+        "totalDeposit": 0,
+        "isDepositWaived": true,
+        "deliveryFee": 0,
+        "grandTotal": 1350000
+      },
+      "tracking": {
+        "currentStep": 4,
+        "steps": [
+          { "title": "Pembayaran Terverifikasi", "time": "20 Ags 2026, 10:05", "completed": true },
+          { "title": "Serah Terima di Hub Gandaria", "time": "20 Ags 2026, 11:00", "completed": true },
+          { "title": "Periode Sewa Berjalan", "time": "20 - 23 Ags 2026", "completed": true },
+          { "title": "Unit Dikembalikan & Selesai", "time": "23 Ags 2026, 17:30 (QC Sempurna)", "completed": true, "isCurrent": true }
+        ]
+      }
+    }
+  ],
+  "message": "Orders retrieved successfully!"
+}
