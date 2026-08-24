@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import CatalogView from '../views/CatalogView.vue'
 import CheckoutView from '../views/CheckoutView.vue'
 import OrderSuccessView from '../views/OrderSuccessView.vue'
+import MyOrdersView from '../views/MyOrdersView.vue'
 
 const routes = [
   {
@@ -28,6 +29,19 @@ const routes = [
     path: '/order-success/:orderId',
     name: 'order-success',
     component: OrderSuccessView,
+  },
+  {
+    path: '/pesanan-saya',
+    name: 'my-orders',
+    component: MyOrdersView,
+  },
+  {
+    path: '/riwayat-sewa',
+    redirect: '/pesanan-saya',
+  },
+  {
+    path: '/my-orders',
+    redirect: '/pesanan-saya',
   },
   {
     path: '/:pathMatch(.*)*',

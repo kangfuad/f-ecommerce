@@ -20,6 +20,7 @@ import {
   IconClose,
   IconMenu,
   IconShieldCheck,
+  IconDeliveryTruck,
   IconCategoryAll,
   IconCategoryCamera,
   IconCategoryDrone,
@@ -373,7 +374,19 @@ onUnmounted(() => {
                 </div>
               </div>
 
-              <div class="pt-1">
+              <div class="py-1 space-y-1">
+                <router-link
+                  to="/pesanan-saya"
+                  @click="userMenuOpen = false"
+                  class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left font-bold text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition cursor-pointer"
+                >
+                  <div class="flex items-center gap-2">
+                    <IconDeliveryTruck :size="14" class="text-forest dark:text-forest-glow" />
+                    <span>Pesanan & Riwayat Rental</span>
+                  </div>
+                  <span class="text-xs text-stone-400">→</span>
+                </router-link>
+
                 <button
                   @click="() => { logout(); userMenuOpen = false; }"
                   class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50 transition cursor-pointer"
@@ -414,17 +427,31 @@ onUnmounted(() => {
         class="md:hidden border-t border-theme-border bg-theme-card px-4 py-5 space-y-4 animate-fade-up shadow-xl"
       >
         <!-- Mobile Auth State -->
-        <div v-if="isLoggedIn && currentUser" class="p-3 bg-stone-50 dark:bg-stone-900 rounded-2xl border border-theme-border flex items-center justify-between">
-          <div class="flex items-center gap-2.5">
-            <span class="w-8 h-8 rounded-full bg-forest text-white flex items-center justify-center text-xs font-black">
-              {{ currentUser.initials }}
-            </span>
-            <div>
-              <p class="font-bold text-xs text-theme-primary">{{ currentUser.fullName }}</p>
-              <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">✓ Bebas Deposit Member</span>
+        <div v-if="isLoggedIn && currentUser" class="space-y-2">
+          <div class="p-3 bg-stone-50 dark:bg-stone-900 rounded-2xl border border-theme-border flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="w-8 h-8 rounded-full bg-forest text-white flex items-center justify-center text-xs font-black">
+                {{ currentUser.initials }}
+              </span>
+              <div>
+                <p class="font-bold text-xs text-theme-primary">{{ currentUser.fullName }}</p>
+                <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">✓ Bebas Deposit Member</span>
+              </div>
             </div>
+            <button @click="logout" class="text-xs font-bold text-red-500 hover:underline cursor-pointer">Keluar</button>
           </div>
-          <button @click="logout" class="text-xs font-bold text-red-500 hover:underline">Keluar</button>
+
+          <router-link
+            to="/pesanan-saya"
+            @click="mobileMenuOpen = false"
+            class="flex items-center justify-between p-3 rounded-2xl bg-forest/10 border border-forest/20 text-xs font-bold text-forest dark:text-forest-glow"
+          >
+            <div class="flex items-center gap-2">
+              <IconDeliveryTruck :size="16" />
+              <span>Pesanan & Riwayat Rental</span>
+            </div>
+            <span>→</span>
+          </router-link>
         </div>
         <div v-else class="flex gap-2">
           <button
