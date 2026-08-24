@@ -1,6 +1,8 @@
 import { shallowRef, ref, computed } from 'vue'
 import { OrderService, type OrderDto, type RentalLifecycleStatus } from '@/infrastructure/services/api'
 import { useToast } from './useToast'
+import { useCart } from './useCart'
+import { useWishlist } from './useWishlist'
 
 export type OrderStatusFilter = 'ALL' | 'ACTIVE' | 'PENDING' | 'COMPLETED'
 
@@ -10,9 +12,12 @@ const selectedTab = ref<OrderStatusFilter>('ALL')
 
 const activeTimelineOrder = shallowRef<OrderDto | null>(null)
 const activeExtendOrder = shallowRef<OrderDto | null>(null)
+const activePaymentOrder = shallowRef<OrderDto | null>(null)
 
 export function useMyOrders() {
   const { showToast } = useToast()
+  const { removeItemsByProductIds, clearCart } = useCart()
+  const { removeWishlist } = useWishlist()
 
   async function loadOrders() {
     isLoading.value = true
@@ -60,6 +65,14 @@ export function useMyOrders() {
     activeExtendOrder.value = null
   }
 
+  function openPayment(order: OrderDto) {
+    activePaymentOrder.value = order
+  }
+
+  function closePayment() {
+    activePaymentOrder.value = null
+  }
+
   async function confirmExtendRental(orderId: string, additionalDays: number) {
     try {
       const res = await OrderService.extendRental(orderId, additionalDays)
@@ -87,6 +100,46 @@ export function useMyOrders() {
     }
   }
 
+  async function confirmPayOrder(orderId: string) {
+    try {
+      const targetOrder = orders.value.find((o) => o.id === orderId)
+      const res = await OrderService.payOrder(orderId)
+      if (res.status === 'success') {
+        showToast({
+          type: 'success',
+          title: 'Pembayaran Berhasil Dikonfirmasi!',
+          message: `Pesanan ${orderId} telah lunas. Tim kami segera menyiapkan unit sewa Anda.`,
+        })
+
+        // Clean up paid items from cart and wishlist
+        if (targetOrder && targetOrder.items && targetOrder.items.length > 0) {
+          const paidProductIds = targetOrder.items.map((it) => it.productId)
+          await removeItemsByProductIds(paidProductIds)
+          for (const pid of paidProductIds) {
+            removeWishlist(pid)
+          }
+        } else {
+          await clearCart()
+        }
+
+        closePayment()
+        await loadOrders()
+      } else {
+        showToast({
+          type: 'error',
+          title: 'Gagal Konfirmasi Pembayaran',
+          message: res.message || 'Terjadi kesalahan.',
+        })
+      }
+    } catch (e: any) {
+      showToast({
+        type: 'error',
+        title: 'Gagal Konfirmasi Pembayaran',
+        message: e.message || 'Terjadi kesalahan sistem.',
+      })
+    }
+  }
+
   return {
     orders,
     filteredOrders,
@@ -94,11 +147,15 @@ export function useMyOrders() {
     selectedTab,
     activeTimelineOrder,
     activeExtendOrder,
+    activePaymentOrder,
     loadOrders,
     openTimeline,
     closeTimeline,
     openExtend,
     closeExtend,
+    openPayment,
+    closePayment,
     confirmExtendRental,
+    confirmPayOrder,
   }
 }

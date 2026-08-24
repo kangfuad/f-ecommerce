@@ -187,6 +187,46 @@ export function useCheckout() {
 
       currentOrder.value = order
       localStorage.setItem(CHECKOUT_ORDER_KEY, JSON.stringify(order))
+
+      // Sync directly into my-orders list so it's tracked in /pesanan-saya immediately
+      try {
+        const localRaw = localStorage.getItem('epunyasewa_my_orders_list')
+        const localOrders = localRaw ? JSON.parse(localRaw) : []
+        if (!localOrders.some((o: any) => o.id === order.id)) {
+          localOrders.unshift({
+            id: order.id,
+            createdAt: order.createdAt.toISOString(),
+            lifecycleStatus: 'PENDING_PAYMENT',
+            paymentStatus: 'PENDING',
+            paymentMethod: order.paymentMethod,
+            vaNumber: order.vaNumber,
+            customer: order.customer,
+            items: order.items,
+            pricing: order.pricing,
+            tracking: {
+              currentStep: 1,
+              steps: [
+                { title: 'Pesanan Dibuat', time: 'Baru saja', completed: true },
+                { title: 'Menunggu Pembayaran', time: 'Batas 15 Menit', completed: false, isCurrent: true },
+                { title: 'Penyiapan & Sterilisasi Unit', time: 'Setelah lunas', completed: false },
+                { title: 'Sewa Aktif', time: 'Sesuai jadwal', completed: false },
+              ],
+            },
+          })
+          localStorage.setItem('epunyasewa_my_orders_list', JSON.stringify(localOrders))
+        }
+      } catch (e) {
+        console.warn('Failed to sync to my-orders list:', e)
+      }
+
+      // Clear cart items and purge matching wishlist items immediately when reaching payment step
+      for (const item of [...cartItems.value]) {
+        await removeItem(item.id)
+      }
+      for (const it of itemSnapshots) {
+        removeWishlist(it.productId)
+      }
+
       startCountdown()
 
       return order
@@ -210,16 +250,28 @@ export function useCheckout() {
 
       if (timerInterval) clearInterval(timerInterval)
 
-      // Clear cart items
-      for (const item of [...cartItems.value]) {
-        await removeItem(item.id)
-      }
-
-      // Automatically purge paid items from wishlist
-      if (currentOrder.value.items) {
-        for (const item of currentOrder.value.items) {
-          removeWishlist(item.productId)
+      // Also update my-orders list to PAID / ACTIVE_RENTAL
+      try {
+        const localRaw = localStorage.getItem('epunyasewa_my_orders_list')
+        const localOrders = localRaw ? JSON.parse(localRaw) : []
+        const existingIdx = localOrders.findIndex((o: any) => o.id === currentOrder.value?.id)
+        if (existingIdx > -1) {
+          localOrders[existingIdx].paymentStatus = 'PAID'
+          localOrders[existingIdx].paidAt = new Date().toISOString()
+          localOrders[existingIdx].lifecycleStatus = 'ACTIVE_RENTAL'
+          if (localOrders[existingIdx].tracking) {
+            localOrders[existingIdx].tracking.currentStep = 3
+            localOrders[existingIdx].tracking.steps = [
+              { title: 'Pembayaran Terverifikasi', time: 'Baru saja (Lunas)', completed: true },
+              { title: 'QC & Sterilisasi Unit', time: 'Dalam proses pengecekan', completed: true },
+              { title: 'Sewa Aktif Digunakan', time: 'Masa sewa aktif berjalan', completed: true, isCurrent: true },
+              { title: 'Pengembalian & Tutup Sewa', time: 'Menunggu jadwal pengembalian', completed: false },
+            ]
+          }
+          localStorage.setItem('epunyasewa_my_orders_list', JSON.stringify(localOrders))
         }
+      } catch (e) {
+        console.warn('Failed to update my-orders status on checkout payment:', e)
       }
 
       router.push(`/order-success/${currentOrder.value.id}`)

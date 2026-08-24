@@ -203,4 +203,60 @@ export class OrderService {
     }
     return { status: 'error', data: null, message: 'Gagal memperpanjang sewa' }
   }
+
+  public static async payOrder(orderId: string): Promise<ApiResponse<OrderDto | null>> {
+    const ordersResponse = await this.getOrders()
+    if (ordersResponse.status === 'success') {
+      const order = ordersResponse.data.find((o) => o.id === orderId)
+      if (!order) {
+        return { status: 'error', data: null, message: 'Pesanan tidak ditemukan' }
+      }
+
+      order.paymentStatus = 'PAID'
+      order.paidAt = new Date().toISOString()
+      order.lifecycleStatus = 'ACTIVE_RENTAL'
+      if (order.tracking) {
+        order.tracking.currentStep = 3
+        order.tracking.steps = [
+          { title: 'Pembayaran Terverifikasi', time: 'Baru saja (Lunas)', completed: true },
+          { title: 'QC & Sterilisasi Unit', time: 'Dalam proses pengecekan', completed: true },
+          { title: 'Sewa Aktif Digunakan', time: 'Masa sewa aktif berjalan', completed: true, isCurrent: true },
+          { title: 'Pengembalian & Tutup Sewa', time: 'Menunggu jadwal pengembalian', completed: false },
+        ]
+      }
+
+      // Save to localStorage
+      const localRaw = localStorage.getItem(LOCAL_ORDERS_STORAGE_KEY)
+      const localOrders: OrderDto[] = localRaw ? JSON.parse(localRaw) : []
+      const existingIdx = localOrders.findIndex((o) => o.id === orderId)
+      if (existingIdx > -1) {
+        localOrders[existingIdx] = order
+      } else {
+        localOrders.push(order)
+      }
+      localStorage.setItem(LOCAL_ORDERS_STORAGE_KEY, JSON.stringify(localOrders))
+
+      // Update checkout active order if matching
+      const checkoutActiveRaw = localStorage.getItem('epunyasewa_active_order')
+      if (checkoutActiveRaw) {
+        try {
+          const parsed = JSON.parse(checkoutActiveRaw)
+          if (parsed.id === orderId) {
+            parsed.paymentStatus = 'PAID'
+            parsed.paidAt = new Date()
+            localStorage.setItem('epunyasewa_active_order', JSON.stringify(parsed))
+          }
+        } catch {
+          // ignore
+        }
+      }
+
+      return {
+        status: 'success',
+        data: order,
+        message: 'Pembayaran berhasil dikonfirmasi!',
+      }
+    }
+    return { status: 'error', data: null, message: 'Gagal mengonfirmasi pembayaran' }
+  }
 }

@@ -188,6 +188,30 @@ export function useCart() {
     }
   }
 
+  async function clearCart() {
+    try {
+      for (const item of [...cartItems.value]) {
+        await manageCartUseCase.removeFromCart(item.id)
+      }
+      cartItems.value = []
+    } catch (err: any) {
+      console.warn('Failed to clear cart:', err)
+    }
+  }
+
+  async function removeItemsByProductIds(productIds: string[]) {
+    try {
+      for (const item of [...cartItems.value]) {
+        if (productIds.includes(item.product.id)) {
+          await manageCartUseCase.removeFromCart(item.id)
+        }
+      }
+      cartItems.value = await manageCartUseCase.getCartItems()
+    } catch (err: any) {
+      console.warn('Failed to remove items by product IDs:', err)
+    }
+  }
+
   function dismissToast() {
     cartToast.value = null
   }
@@ -221,6 +245,8 @@ export function useCart() {
     dismissToast,
     updateQuantity,
     removeItem,
+    clearCart,
+    removeItemsByProductIds,
     openCart,
     closeCart,
   }

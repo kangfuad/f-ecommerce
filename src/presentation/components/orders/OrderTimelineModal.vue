@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useBodyScrollLock } from '@/presentation/composables/useBodyScrollLock'
+import { formatRupiah } from '@/core/utils/currency'
 import type { OrderDto } from '@/infrastructure/services/api/OrderService'
 import {
   IconClose,
@@ -36,7 +37,7 @@ useBodyScrollLock(() => !!props.order)
           </div>
           <div>
             <h3 class="font-extrabold text-base text-theme-primary">Status & Pelacakan Rental</h3>
-            <p class="text-xs text-stone-500">ID: {{ order.id }}</p>
+            <p class="text-xs text-stone-500">ID: {{ order.id }} ({{ order.items.length }} Unit)</p>
           </div>
         </div>
         <button
@@ -45,6 +46,32 @@ useBodyScrollLock(() => !!props.order)
         >
           <IconClose :size="16" />
         </button>
+      </div>
+
+      <!-- Items Summary in this Tracking Package -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between text-xs text-stone-500 font-bold px-1">
+          <span>Daftar Unit Dalam Pengiriman:</span>
+          <span class="text-forest dark:text-forest-glow">{{ order.items.length }} Item Perlengkapan</span>
+        </div>
+
+        <div class="space-y-1.5 max-h-36 overflow-y-auto custom-scrollbar pr-1">
+          <div
+            v-for="(item, idx) in order.items"
+            :key="idx"
+            class="flex items-center justify-between p-2 rounded-xl bg-stone-50 dark:bg-stone-900 border border-theme-border text-xs"
+          >
+            <div class="flex items-center gap-2.5 min-w-0">
+              <img
+                :src="item.primaryImage"
+                :alt="item.productName"
+                class="w-8 h-8 rounded-lg object-cover border border-theme-border shrink-0"
+              />
+              <span class="font-bold text-theme-primary truncate">{{ item.productName }}</span>
+            </div>
+            <span class="font-semibold text-stone-500 shrink-0 ml-2">Qty: {{ item.quantity }}</span>
+          </div>
+        </div>
       </div>
 
       <!-- Courier / Pickup Details Card -->

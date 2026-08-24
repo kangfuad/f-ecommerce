@@ -2,6 +2,94 @@
   "status": "success",
   "data": [
     {
+      "id": "EPS-20260824-8840",
+      "createdAt": "2026-08-24T08:00:00.000Z",
+      "paidAt": "2026-08-24T08:05:00.000Z",
+      "lifecycleStatus": "ACTIVE_RENTAL",
+      "paymentStatus": "PAID",
+      "paymentMethod": "QRIS",
+      "customer": {
+        "fullName": "Auri Fuad",
+        "email": "auri.fuad@example.com",
+        "phone": "081234567890",
+        "deliveryMethod": "DELIVERY",
+        "deliveryAddress": "Studio Visual Kreatif, SCBD Lot 8, Jakarta Selatan",
+        "ktpPhotoName": "ktp_auri_fuad_verified.jpg"
+      },
+      "items": [
+        {
+          "productId": "eps_cam_03",
+          "productName": "Sony FX3 Cinema Line Full-Frame Kit",
+          "primaryImage": "https://images.unsplash.com/photo-1512790182412-b19e6d62bc39?q=80&w=800&auto=format&fit=crop",
+          "quantity": 1,
+          "rentalDays": 3,
+          "startDate": "2026-08-24",
+          "endDate": "2026-08-27",
+          "dailyRate": 550000,
+          "depositRate": 2800000,
+          "totalAmount": 1650000
+        },
+        {
+          "productId": "eps_audio_02",
+          "productName": "Rode Wireless PRO 32-Bit Float Dual Mic Set",
+          "primaryImage": "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=800&auto=format&fit=crop",
+          "quantity": 1,
+          "rentalDays": 3,
+          "startDate": "2026-08-24",
+          "endDate": "2026-08-27",
+          "dailyRate": 175000,
+          "depositRate": 500000,
+          "totalAmount": 525000
+        },
+        {
+          "productId": "eps_fash_03",
+          "productName": "Astera Titan Tube RGB Wireless Lighting (Set of 4)",
+          "primaryImage": "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?q=80&w=800&auto=format&fit=crop",
+          "quantity": 1,
+          "rentalDays": 3,
+          "startDate": "2026-08-24",
+          "endDate": "2026-08-27",
+          "dailyRate": 500000,
+          "depositRate": 2000000,
+          "totalAmount": 1500000
+        },
+        {
+          "productId": "eps_gad_02",
+          "productName": "Apple iPad Pro 13\" M4 OLED + Magic Keyboard",
+          "primaryImage": "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?q=80&w=800&auto=format&fit=crop",
+          "quantity": 1,
+          "rentalDays": 3,
+          "startDate": "2026-08-24",
+          "endDate": "2026-08-27",
+          "dailyRate": 250000,
+          "depositRate": 1500000,
+          "totalAmount": 750000
+        }
+      ],
+      "pricing": {
+        "subtotalRental": 4425000,
+        "totalDeposit": 0,
+        "isDepositWaived": true,
+        "deliveryFee": 0,
+        "grandTotal": 4425000
+      },
+      "tracking": {
+        "courierName": "Kurir dedicated armada e-punyasewa",
+        "courierPhone": "0812-9988-7766",
+        "resiNumber": "EPS-EXP-449102",
+        "unitHandoverTime": "2026-08-24T10:00:00.000Z",
+        "returnDueTime": "2026-08-27T18:00:00.000Z",
+        "currentStep": 3,
+        "steps": [
+          { "title": "Pembayaran Terverifikasi", "time": "24 Ags 2026, 08:05", "completed": true },
+          { "title": "QC 4 Unit Perlengkapan Produksi", "time": "24 Ags 2026, 08:45", "completed": true },
+          { "title": "Semua Unit Diterima di Studio", "time": "24 Ags 2026, 10:00", "completed": true },
+          { "title": "Sewa Aktif Berjalan (4 Unit)", "time": "Hingga 27 Ags 2026, 18:00", "completed": true, "isCurrent": true },
+          { "title": "Pengembalian & Tutup Sewa", "time": "Menunggu jadwal pengembalian", "completed": false }
+        ]
+      }
+    },
+    {
       "id": "EPS-20260824-9182",
       "createdAt": "2026-08-24T09:30:00.000Z",
       "paidAt": "2026-08-24T09:35:00.000Z",
@@ -106,6 +194,49 @@
       }
     },
     {
+      "id": "EPS-20260824-3320",
+      "createdAt": "2026-08-24T15:00:00.000Z",
+      "lifecycleStatus": "PENDING_PAYMENT",
+      "paymentStatus": "PENDING",
+      "paymentMethod": "QRIS",
+      "customer": {
+        "fullName": "Auri Fuad",
+        "email": "auri.fuad@example.com",
+        "phone": "081234567890",
+        "deliveryMethod": "PICKUP",
+        "pickupHub": "Hub BSD Serpong (The Breeze)"
+      },
+      "items": [
+        {
+          "productId": "eps_out_01",
+          "productName": "Eiger Storm Shield Dome Tent 4P Set",
+          "primaryImage": "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=800&auto=format&fit=crop",
+          "quantity": 2,
+          "rentalDays": 2,
+          "startDate": "2026-08-28",
+          "endDate": "2026-08-30",
+          "dailyRate": 120000,
+          "depositRate": 400000,
+          "totalAmount": 480000
+        }
+      ],
+      "pricing": {
+        "subtotalRental": 480000,
+        "totalDeposit": 0,
+        "isDepositWaived": true,
+        "deliveryFee": 0,
+        "grandTotal": 480000
+      },
+      "tracking": {
+        "currentStep": 1,
+        "steps": [
+          { "title": "Menunggu Pembayaran QRIS", "time": "Batas 15 Menit", "completed": false, "isCurrent": true },
+          { "title": "QC Tenda & Frame", "time": "Menunggu bayar", "completed": false },
+          { "title": "Siap Diambil di Hub BSD", "time": "28 Ags 2026", "completed": false }
+        ]
+      }
+    },
+    {
       "id": "EPS-20260820-4321",
       "createdAt": "2026-08-20T10:00:00.000Z",
       "paidAt": "2026-08-20T10:05:00.000Z",
@@ -148,6 +279,87 @@
           { "title": "Periode Sewa Berjalan", "time": "20 - 23 Ags 2026", "completed": true },
           { "title": "Unit Dikembalikan & Selesai", "time": "23 Ags 2026, 17:30 (QC Sempurna)", "completed": true, "isCurrent": true }
         ]
+      }
+    },
+    {
+      "id": "EPS-20260815-1190",
+      "createdAt": "2026-08-15T09:00:00.000Z",
+      "paidAt": "2026-08-15T09:04:00.000Z",
+      "lifecycleStatus": "COMPLETED",
+      "paymentStatus": "PAID",
+      "paymentMethod": "QRIS",
+      "customer": {
+        "fullName": "Auri Fuad",
+        "email": "auri.fuad@example.com",
+        "phone": "081234567890",
+        "deliveryMethod": "DELIVERY",
+        "deliveryAddress": "Jl. Gatot Subroto Kav. 51, Jakarta Selatan"
+      },
+      "items": [
+        {
+          "productId": "eps_cam_02",
+          "productName": "Canon EOS R5 C 8K Cinema Hybrid Camera",
+          "primaryImage": "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?q=80&w=800&auto=format&fit=crop",
+          "quantity": 1,
+          "rentalDays": 2,
+          "startDate": "2026-08-15",
+          "endDate": "2026-08-17",
+          "dailyRate": 600000,
+          "depositRate": 3000000,
+          "totalAmount": 1200000
+        }
+      ],
+      "pricing": {
+        "subtotalRental": 1200000,
+        "totalDeposit": 0,
+        "isDepositWaived": true,
+        "deliveryFee": 0,
+        "grandTotal": 1200000
+      },
+      "tracking": {
+        "currentStep": 4,
+        "steps": [
+          { "title": "Pembayaran Terverifikasi", "time": "15 Ags 2026, 09:04", "completed": true },
+          { "title": "Pengantaran Unit Kurir", "time": "15 Ags 2026, 10:30", "completed": true },
+          { "title": "Sewa 2 Hari Selesai", "time": "17 Ags 2026, 17:00", "completed": true },
+          { "title": "Unit Dikembalikan & Selesai", "time": "17 Ags 2026, 18:00", "completed": true, "isCurrent": true }
+        ]
+      }
+    },
+    {
+      "id": "EPS-20260810-7762",
+      "createdAt": "2026-08-10T11:00:00.000Z",
+      "paidAt": "2026-08-10T11:05:00.000Z",
+      "lifecycleStatus": "COMPLETED",
+      "paymentStatus": "PAID",
+      "paymentMethod": "BCA_VA",
+      "customer": {
+        "fullName": "Auri Fuad",
+        "email": "auri.fuad@example.com",
+        "phone": "081234567890",
+        "deliveryMethod": "DELIVERY",
+        "deliveryAddress": "Jl. Gandaria I No. 18, Jakarta Selatan"
+      },
+      "items": [
+        {
+          "productId": "eps_fash_04",
+          "productName": "JBL PartyBox Stage 320 Bluetooth Sound System",
+          "primaryImage": "https://images.unsplash.com/photo-1545454675-3531b543be5d?q=80&w=800&auto=format&fit=crop",
+          "quantity": 1,
+          "rentalDays": 1,
+          "startDate": "2026-08-10",
+          "endDate": "2026-08-11",
+          "dailyRate": 200000,
+          "depositRate": 600000,
+          "totalAmount": 200000
+        }
+      ],
+      "pricing": {
+        "subtotalRental": 200000,
+        "totalDeposit": 0,
+        "isDepositWaived": true,
+        "deliveryFee": 0,
+        "grandTotal": 200000
       }
     }
   ],

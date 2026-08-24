@@ -752,44 +752,70 @@ function copyText(text: string, fieldId: string) {
         <div class="lg:col-span-5 space-y-6">
           <div class="bg-theme-card rounded-3xl border border-theme-border p-6 shadow-card space-y-5 sticky top-24">
             <h3 class="font-extrabold text-sm sm:text-base text-theme-primary border-b border-theme-border pb-3">
-              Ringkasan Unit Sewa ({{ cartItems.length }} Item)
+              Ringkasan Unit Sewa ({{ (currentOrder?.items || cartItems).length }} Item)
             </h3>
 
             <!-- Item Rows Snapshot -->
             <div class="space-y-3 max-h-72 overflow-y-auto pr-1 custom-scrollbar">
-              <div
-                v-for="item in cartItems"
-                :key="item.id"
-                class="flex items-center gap-3 p-2.5 rounded-2xl bg-stone-50 dark:bg-stone-900 border border-theme-border"
-              >
-                <img
-                  :src="item.product.primaryImage"
-                  :alt="item.product.name"
-                  class="w-12 h-12 rounded-xl object-cover border border-theme-border shrink-0"
-                />
-                <div class="flex-1 min-w-0">
-                  <p class="font-bold text-xs text-theme-primary truncate">{{ item.product.name }}</p>
-                  <p class="text-[10px] text-forest dark:text-forest-glow font-semibold mt-0.5">
-                    {{ formatDateToIndonesian(item.dateRange.startDate) }} - {{ formatDateToIndonesian(item.dateRange.endDate) }}
-                    <span class="text-stone-500 font-normal">({{ item.dateRange.durationDays }} Hari)</span>
-                  </p>
-                  <p class="text-[10px] text-stone-500">Qty: {{ item.quantity }}x</p>
+              <template v-if="currentOrder && currentOrder.items && currentOrder.items.length > 0">
+                <div
+                  v-for="item in currentOrder.items"
+                  :key="item.productId"
+                  class="flex items-center gap-3 p-2.5 rounded-2xl bg-stone-50 dark:bg-stone-900 border border-theme-border"
+                >
+                  <img
+                    :src="item.primaryImage"
+                    :alt="item.productName"
+                    class="w-12 h-12 rounded-xl object-cover border border-theme-border shrink-0"
+                  />
+                  <div class="flex-1 min-w-0">
+                    <p class="font-bold text-xs text-theme-primary truncate">{{ item.productName }}</p>
+                    <p class="text-[10px] text-forest dark:text-forest-glow font-semibold mt-0.5">
+                      {{ formatDateToIndonesian(new Date(item.startDate)) }} - {{ formatDateToIndonesian(new Date(item.endDate)) }}
+                      <span class="text-stone-500 font-normal">({{ item.rentalDays }} Hari)</span>
+                    </p>
+                    <p class="text-[10px] text-stone-500">Qty: {{ item.quantity }}x</p>
+                  </div>
+                  <span class="font-black text-xs text-theme-primary">{{ formatRupiah(item.totalAmount) }}</span>
                 </div>
-                <span class="font-black text-xs text-theme-primary">{{ item.totalRentalAmount.format() }}</span>
-              </div>
+              </template>
+              <template v-else>
+                <div
+                  v-for="item in cartItems"
+                  :key="item.id"
+                  class="flex items-center gap-3 p-2.5 rounded-2xl bg-stone-50 dark:bg-stone-900 border border-theme-border"
+                >
+                  <img
+                    :src="item.product.primaryImage"
+                    :alt="item.product.name"
+                    class="w-12 h-12 rounded-xl object-cover border border-theme-border shrink-0"
+                  />
+                  <div class="flex-1 min-w-0">
+                    <p class="font-bold text-xs text-theme-primary truncate">{{ item.product.name }}</p>
+                    <p class="text-[10px] text-forest dark:text-forest-glow font-semibold mt-0.5">
+                      {{ formatDateToIndonesian(item.dateRange.startDate) }} - {{ formatDateToIndonesian(item.dateRange.endDate) }}
+                      <span class="text-stone-500 font-normal">({{ item.dateRange.durationDays }} Hari)</span>
+                    </p>
+                    <p class="text-[10px] text-stone-500">Qty: {{ item.quantity }}x</p>
+                  </div>
+                  <span class="font-black text-xs text-theme-primary">{{ item.totalRentalAmount.format() }}</span>
+                </div>
+              </template>
             </div>
 
             <!-- Detailed Cost Breakdown -->
             <div class="space-y-2 pt-3 border-t border-theme-border text-xs">
               <div class="flex justify-between text-stone-600 dark:text-stone-400">
                 <span>Subtotal Tarif Sewa Unit</span>
-                <span class="font-bold text-theme-primary">{{ subtotalRental.format() }}</span>
+                <span class="font-bold text-theme-primary">
+                  {{ currentOrder ? formatRupiah(currentOrder.pricing.subtotalRental) : subtotalRental.format() }}
+                </span>
               </div>
 
               <div class="flex justify-between text-stone-600 dark:text-stone-400">
-                <span>Ongkos Serah Terima ({{ deliveryMethod === 'DELIVERY' ? 'Kurir Khusus' : 'Ambil di Hub' }})</span>
+                <span>Ongkos Serah Terima ({{ (currentOrder?.customer.deliveryMethod || deliveryMethod) === 'DELIVERY' ? 'Kurir Khusus' : 'Ambil di Hub' }})</span>
                 <span class="font-bold text-theme-primary">
-                  {{ deliveryMethod === 'DELIVERY' ? estimatedDeliveryFee.format() : 'Gratis (Rp 0)' }}
+                  {{ (currentOrder?.customer.deliveryMethod || deliveryMethod) === 'DELIVERY' ? (currentOrder ? formatRupiah(currentOrder.pricing.deliveryFee) : estimatedDeliveryFee.format()) : 'Gratis (Rp 0)' }}
                 </span>
               </div>
 
@@ -799,11 +825,11 @@ function copyText(text: string, fieldId: string) {
                   <span class="text-[10px] text-stone-400 font-normal">(100% Refundable)</span>
                 </span>
                 <div class="text-right">
-                  <span v-if="currentUser?.isKycVerified" class="font-extrabold text-emerald-600 dark:text-emerald-400">
+                  <span v-if="currentOrder ? currentOrder.pricing.isDepositWaived : currentUser?.isKycVerified" class="font-extrabold text-emerald-600 dark:text-emerald-400">
                     Bebas Deposit (Rp 0)
                   </span>
                   <span v-else class="font-bold text-theme-primary">
-                    {{ totalDeposit.format() }}
+                    {{ currentOrder ? formatRupiah(currentOrder.pricing.totalDeposit) : totalDeposit.format() }}
                   </span>
                 </div>
               </div>
@@ -815,7 +841,7 @@ function copyText(text: string, fieldId: string) {
                   <span class="text-[10px] text-stone-400 font-light">Termasuk sewa + deposit</span>
                 </div>
                 <span class="font-black text-lg sm:text-xl text-forest dark:text-forest-glow">
-                  {{ formatRupiah(effectiveGrandTotal) }}
+                  {{ currentOrder ? formatRupiah(currentOrder.pricing.grandTotal) : formatRupiah(effectiveGrandTotal) }}
                 </span>
               </div>
             </div>

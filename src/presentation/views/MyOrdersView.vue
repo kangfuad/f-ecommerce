@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMyOrders, type OrderStatusFilter } from '@/presentation/composables/useMyOrders'
 import { useAuth } from '@/presentation/composables/useAuth'
@@ -8,6 +8,7 @@ import AppHeader from '@/presentation/components/common/AppHeader.vue'
 import AppFooter from '@/presentation/components/common/AppFooter.vue'
 import OrderTimelineModal from '@/presentation/components/orders/OrderTimelineModal.vue'
 import ExtendRentalModal from '@/presentation/components/orders/ExtendRentalModal.vue'
+import QuickPaymentModal from '@/presentation/components/orders/QuickPaymentModal.vue'
 import type { OrderDto } from '@/infrastructure/services/api/OrderService'
 import {
   IconDeliveryTruck,
@@ -17,6 +18,8 @@ import {
   IconClock,
   IconArrowRight,
   IconSearch,
+  IconChevronDown,
+  IconQrcode,
 } from '@/presentation/components/icons'
 
 const router = useRouter()
@@ -27,12 +30,16 @@ const {
   selectedTab,
   activeTimelineOrder,
   activeExtendOrder,
+  activePaymentOrder,
   loadOrders,
   openTimeline,
   closeTimeline,
   openExtend,
   closeExtend,
+  openPayment,
+  closePayment,
   confirmExtendRental,
+  confirmPayOrder,
 } = useMyOrders()
 
 const tabs: { id: OrderStatusFilter; label: string }[] = [
@@ -41,6 +48,74 @@ const tabs: { id: OrderStatusFilter; label: string }[] = [
   { id: 'PENDING', label: 'Menunggu Bayar' },
   { id: 'COMPLETED', label: 'Selesai' },
 ]
+
+// Set to track expanded multi-item cards
+const expandedOrderIds = ref<Set<string>>(new Set())
+
+function toggleExpandOrder(orderId: string) {
+  if (expandedOrderIds.value.has(orderId)) {
+    expandedOrderIds.value.delete(orderId)
+  } else {
+    expandedOrderIds.value.add(orderId)
+  }
+}
+
+function isOrderExpanded(orderId: string): boolean {
+  return expandedOrderIds.value.has(orderId)
+}
+
+// Pagination States & Logic
+const currentPage = ref(1)
+const pageSize = ref(3)
+const pageSizeOptions = [3, 5, 10]
+
+const totalOrders = computed(() => filteredOrders.value.length)
+const totalPages = computed(() => Math.max(1, Math.ceil(totalOrders.value / pageSize.value)))
+
+const paginatedOrders = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  return filteredOrders.value.slice(start, start + pageSize.value)
+})
+
+const paginationStart = computed(() => {
+  if (totalOrders.value === 0) return 0
+  return (currentPage.value - 1) * pageSize.value + 1
+})
+
+const paginationEnd = computed(() => {
+  return Math.min(currentPage.value * pageSize.value, totalOrders.value)
+})
+
+function goToPage(page: number) {
+  if (page < 1 || page > totalPages.value) return
+  currentPage.value = page
+  if (typeof window !== 'undefined') {
+    const el = document.getElementById('my-orders-list')
+    if (el) {
+      const headerOffset = 120
+      const elementPosition = el.getBoundingClientRect().top
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+      window.scrollTo({
+        top: Math.max(0, offsetPosition),
+        behavior: 'smooth',
+      })
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+}
+
+function prevPage() {
+  goToPage(currentPage.value - 1)
+}
+
+function nextPage() {
+  goToPage(currentPage.value + 1)
+}
+
+watch([selectedTab, pageSize], () => {
+  currentPage.value = 1
+})
 
 onMounted(() => {
   loadOrders()
@@ -116,7 +191,7 @@ function getStatusBadge(order: OrderDto) {
       </div>
 
       <!-- Status Filter Tabs -->
-      <div class="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-2">
+      <div id="my-orders-list" class="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-2">
         <button
           v-for="tab in tabs"
           :key="tab.id"
@@ -161,19 +236,25 @@ function getStatusBadge(order: OrderDto) {
         </router-link>
       </div>
 
-      <!-- Order Cards List -->
+      <!-- Order Cards List (Paginated) -->
       <div v-else class="space-y-5">
         <div
-          v-for="order in filteredOrders"
+          v-for="order in paginatedOrders"
           :key="order.id"
           class="bg-theme-card rounded-3xl border border-theme-border p-5 sm:p-6 shadow-card space-y-4 transition-all hover:border-forest/40"
         >
-          <!-- Card Top Bar: Order ID, Date, Badge -->
+          <!-- Card Top Bar: Order ID, Date, Item Count Badge, Status Badge -->
           <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-theme-border text-xs">
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
               <span class="font-bold text-stone-500">ID Sewa:</span>
               <span class="font-black text-theme-primary bg-stone-100 dark:bg-stone-800 px-2.5 py-0.5 rounded-md border border-theme-border">
                 {{ order.id }}
+              </span>
+              <span
+                v-if="order.items.length > 1"
+                class="px-2 py-0.5 rounded-md bg-forest/10 border border-forest/20 text-forest dark:text-forest-glow font-extrabold text-[11px]"
+              >
+                {{ order.items.length }} Unit Paket Sewa
               </span>
             </div>
 
@@ -189,12 +270,35 @@ function getStatusBadge(order: OrderDto) {
             </div>
           </div>
 
-          <!-- Order Items Snapshot -->
-          <div class="space-y-3">
+          <!-- Multi-item Thumbnail Quick Strip (if multiple items) -->
+          <div
+            v-if="order.items.length > 1"
+            class="flex items-center gap-2 pb-2 overflow-x-auto custom-scrollbar"
+          >
+            <span class="text-[11px] font-bold text-stone-400 uppercase tracking-wider shrink-0 mr-1">Unit:</span>
             <div
               v-for="(item, idx) in order.items"
               :key="idx"
-              class="flex gap-3.5 items-center"
+              class="flex items-center gap-1.5 bg-stone-50 dark:bg-stone-900 border border-theme-border px-2 py-1 rounded-xl shrink-0"
+            >
+              <img
+                :src="item.primaryImage"
+                :alt="item.productName"
+                class="w-6 h-6 rounded-lg object-cover border border-theme-border"
+              />
+              <span class="text-xs font-bold text-theme-primary max-w-[120px] sm:max-w-[160px] truncate">
+                {{ item.productName }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Order Items Breakdown -->
+          <div class="space-y-3">
+            <!-- Primary Visible Items (Up to 2 items) -->
+            <div
+              v-for="(item, idx) in (isOrderExpanded(order.id) ? order.items : order.items.slice(0, 2))"
+              :key="idx"
+              class="flex gap-3.5 items-center p-2.5 sm:p-3 rounded-2xl bg-stone-50/60 dark:bg-stone-900/60 border border-theme-border/70"
             >
               <img
                 :src="item.primaryImage"
@@ -202,21 +306,44 @@ function getStatusBadge(order: OrderDto) {
                 class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover bg-stone-100 dark:bg-stone-900 border border-theme-border shrink-0"
               />
               <div class="flex-1 min-w-0 space-y-1">
-                <h3 class="font-extrabold text-sm text-theme-primary truncate">
-                  {{ item.productName }}
-                </h3>
+                <div class="flex items-start justify-between gap-2">
+                  <h3 class="font-extrabold text-sm text-theme-primary truncate">
+                    {{ item.productName }}
+                  </h3>
+                  <span class="font-black text-xs text-forest dark:text-forest-glow shrink-0">
+                    {{ formatRupiah(item.totalAmount) }}
+                  </span>
+                </div>
                 <div class="flex flex-wrap items-center gap-2 text-xs text-stone-500">
                   <span class="inline-flex items-center gap-1 font-bold text-theme-primary">
                     <IconCalendarDate :size="12" class="text-forest" />
                     <span>{{ item.startDate }} s/d {{ item.endDate }} ({{ item.rentalDays }} Hari)</span>
                   </span>
                   <span>•</span>
+                  <span>Tarif: {{ formatRupiah(item.dailyRate) }}/hari</span>
+                  <span>•</span>
                   <span>Qty: {{ item.quantity }} unit</span>
                 </div>
-                <p class="font-black text-xs text-forest dark:text-forest-glow">
-                  {{ formatRupiah(item.totalAmount) }}
-                </p>
               </div>
+            </div>
+
+            <!-- Expand / Collapse Button for 3+ items -->
+            <div v-if="order.items.length > 2" class="pt-1">
+              <button
+                @click="toggleExpandOrder(order.id)"
+                class="w-full py-2 px-3 rounded-xl bg-stone-100 dark:bg-stone-800/80 hover:bg-stone-200/80 dark:hover:bg-stone-700/80 border border-theme-border text-xs font-bold text-forest dark:text-forest-glow flex items-center justify-center gap-1.5 transition cursor-pointer"
+              >
+                <span v-if="!isOrderExpanded(order.id)">
+                  + Lihat {{ order.items.length - 2 }} unit perlengkapan lainnya
+                </span>
+                <span v-else>
+                  Sembunyikan rincian unit
+                </span>
+                <IconChevronDown
+                  :size="12"
+                  :class="['transition-transform duration-200', isOrderExpanded(order.id) && 'rotate-180']"
+                />
+              </button>
             </div>
           </div>
 
@@ -227,13 +354,23 @@ function getStatusBadge(order: OrderDto) {
               <p class="font-black text-base sm:text-lg text-theme-primary">
                 {{ formatRupiah(order.pricing.grandTotal) }}
                 <span class="text-xs font-normal text-emerald-600 dark:text-emerald-400 font-bold ml-1">
-                  ✓ Bebas Deposit Member
+                  (Bebas Deposit Member)
                 </span>
               </p>
             </div>
 
             <!-- Interactive Action Buttons -->
             <div class="flex flex-wrap items-center gap-2">
+              <!-- Pending Payment Action Button -->
+              <button
+                v-if="order.paymentStatus === 'PENDING' || order.lifecycleStatus === 'PENDING_PAYMENT'"
+                @click="openPayment(order)"
+                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-stone-950 text-xs font-black shadow-md transition cursor-pointer animate-pulse"
+              >
+                <IconQrcode :size="14" />
+                <span>Bayar Sekarang</span>
+              </button>
+
               <!-- Timeline Tracking Modal Button -->
               <button
                 @click="openTimeline(order)"
@@ -264,10 +401,94 @@ function getStatusBadge(order: OrderDto) {
             </div>
           </div>
         </div>
+
+        <!-- Interactive Pagination Controls -->
+        <div
+          v-if="filteredOrders.length > 0"
+          class="pt-6 border-t border-theme-border flex flex-col sm:flex-row items-center justify-between gap-4 text-xs"
+        >
+          <!-- Showing Entries Summary -->
+          <div class="text-stone-500 font-semibold text-center sm:text-left">
+            Menampilkan <span class="font-bold text-theme-primary">{{ paginationStart }}</span> –
+            <span class="font-bold text-theme-primary">{{ paginationEnd }}</span> dari
+            <span class="font-bold text-theme-primary">{{ totalOrders }}</span> pesanan sewa
+          </div>
+
+          <!-- Page Navigation Controls -->
+          <div class="flex items-center gap-1.5">
+            <!-- Prev Button -->
+            <button
+              @click="prevPage"
+              :disabled="currentPage === 1"
+              :class="[
+                'px-3 py-2 rounded-xl border border-theme-border font-bold transition cursor-pointer flex items-center gap-1',
+                currentPage === 1
+                  ? 'opacity-40 cursor-not-allowed bg-stone-100 dark:bg-stone-800'
+                  : 'hover:bg-stone-100 dark:hover:bg-stone-800 text-theme-primary hover:border-forest/40'
+              ]"
+              aria-label="Halaman Sebelumnya"
+            >
+              <span>←</span>
+              <span class="hidden sm:inline">Sebelumnya</span>
+            </button>
+
+            <!-- Page Number Pills -->
+            <div class="flex items-center gap-1">
+              <button
+                v-for="page in totalPages"
+                :key="page"
+                @click="goToPage(page)"
+                :class="[
+                  'w-8 h-8 rounded-xl font-black text-xs transition cursor-pointer flex items-center justify-center border',
+                  currentPage === page
+                    ? 'bg-forest text-white border-forest shadow-sm'
+                    : 'border-theme-border text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
+                ]"
+              >
+                {{ page }}
+              </button>
+            </div>
+
+            <!-- Next Button -->
+            <button
+              @click="nextPage"
+              :disabled="currentPage === totalPages"
+              :class="[
+                'px-3 py-2 rounded-xl border border-theme-border font-bold transition cursor-pointer flex items-center gap-1',
+                currentPage === totalPages
+                  ? 'opacity-40 cursor-not-allowed bg-stone-100 dark:bg-stone-800'
+                  : 'hover:bg-stone-100 dark:hover:bg-stone-800 text-theme-primary hover:border-forest/40'
+              ]"
+              aria-label="Halaman Selanjutnya"
+            >
+              <span class="hidden sm:inline">Selanjutnya</span>
+              <span>→</span>
+            </button>
+          </div>
+
+          <!-- Per Page Selector -->
+          <div class="flex items-center gap-2 text-stone-500 font-semibold">
+            <span>Tampilkan:</span>
+            <select
+              v-model="pageSize"
+              class="bg-stone-100 dark:bg-stone-800 border border-theme-border rounded-lg px-2.5 py-1 text-xs font-bold text-theme-primary cursor-pointer focus:outline-none focus:ring-1 focus:ring-forest"
+            >
+              <option v-for="size in pageSizeOptions" :key="size" :value="size">
+                {{ size }} pesanan
+              </option>
+            </select>
+          </div>
+        </div>
       </div>
     </main>
 
     <!-- Modals -->
+    <QuickPaymentModal
+      :order="activePaymentOrder"
+      @close="closePayment"
+      @confirm-payment="confirmPayOrder"
+    />
+
     <OrderTimelineModal
       :order="activeTimelineOrder"
       @close="closeTimeline"

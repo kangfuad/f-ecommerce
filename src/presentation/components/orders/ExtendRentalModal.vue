@@ -46,7 +46,7 @@ async function handleConfirm() {
     <div @click="emit('close')" class="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity"></div>
 
     <!-- Modal Card Container -->
-    <div class="relative bg-theme-card rounded-3xl max-w-md w-full shadow-2xl border border-theme-border z-10 animate-fade-up text-theme-primary p-5 sm:p-6 space-y-5">
+    <div class="relative bg-theme-card rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl border border-theme-border z-10 animate-fade-up text-theme-primary p-5 sm:p-6 space-y-5">
       <!-- Header -->
       <div class="flex items-center justify-between pb-3 border-b border-theme-border">
         <div class="flex items-center gap-2.5">
@@ -55,7 +55,7 @@ async function handleConfirm() {
           </div>
           <div>
             <h3 class="font-extrabold text-base text-theme-primary">Perpanjang Masa Sewa</h3>
-            <p class="text-xs text-stone-500">ID: {{ order.id }}</p>
+            <p class="text-xs text-stone-500">ID: {{ order.id }} ({{ order.items.length }} Unit)</p>
           </div>
         </div>
         <button
@@ -66,18 +66,32 @@ async function handleConfirm() {
         </button>
       </div>
 
-      <!-- Item Snapshot -->
-      <div class="p-3 bg-stone-50 dark:bg-stone-900 rounded-2xl border border-theme-border flex items-center gap-3">
-        <img
-          :src="order.items[0]?.primaryImage"
-          :alt="order.items[0]?.productName"
-          class="w-14 h-14 rounded-xl object-cover border border-theme-border"
-        />
-        <div class="flex-1 min-w-0">
-          <h4 class="font-bold text-xs text-theme-primary truncate">{{ order.items[0]?.productName }}</h4>
-          <p class="text-[11px] text-stone-500">
-            Durasi saat ini: <span class="font-bold text-theme-primary">{{ order.items[0]?.rentalDays }} Hari</span>
-          </p>
+      <!-- Item(s) Snapshot (Scrollable breakdown for single or multiple items) -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between text-xs text-stone-500 font-bold px-1">
+          <span>Daftar Unit Dalam Pesanan:</span>
+          <span>{{ order.items.length }} Item</span>
+        </div>
+
+        <div class="space-y-2 max-h-48 overflow-y-auto custom-scrollbar pr-1">
+          <div
+            v-for="(item, idx) in order.items"
+            :key="idx"
+            class="p-2.5 bg-stone-50 dark:bg-stone-900 rounded-2xl border border-theme-border flex items-center gap-3"
+          >
+            <img
+              :src="item.primaryImage"
+              :alt="item.productName"
+              class="w-12 h-12 rounded-xl object-cover border border-theme-border shrink-0"
+            />
+            <div class="flex-1 min-w-0 space-y-0.5">
+              <h4 class="font-bold text-xs text-theme-primary truncate">{{ item.productName }}</h4>
+              <div class="flex items-center justify-between text-[11px] text-stone-500">
+                <span>{{ formatRupiah(item.dailyRate) }} / hari × {{ item.quantity }}</span>
+                <span>Durasi: <strong class="text-theme-primary">{{ item.rentalDays }} Hari</strong></span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -107,7 +121,7 @@ async function handleConfirm() {
       <!-- Calculation Breakdown -->
       <div class="p-3.5 rounded-2xl bg-forest/10 border border-forest/25 space-y-1.5 text-xs">
         <div class="flex items-center justify-between text-stone-600 dark:text-stone-400">
-          <span>Tarif Tambahan ({{ selectedDays }} Hari):</span>
+          <span>Tarif Tambahan ({{ selectedDays }} Hari untuk {{ order.items.length }} Unit):</span>
           <span class="font-bold text-theme-primary">{{ formatRupiah(additionalFee) }}</span>
         </div>
         <div class="flex items-center justify-between text-stone-600 dark:text-stone-400">
