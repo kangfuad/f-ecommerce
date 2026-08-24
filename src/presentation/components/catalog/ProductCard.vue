@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { Product } from '@/domain/entities/Product'
 import { useWishlist } from '@/presentation/composables/useWishlist'
+import { useAuth } from '@/presentation/composables/useAuth'
 import { ItemConditionLabel } from '@/domain/enums/ItemCondition'
 import QuickDatePopover from './QuickDatePopover.vue'
 import {
@@ -24,10 +25,15 @@ const emit = defineEmits<{
 }>()
 
 const { isWishlisted, toggleWishlist } = useWishlist()
+const { isLoggedIn, openLoginModal } = useAuth()
 const isAdded = ref(false)
 const showDatePopover = ref(false)
 
 function handleButtonClick() {
+  if (!isLoggedIn.value) {
+    openLoginModal()
+    return
+  }
   showDatePopover.value = !showDatePopover.value
 }
 

@@ -6,6 +6,10 @@ import { TOKENS } from '@/infrastructure/di/tokens'
 import { DIContainer } from '@/infrastructure/di/container'
 import type { AddToCartInput } from '@/application/use-cases/ManageCartUseCase'
 import { APP_CONFIG } from '@/core/config/app.config'
+import { isWishlistOpen } from './useWishlist'
+
+import { useAuth } from './useAuth'
+import { useToast } from './useToast'
 
 export interface CartToastNotification {
   id: string
@@ -15,7 +19,7 @@ export interface CartToastNotification {
 
 // Global reactive state shared across components
 const cartItems = shallowRef<CartItem[]>([])
-const isCartOpen = ref(false)
+export const isCartOpen = ref(false)
 const isLoading = ref(false)
 const cartError = ref<string | null>(null)
 const cartToast = ref<CartToastNotification | null>(null)
@@ -26,6 +30,8 @@ let badgeTimeout: any = null
 
 export function useCart() {
   const manageCartUseCase = inject(TOKENS.MANAGE_CART_USE_CASE, DIContainer.manageCartUseCase)
+  const { isLoggedIn, openLoginModal } = useAuth()
+  const { showToast } = useToast()
 
   const totalItemCount = computed(() =>
     cartItems.value.reduce((total, item) => total + item.quantity, 0)
@@ -52,31 +58,31 @@ export function useCart() {
   )
 
   const estimatedDeliveryFee = computed(() => {
-    if (cartItems.value.length === 0 || isEligibleForFreeDelivery.value) {
+    if (isEligibleForFreeDelivery.value) {
       return Money.zero()
     }
     return Money.from(APP_CONFIG.RENTAL.DEFAULT_DELIVERY_FEE)
   })
 
-  const grandTotal = computed(() =>
-    subtotalRental.value.add(totalDeposit.value).add(estimatedDeliveryFee.value)
-  )
+  const grandTotal = computed(() => {
+    return subtotalRental.value.add(totalDeposit.value).add(estimatedDeliveryFee.value)
+  })
 
   function triggerCartAnimation(productName?: string) {
-    // 1. Trigger Badge Bounce in Header
+    // 1. Trigger bounce animation on navbar cart button
     isCartBadgeBouncing.value = true
     if (badgeTimeout) clearTimeout(badgeTimeout)
     badgeTimeout = setTimeout(() => {
       isCartBadgeBouncing.value = false
-    }, 1000)
+    }, 900)
 
-    // 2. Trigger Subtle Notification Toast
+    // 2. Trigger non-intrusive toast alert
     if (productName) {
       if (toastTimeout) clearTimeout(toastTimeout)
       cartToast.value = {
-        id: Date.now().toString(),
+        id: `toast_${Date.now()}`,
         productName,
-        message: `berhasil ditambahkan ke keranjang sewa`,
+        message: 'Berhasil dimasukkan ke keranjang sewa!',
       }
       toastTimeout = setTimeout(() => {
         cartToast.value = null
@@ -97,6 +103,16 @@ export function useCart() {
   }
 
   async function addToCart(input: AddToCartInput, openDrawer: boolean = false, productName?: string) {
+    if (!isLoggedIn.value) {
+      showToast({
+        type: 'warning',
+        title: 'Masuk Akun Diperlukan',
+        message: 'Silakan masuk ke akun Anda atau daftar member untuk menyewa dan memasukkan unit ke keranjang.',
+      })
+      openLoginModal()
+      return
+    }
+
     isLoading.value = true
     cartError.value = null
     try {
@@ -177,6 +193,7 @@ export function useCart() {
   }
 
   function openCart() {
+    isWishlistOpen.value = false
     isCartOpen.value = true
   }
 

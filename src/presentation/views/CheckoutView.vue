@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCart } from '@/presentation/composables/useCart'
 import { useAuth } from '@/presentation/composables/useAuth'
@@ -58,6 +58,20 @@ onMounted(() => {
     router.replace('/katalog')
   }
 })
+
+// Auto-fill form when user logs in (Google, Apple, or Email) while on checkout page
+watch(
+  currentUser,
+  (newUser) => {
+    if (newUser) {
+      fullName.value = newUser.fullName
+      email.value = newUser.email
+      phone.value = newUser.phone
+      showValidationErrors.value = false
+    }
+  },
+  { immediate: true }
+)
 
 // Validation & completion states for auto-checklists
 const isCustomerInfoComplete = computed(() => {

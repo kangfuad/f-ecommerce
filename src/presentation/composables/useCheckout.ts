@@ -1,7 +1,8 @@
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCart } from './useCart'
 import { useAuth } from './useAuth'
+import { useWishlist } from './useWishlist'
 import {
   RentalOrder,
   type DeliveryMethod,
@@ -44,6 +45,7 @@ export function useCheckout() {
   const router = useRouter()
   const { cartItems, grandTotal, subtotalRental, totalDeposit, estimatedDeliveryFee, removeItem } = useCart()
   const { currentUser } = useAuth()
+  const { removeWishlist } = useWishlist()
 
   function initForm() {
     if (currentUser.value) {
@@ -52,6 +54,19 @@ export function useCheckout() {
       phone.value = currentUser.value.phone
     }
   }
+
+  // Reactive watcher: Auto-populate checkout form when user logs in
+  watch(
+    currentUser,
+    (newUser) => {
+      if (newUser) {
+        fullName.value = newUser.fullName
+        email.value = newUser.email
+        phone.value = newUser.phone
+      }
+    },
+    { immediate: true }
+  )
 
   // Generate dynamic VA number based on selected bank
   function generateVaNumber(method: PaymentMethodType): string {
@@ -185,6 +200,13 @@ export function useCheckout() {
       // Clear cart items
       for (const item of [...cartItems.value]) {
         await removeItem(item.id)
+      }
+
+      // Automatically purge paid items from wishlist
+      if (currentOrder.value.items) {
+        for (const item of currentOrder.value.items) {
+          removeWishlist(item.productId)
+        }
       }
 
       router.push(`/order-success/${currentOrder.value.id}`)

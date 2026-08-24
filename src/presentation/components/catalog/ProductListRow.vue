@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { Product } from '@/domain/entities/Product'
 import { useWishlist } from '@/presentation/composables/useWishlist'
+import { useAuth } from '@/presentation/composables/useAuth'
 import { ItemConditionLabel } from '@/domain/enums/ItemCondition'
 import QuickDatePopover from './QuickDatePopover.vue'
 import {
@@ -24,10 +25,15 @@ const emit = defineEmits<{
 }>()
 
 const { isWishlisted, toggleWishlist } = useWishlist()
+const { isLoggedIn, openLoginModal } = useAuth()
 const isAdded = ref(false)
 const showDatePopover = ref(false)
 
 function handleButtonClick() {
+  if (!isLoggedIn.value) {
+    openLoginModal()
+    return
+  }
   showDatePopover.value = !showDatePopover.value
 }
 
@@ -44,10 +50,10 @@ function handleDateSelected(startDate: string, endDate: string) {
 <template>
   <div
     @click="emit('select-product', product)"
-    class="card-hover bg-theme-card rounded-3xl border border-theme-border hover:border-forest/50 dark:hover:border-forest-glow/50 p-4 sm:p-5 flex flex-col md:flex-row gap-5 items-stretch shadow-card group cursor-pointer transition-all relative overflow-visible"
+    class="card-hover bg-theme-card rounded-3xl border border-theme-border hover:border-forest/50 dark:hover:border-forest-glow/50 p-4 sm:p-5 flex flex-col md:flex-row gap-5 items-start md:items-start shadow-card group cursor-pointer transition-all relative overflow-visible"
   >
-    <!-- Image Thumbnail -->
-    <div class="relative w-full md:w-56 h-48 md:h-auto rounded-2xl overflow-hidden bg-stone-100 dark:bg-stone-900 shrink-0 border border-stone-200/80 dark:border-stone-800">
+    <!-- Image Thumbnail (Strictly Locked Uniform Fixed Height & Width) -->
+    <div class="relative w-full md:w-64 lg:w-72 h-52 md:h-52 max-h-52 rounded-2xl overflow-hidden bg-stone-100 dark:bg-stone-900 shrink-0 border border-stone-200/80 dark:border-stone-800">
       <img
         :src="product.primaryImage"
         :alt="product.name"
@@ -95,7 +101,7 @@ function handleDateSelected(startDate: string, endDate: string) {
     </div>
 
     <!-- Content & Specs -->
-    <div class="flex-1 flex flex-col justify-between space-y-3">
+    <div class="flex-1 w-full min-w-0 flex flex-col justify-between self-stretch space-y-3">
       <div>
         <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
           <div class="flex items-center gap-1 text-amber-600 dark:text-amber-400">

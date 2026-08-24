@@ -714,9 +714,6 @@ onMounted(() => {
       @close="closeProductModal"
     />
 
-    <!-- Global Cart Drawer -->
-    <CartDrawer />
-
     <!-- Global Footer -->
     <AppFooter />
   </div>

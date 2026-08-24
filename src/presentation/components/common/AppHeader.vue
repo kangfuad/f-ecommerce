@@ -38,7 +38,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const router = useRouter()
 const { totalItemCount, openCart, isCartBadgeBouncing } = useCart()
-const { wishlistIds } = useWishlist()
+const { wishlistIds, openWishlist } = useWishlist()
 const { currentTheme, currentPreference, toggleTheme } = useTheme()
 const { currentUser, isLoggedIn, openLoginModal, openRegisterModal, logout, initAuth } = useAuth()
 
@@ -272,11 +272,11 @@ const navCategories = [
             <IconThemeMonitor v-else :size="17" class="text-forest dark:text-forest-glow" />
           </button>
 
-          <!-- Wishlist Badge Trigger -->
+          <!-- Wishlist Badge Trigger (Opens Wishlist Drawer) -->
           <button
-            @click="router.push('/katalog')"
+            @click="openWishlist"
             class="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-stone-100 dark:bg-stone-800 border border-theme-border flex items-center justify-center text-theme-primary hover:bg-stone-200 dark:hover:bg-stone-700 transition cursor-pointer"
-            title="Wishlist Barang Favorit"
+            title="Buka Daftar Barang Favorit"
           >
             <IconHeartWishlist :size="17" />
             <span

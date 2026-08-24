@@ -3,6 +3,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { Product } from '@/domain/entities/Product'
 import { useRentalCalculator } from '@/presentation/composables/useRentalCalculator'
 import { useCart } from '@/presentation/composables/useCart'
+import { useAuth } from '@/presentation/composables/useAuth'
 import { useBodyScrollLock } from '@/presentation/composables/useBodyScrollLock'
 import { useImageLightbox } from '@/presentation/composables/useImageLightbox'
 import DateRangePicker from '../rental/DateRangePicker.vue'
@@ -31,6 +32,7 @@ const emit = defineEmits<{
 
 const activeImageIndex = ref(0)
 const { addToCart, isLoading: isAddingToCart } = useCart()
+const { isLoggedIn, openLoginModal } = useAuth()
 const { openLightbox } = useImageLightbox()
 
 // Lock background page scroll when modal is open
@@ -103,6 +105,10 @@ const {
 } = useRentalCalculator(() => props.product)
 
 async function handleAddToCart() {
+  if (!isLoggedIn.value) {
+    openLoginModal()
+    return
+  }
   if (!props.product || !currentBooking.value) return
   try {
     await addToCart(

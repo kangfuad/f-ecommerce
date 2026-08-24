@@ -209,8 +209,5 @@ onMounted(() => {
       :product="selectedProductForModal"
       @close="closeProductModal"
     />
-
-    <!-- Cart Drawer -->
-    <CartDrawer />
   </div>
 </template>
