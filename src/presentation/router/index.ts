@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import CatalogView from '../views/CatalogView.vue'
+import CheckoutView from '../views/CheckoutView.vue'
+import OrderSuccessView from '../views/OrderSuccessView.vue'
 
 const routes = [
   {
@@ -12,6 +14,20 @@ const routes = [
     path: '/katalog',
     name: 'catalog',
     component: CatalogView,
+  },
+  {
+    path: '/checkout',
+    name: 'checkout',
+    component: CheckoutView,
+  },
+  {
+    path: '/pembayaran',
+    redirect: '/checkout',
+  },
+  {
+    path: '/order-success/:orderId',
+    name: 'order-success',
+    component: OrderSuccessView,
   },
   {
     path: '/:pathMatch(.*)*',

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useCart } from '@/presentation/composables/useCart'
 import { useBodyScrollLock } from '@/presentation/composables/useBodyScrollLock'
 import CartItemRow from './CartItemRow.vue'
@@ -12,6 +12,8 @@ import {
   IconCheck,
   IconShieldCheck,
 } from '@/presentation/components/icons'
+
+const router = useRouter()
 
 const {
   cartItems,
@@ -39,19 +41,9 @@ async function handleUpdateDates(id: string, start: string, end: string) {
   }
 }
 
-const isCheckingOut = ref(false)
-const checkoutSuccess = ref(false)
-
 function handleProceedToCheckout() {
-  isCheckingOut.value = true
-  setTimeout(() => {
-    isCheckingOut.value = false
-    checkoutSuccess.value = true
-    setTimeout(() => {
-      checkoutSuccess.value = false
-      closeCart()
-    }, 2000)
-  }, 1500)
+  closeCart()
+  router.push('/checkout')
 }
 </script>
 
@@ -163,17 +155,9 @@ function handleProceedToCheckout() {
           </div>
         </div>
 
-        <!-- Checkout Success Message -->
-        <div v-if="checkoutSuccess" class="p-3 bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 rounded-xl text-center text-xs font-bold border border-emerald-300 dark:border-emerald-800/60 flex items-center justify-center gap-2">
-          <IconCheck :size="16" class="text-emerald-700 dark:text-emerald-300 shrink-0" />
-          <span>Reservasi Berhasil Dibuat • Mengarahkan ke Pembayaran...</span>
-        </div>
-
         <!-- Proceed Button -->
         <BaseButton
-          v-else
           @click="handleProceedToCheckout"
-          :loading="isCheckingOut"
           variant="primary"
           size="lg"
           class="w-full cursor-pointer shadow-md"
