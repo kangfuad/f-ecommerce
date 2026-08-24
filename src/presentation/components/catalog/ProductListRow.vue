@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { Product } from '@/domain/entities/Product'
 import { useWishlist } from '@/presentation/composables/useWishlist'
 import { ItemConditionLabel } from '@/domain/enums/ItemCondition'
+import QuickDatePopover from './QuickDatePopover.vue'
 import {
   IconHeartWishlist,
   IconLocation,
@@ -19,14 +20,20 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<{
   (e: 'select-product', product: Product): void
-  (e: 'quick-add-to-cart', product: Product): void
+  (e: 'quick-add-to-cart', product: Product, startDate?: string, endDate?: string): void
 }>()
 
 const { isWishlisted, toggleWishlist } = useWishlist()
 const isAdded = ref(false)
+const showDatePopover = ref(false)
 
-function handleQuickAdd() {
-  emit('quick-add-to-cart', props.product)
+function handleButtonClick() {
+  showDatePopover.value = !showDatePopover.value
+}
+
+function handleDateSelected(startDate: string, endDate: string) {
+  showDatePopover.value = false
+  emit('quick-add-to-cart', props.product, startDate, endDate)
   isAdded.value = true
   setTimeout(() => {
     isAdded.value = false
@@ -37,7 +44,7 @@ function handleQuickAdd() {
 <template>
   <div
     @click="emit('select-product', product)"
-    class="card-hover bg-theme-card rounded-3xl border border-theme-border hover:border-forest/50 dark:hover:border-forest-glow/50 p-4 sm:p-5 flex flex-col md:flex-row gap-5 items-stretch shadow-card group cursor-pointer transition-all"
+    class="card-hover bg-theme-card rounded-3xl border border-theme-border hover:border-forest/50 dark:hover:border-forest-glow/50 p-4 sm:p-5 flex flex-col md:flex-row gap-5 items-stretch shadow-card group cursor-pointer transition-all relative overflow-visible"
   >
     <!-- Image Thumbnail -->
     <div class="relative w-full md:w-56 h-48 md:h-auto rounded-2xl overflow-hidden bg-stone-100 dark:bg-stone-900 shrink-0 border border-stone-200/80 dark:border-stone-800">
@@ -139,22 +146,29 @@ function handleQuickAdd() {
           </div>
         </div>
 
-        <div>
+        <div class="relative">
           <!-- Quick Add Button with Micro-Feedback Animation -->
           <button
-            @click.stop="handleQuickAdd"
+            @click.stop="handleButtonClick"
             :class="[
               'inline-flex items-center gap-1.5 text-xs font-black px-4 py-2.5 rounded-full shadow-sm transition-all duration-300 cursor-pointer',
               isAdded
                 ? 'bg-emerald-600 text-white scale-105 shadow-md ring-2 ring-emerald-400/40'
                 : 'bg-forest hover:bg-forest-hover dark:bg-forest dark:hover:bg-forest-hover text-white hover:scale-103 active:scale-97'
             ]"
-            :title="isAdded ? 'Berhasil Masuk Keranjang!' : 'Sewa Cepat (Tambah ke Keranjang)'"
+            :title="isAdded ? 'Berhasil Masuk Keranjang!' : 'Sewa Cepat (Pilih Durasi & Masuk Keranjang)'"
           >
             <IconCheck v-if="isAdded" :size="14" class="animate-bounce" />
             <IconCartBag v-else :size="14" />
             <span>{{ isAdded ? '✓ Masuk' : '+ Keranjang' }}</span>
           </button>
+
+          <!-- Quick Date Popover -->
+          <QuickDatePopover
+            v-if="showDatePopover"
+            @select-dates="handleDateSelected"
+            @close="showDatePopover = false"
+          />
         </div>
       </div>
     </div>

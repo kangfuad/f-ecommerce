@@ -18,6 +18,11 @@ export function formatDateInput(date: Date): string {
   return `${year}-${month}-${day}`
 }
 
+export function formatDateToISO(date: Date | string): string {
+  const d = typeof date === 'string' ? new Date(date) : date
+  return formatDateInput(d)
+}
+
 export function addDays(date: Date, days: number): Date {
   const result = new Date(date)
   result.setDate(result.getDate() + days)

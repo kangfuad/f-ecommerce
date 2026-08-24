@@ -23,12 +23,21 @@ const {
   estimatedDeliveryFee,
   grandTotal,
   updateQuantity,
+  updateItemDates,
   removeItem,
   closeCart,
 } = useCart()
 
 // Lock background page scroll when cart drawer is open
 useBodyScrollLock(isCartOpen)
+
+async function handleUpdateDates(id: string, start: string, end: string) {
+  try {
+    await updateItemDates(id, start, end)
+  } catch (e) {
+    console.error(e)
+  }
+}
 
 const isCheckingOut = ref(false)
 const checkoutSuccess = ref(false)
@@ -126,6 +135,7 @@ function handleProceedToCheckout() {
             :key="item.id"
             :item="item"
             @update-quantity="updateQuantity"
+            @update-dates="handleUpdateDates"
             @remove="removeItem"
           />
         </div>

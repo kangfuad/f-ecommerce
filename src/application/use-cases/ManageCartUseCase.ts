@@ -116,6 +116,42 @@ export class ManageCartUseCase {
     return this.getCartItems()
   }
 
+  public async updateItemDates(
+    cartItemId: string,
+    startDate: Date | string,
+    endDate: Date | string
+  ): Promise<CartItem[]> {
+    const existingItems = await this.cartRepository.getCartItems()
+    const itemIndex = existingItems.findIndex((item) => item.id === cartItemId)
+
+    if (itemIndex === -1) {
+      throw new NotFoundException('Item keranjang', cartItemId)
+    }
+
+    const product = await this.productRepository.getById(existingItems[itemIndex].productId)
+    if (!product) {
+      throw new NotFoundException('Barang sewa', existingItems[itemIndex].productId)
+    }
+
+    // Validate new dates
+    this.calculatorUseCase.execute({
+      product,
+      startDate,
+      endDate,
+      quantity: existingItems[itemIndex].quantity,
+      includeInsurance: existingItems[itemIndex].includeInsurance,
+    })
+
+    const startDateStr = typeof startDate === 'string' ? startDate : startDate.toISOString().split('T')[0]
+    const endDateStr = typeof endDate === 'string' ? endDate : endDate.toISOString().split('T')[0]
+
+    existingItems[itemIndex].startDate = startDateStr
+    existingItems[itemIndex].endDate = endDateStr
+
+    await this.cartRepository.saveCartItems(existingItems)
+    return this.getCartItems()
+  }
+
   public async removeFromCart(cartItemId: string): Promise<CartItem[]> {
     const existingItems = await this.cartRepository.getCartItems()
     const filtered = existingItems.filter((item) => item.id !== cartItemId)

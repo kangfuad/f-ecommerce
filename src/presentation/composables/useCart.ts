@@ -116,17 +116,25 @@ export function useCart() {
     }
   }
 
-  async function quickAddToCart(product: Product, days: number = 3) {
-    const tomorrow = new Date()
-    tomorrow.setDate(tomorrow.getDate() + 1)
-    const endDate = new Date(tomorrow)
-    endDate.setDate(endDate.getDate() + (days - 1))
+  async function quickAddToCart(product: Product, customStart?: string | Date, customEnd?: string | Date) {
+    let start: Date
+    let end: Date
+
+    if (customStart && customEnd) {
+      start = typeof customStart === 'string' ? new Date(customStart) : customStart
+      end = typeof customEnd === 'string' ? new Date(customEnd) : customEnd
+    } else {
+      start = new Date()
+      start.setDate(start.getDate() + 1)
+      end = new Date(start)
+      end.setDate(end.getDate() + 2) // 3 days default
+    }
 
     await addToCart(
       {
         productId: product.id,
-        startDate: tomorrow,
-        endDate: endDate,
+        startDate: start,
+        endDate: end,
         quantity: 1,
         includeInsurance: true,
       },
@@ -140,6 +148,19 @@ export function useCart() {
       cartItems.value = await manageCartUseCase.updateItemQuantity(cartItemId, newQuantity)
     } catch (err: any) {
       cartError.value = err.message || 'Gagal memperbarui kuantitas'
+    }
+  }
+
+  async function updateItemDates(cartItemId: string, startDate: Date | string, endDate: Date | string) {
+    isLoading.value = true
+    cartError.value = null
+    try {
+      cartItems.value = await manageCartUseCase.updateItemDates(cartItemId, startDate, endDate)
+    } catch (err: any) {
+      cartError.value = err.message || 'Gagal memperbarui tanggal sewa'
+      throw err
+    } finally {
+      isLoading.value = false
     }
   }
 
@@ -179,6 +200,7 @@ export function useCart() {
     loadCart,
     addToCart,
     quickAddToCart,
+    updateItemDates,
     dismissToast,
     updateQuantity,
     removeItem,

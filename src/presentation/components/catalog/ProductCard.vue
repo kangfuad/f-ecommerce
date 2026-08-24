@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { Product } from '@/domain/entities/Product'
 import { useWishlist } from '@/presentation/composables/useWishlist'
 import { ItemConditionLabel } from '@/domain/enums/ItemCondition'
+import QuickDatePopover from './QuickDatePopover.vue'
 import {
   IconHeartWishlist,
   IconLocation,
@@ -19,14 +20,20 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<{
   (e: 'select-product', product: Product): void
-  (e: 'quick-add-to-cart', product: Product): void
+  (e: 'quick-add-to-cart', product: Product, startDate?: string, endDate?: string): void
 }>()
 
 const { isWishlisted, toggleWishlist } = useWishlist()
 const isAdded = ref(false)
+const showDatePopover = ref(false)
 
-function handleQuickAdd() {
-  emit('quick-add-to-cart', props.product)
+function handleButtonClick() {
+  showDatePopover.value = !showDatePopover.value
+}
+
+function handleDateSelected(startDate: string, endDate: string) {
+  showDatePopover.value = false
+  emit('quick-add-to-cart', props.product, startDate, endDate)
   isAdded.value = true
   setTimeout(() => {
     isAdded.value = false
@@ -37,7 +44,7 @@ function handleQuickAdd() {
 <template>
   <div
     @click="emit('select-product', product)"
-    class="card-hover bg-theme-card rounded-3xl border border-theme-border hover:border-forest/50 dark:hover:border-forest-glow/50 p-3.5 sm:p-4 flex flex-col justify-between group overflow-hidden shadow-card cursor-pointer transition-all"
+    class="card-hover bg-theme-card rounded-3xl border border-theme-border hover:border-forest/50 dark:hover:border-forest-glow/50 p-3.5 sm:p-4 flex flex-col justify-between group overflow-visible shadow-card cursor-pointer transition-all relative"
   >
     <!-- Image Container with Anti-Camouflage Scrim -->
     <div>
@@ -112,7 +119,7 @@ function handleQuickAdd() {
     </div>
 
     <!-- Pricing & Micro-Animated Add-to-Cart Action -->
-    <div class="mt-4 pt-3.5 border-t border-theme-border flex items-center justify-between gap-3">
+    <div class="mt-4 pt-3.5 border-t border-theme-border flex items-center justify-between gap-3 relative">
       <div>
         <span class="text-[10px] text-stone-500 dark:text-stone-400 uppercase font-bold tracking-wider block">Tarif Sewa</span>
         <p class="font-black text-sm sm:text-base text-forest dark:text-forest-glow leading-tight">
@@ -120,21 +127,30 @@ function handleQuickAdd() {
         </p>
       </div>
 
-      <!-- Quick Add Button with Micro-Feedback Animation -->
-      <button
-        @click.stop="handleQuickAdd"
-        :class="[
-          'inline-flex items-center gap-1.5 text-xs font-black px-3.5 py-2 rounded-full shadow-sm transition-all duration-300 cursor-pointer shrink-0',
-          isAdded
-            ? 'bg-emerald-600 text-white scale-105 shadow-md ring-2 ring-emerald-400/40'
-            : 'bg-forest hover:bg-forest-hover dark:bg-forest dark:hover:bg-forest-hover text-white hover:scale-103 active:scale-97'
-        ]"
-        :title="isAdded ? 'Berhasil Masuk Keranjang!' : 'Sewa Cepat (Tambah ke Keranjang)'"
-      >
-        <IconCheck v-if="isAdded" :size="13" class="animate-bounce" />
-        <IconCartBag v-else :size="13" />
-        <span>{{ isAdded ? '✓ Masuk' : '+ Keranjang' }}</span>
-      </button>
+      <!-- Quick Add Button with Popover -->
+      <div class="relative">
+        <button
+          @click.stop="handleButtonClick"
+          :class="[
+            'inline-flex items-center gap-1.5 text-xs font-black px-3.5 py-2 rounded-full shadow-sm transition-all duration-300 cursor-pointer shrink-0',
+            isAdded
+              ? 'bg-emerald-600 text-white scale-105 shadow-md ring-2 ring-emerald-400/40'
+              : 'bg-forest hover:bg-forest-hover dark:bg-forest dark:hover:bg-forest-hover text-white hover:scale-103 active:scale-97'
+          ]"
+          :title="isAdded ? 'Berhasil Masuk Keranjang!' : 'Sewa Cepat (Pilih Durasi & Masuk Keranjang)'"
+        >
+          <IconCheck v-if="isAdded" :size="13" class="animate-bounce" />
+          <IconCartBag v-else :size="13" />
+          <span>{{ isAdded ? '✓ Masuk' : '+ Keranjang' }}</span>
+        </button>
+
+        <!-- Quick Date Popover -->
+        <QuickDatePopover
+          v-if="showDatePopover"
+          @select-dates="handleDateSelected"
+          @close="showDatePopover = false"
+        />
+      </div>
     </div>
   </div>
 </template>

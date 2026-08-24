@@ -40,8 +40,8 @@ function closeProductModal() {
   selectedProductForModal.value = null
 }
 
-async function handleQuickAddToCart(product: Product) {
-  await quickAddToCart(product)
+async function handleQuickAddToCart(product: Product, startDate?: string, endDate?: string) {
+  await quickAddToCart(product, startDate, endDate)
 }
 
 function scrollToCatalog() {
