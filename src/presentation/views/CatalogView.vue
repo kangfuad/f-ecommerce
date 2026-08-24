@@ -198,7 +198,9 @@ function syncFiltersToUrl() {
     query.rating = minRating.value.toString()
   }
 
-  router.replace({ query }).catch(() => {})
+  if (JSON.stringify(query) !== JSON.stringify(route.query)) {
+    router.replace({ query }).catch(() => {})
+  }
 }
 
 function parseUrlQuery() {
@@ -207,20 +209,23 @@ function parseUrlQuery() {
   // 1. Whitelist Category Validation
   if (q.category && typeof q.category === 'string') {
     const validCategories = Object.values(ProductCategory)
-    if (validCategories.includes(q.category as ProductCategory)) {
+    if (validCategories.includes(q.category as ProductCategory) && selectedCategory.value !== q.category) {
       setCategory(q.category as ProductCategory)
     }
+  } else if (!q.category && selectedCategory.value !== ProductCategory.ALL) {
+    setCategory(ProductCategory.ALL)
   }
 
-  // 2. Sanitize Search Input (Max length guard against ReDoS)
-  if (q.q && typeof q.q === 'string') {
-    setSearch(q.q.trim().slice(0, 80))
+  // 2. Sanitize Search Input
+  const targetSearch = typeof q.q === 'string' ? q.q.trim().slice(0, 80) : ''
+  if (searchQuery.value !== targetSearch) {
+    setSearch(targetSearch)
   }
 
   // 3. Whitelist Sort Option
   if (q.sort && typeof q.sort === 'string') {
     const validSorts = ['popular', 'rating', 'price_asc', 'price_desc']
-    if (validSorts.includes(q.sort)) {
+    if (validSorts.includes(q.sort) && sortBy.value !== q.sort) {
       setSort(q.sort as any)
     }
   }
@@ -335,6 +340,14 @@ watch(
   { deep: true }
 )
 
+watch(
+  () => route.query,
+  () => {
+    parseUrlQuery()
+  },
+  { deep: true }
+)
+
 onMounted(() => {
   initTheme()
   parseUrlQuery()
@@ -348,7 +361,6 @@ onMounted(() => {
     <!-- Global Header -->
     <AppHeader
       :selected-category="selectedCategory"
-      @search="setSearch"
       @select-category="setCategory"
     />
 

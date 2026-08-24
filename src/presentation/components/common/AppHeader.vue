@@ -3,17 +3,12 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCart } from '@/presentation/composables/useCart'
 import { useWishlist } from '@/presentation/composables/useWishlist'
-import { useTheme } from '@/presentation/composables/useTheme'
 import { useAuth } from '@/presentation/composables/useAuth'
 import { ProductCategory } from '@/domain/enums/ProductCategory'
 import {
   IconLogo,
-  IconSearch,
   IconHeartWishlist,
   IconCartBag,
-  IconThemeMonitor,
-  IconThemeSun,
-  IconThemeMoon,
   IconUser,
   IconChevronDown,
   IconCheck,
@@ -40,7 +35,6 @@ const props = withDefaults(defineProps<Props>(), {
 const router = useRouter()
 const { totalItemCount, openCart, isCartBadgeBouncing } = useCart()
 const { wishlistIds, openWishlist } = useWishlist()
-const { currentTheme, currentPreference, toggleTheme } = useTheme()
 const { currentUser, isLoggedIn, openLoginModal, openRegisterModal, logout, initAuth } = useAuth()
 
 const categoryDropdownRef = ref<HTMLElement | null>(null)
@@ -48,25 +42,10 @@ const categoryDropdownOpen = ref(false)
 const userMenuRef = ref<HTMLElement | null>(null)
 const userMenuOpen = ref(false)
 const mobileMenuOpen = ref(false)
-const searchQuery = ref('')
 
 const emit = defineEmits<{
-  (e: 'search', query: string): void
   (e: 'select-category', category: ProductCategory): void
 }>()
-
-function handleSearch() {
-  emit('search', searchQuery.value)
-  router.push({
-    path: '/katalog',
-    query: searchQuery.value ? { q: searchQuery.value } : {},
-  }).catch(() => {})
-}
-
-function clearSearch() {
-  searchQuery.value = ''
-  emit('search', '')
-}
 
 function handleCategoryClick(cat: ProductCategory) {
   emit('select-category', cat)
@@ -98,13 +77,13 @@ const iconMap: Record<string, any> = {
   IconCategoryFashion,
 }
 
-const navCategories = ref([
-  { id: ProductCategory.ALL, label: 'Semua Produk', icon: IconCategoryAll, desc: 'Lihat seluruh katalog siap sewa' },
-  { id: ProductCategory.CAMERA, label: 'Kamera & Lensa', icon: IconCategoryCamera, desc: 'Sony, Canon, Lensa GM, Lighting' },
-  { id: ProductCategory.DRONE_AUDIO, label: 'Drone & Audio', icon: IconCategoryDrone, desc: 'DJI Mavic, Mic Wireless, Mixer' },
-  { id: ProductCategory.OUTDOOR, label: 'Outdoor & Camping', icon: IconCategoryOutdoor, desc: 'Tenda Dome, Carrier, Cooking Set' },
-  { id: ProductCategory.GADGET, label: 'Gadget & Laptop', icon: IconCategoryGadget, desc: 'MacBook Pro, iPad Pro, Flagship' },
-  { id: ProductCategory.FASHION_EVENT, label: 'Fashion & Acara', icon: IconCategoryFashion, desc: 'Tuxedo, Gaun Pesta, Sound' },
+const navCategories = ref<{ id: ProductCategory; label: string; icon: any; desc: string }[]>([
+  { id: ProductCategory.ALL, label: 'Semua Kategori', icon: IconCategoryAll, desc: 'Lihat seluruh katalog peralatan' },
+  { id: ProductCategory.CAMERA, label: 'Kamera & Lensa', icon: IconCategoryCamera, desc: 'Mirrorless, Cinema & Lensa Pro' },
+  { id: ProductCategory.DRONE_AUDIO, label: 'Drone & Audio', icon: IconCategoryDrone, desc: 'DJI Mavic, Mic Wireless & Sound' },
+  { id: ProductCategory.OUTDOOR, label: 'Outdoor & Camping', icon: IconCategoryOutdoor, desc: 'Tenda, Carrier & Perlengkapan' },
+  { id: ProductCategory.GADGET, label: 'Gadget & Laptop', icon: IconCategoryGadget, desc: 'MacBook Pro, iPad & Tablet' },
+  { id: ProductCategory.FASHION_EVENT, label: 'Fashion & Acara', icon: IconCategoryFashion, desc: 'Lighting, Speaker & Wardrobe' },
 ])
 
 async function loadNavCategories() {
@@ -144,19 +123,25 @@ onUnmounted(() => {
     <div class="bg-[#1C1917] dark:bg-[#141211] text-stone-300 dark:text-stone-300 text-xs py-2 px-4 text-center font-medium tracking-wide flex items-center justify-center gap-2.5 border-b border-stone-800 dark:border-stone-900">
       <span class="relative flex h-2 w-2 shrink-0">
         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9)]"></span>
+        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
       </span>
-      <span class="truncate text-[11px] sm:text-xs">Jaminan Unit Bersih & Terawat 100% • Bebas Deposit Member Terverifikasi • CS 24/7</span>
+      <span class="hidden sm:inline">Member KYC Terverifikasi: Nikmati</span>
+      <strong class="font-extrabold text-white">Bebas Biaya Deposit 100%</strong>
+      <span class="hidden md:inline">• Pengantaran Instan & Garansi QC Unit</span>
     </div>
 
     <!-- Main Navigation Bar -->
-    <header class="glass-header border-b border-theme-border transition-all duration-300">
-      <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 h-18 md:h-20 flex items-center justify-between gap-3 sm:gap-6">
+    <header class="bg-theme-nav border-b border-theme-border backdrop-blur-md transition-colors duration-300">
+      <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
         
-        <!-- Left: Logo & Grouped Menu Links -->
-        <div class="flex items-center gap-4 sm:gap-6 shrink-0">
-          <!-- Logo with Custom Icon (High Contrast in Light & Dark Mode) -->
-          <router-link to="/" class="flex items-center gap-2.5 group py-1 shrink-0">
+        <!-- Left: Logo & Category Dropdown & Nav Links -->
+        <div class="flex items-center gap-4 sm:gap-6">
+          <!-- Brand Logo -->
+          <router-link
+            to="/"
+            class="flex items-center gap-3 group shrink-0 focus:outline-none"
+            aria-label="e-punyasewa Home"
+          >
             <div class="w-10 h-10 rounded-xl bg-[#244E33] dark:bg-stone-800 border border-emerald-600/40 dark:border-stone-700 flex items-center justify-center text-white dark:text-emerald-400 shadow-md group-hover:scale-105 transition-all shrink-0">
               <IconLogo :size="22" />
             </div>
@@ -190,12 +175,12 @@ onUnmounted(() => {
                 1
               </span>
               <IconChevronDown
-                :size="14"
-                :class="['transition-transform duration-200', categoryDropdownOpen && 'rotate-180']"
+                :size="13"
+                :class="['transition-transform duration-200 text-stone-500', categoryDropdownOpen && 'rotate-180']"
               />
             </button>
 
-            <!-- Dropdown Popover Menu -->
+            <!-- Dropdown Panel -->
             <div
               v-if="categoryDropdownOpen"
               class="absolute left-0 top-full mt-2.5 w-80 bg-theme-card border border-theme-border rounded-3xl p-3 shadow-2xl z-50 animate-fade-up backdrop-blur-xl"
@@ -259,47 +244,14 @@ onUnmounted(() => {
           <!-- Direct Link to /katalog -->
           <router-link
             to="/katalog"
-            class="hidden lg:inline-flex items-center gap-1.5 text-xs font-extrabold text-stone-700 dark:text-stone-300 hover:text-forest dark:hover:text-forest-glow transition py-2 px-3 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800"
+            class="hidden md:inline-flex items-center gap-1.5 text-xs font-extrabold text-stone-700 dark:text-stone-300 hover:text-forest dark:hover:text-forest-glow transition py-2 px-3.5 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800"
           >
             <span>Semua Unit</span>
           </router-link>
         </div>
 
-        <!-- Middle: Prominent Search Input -->
-        <div class="flex-1 max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg">
-          <form @submit.prevent="handleSearch" class="relative w-full">
-            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
-              <IconSearch :size="16" />
-            </div>
-            <input
-              v-model="searchQuery"
-              type="text"
-              placeholder="Cari kamera, drone, tenda, gadget..."
-              class="w-full bg-stone-100/90 dark:bg-stone-900/90 border border-theme-border rounded-full pl-9 pr-9 py-2 sm:py-2.5 text-xs sm:text-sm text-theme-primary placeholder:text-stone-400 focus:outline-none focus:border-forest focus:ring-2 focus:ring-forest/20 transition-all"
-            />
-            <button
-              v-if="searchQuery"
-              @click="clearSearch"
-              type="button"
-              class="absolute inset-y-0 right-0 pr-3 flex items-center text-stone-400 hover:text-theme-primary cursor-pointer"
-            >
-              <IconClose :size="14" />
-            </button>
-          </form>
-        </div>
-
-        <!-- Right: Action Controls (Theme, Wishlist, Cart, User Auth Profile, Mobile Menu) -->
+        <!-- Right: Action Controls (Wishlist, Cart, User Auth Profile, Mobile Menu) -->
         <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-          <!-- 3-State Theme Toggle -->
-          <button
-            @click="toggleTheme"
-            class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-stone-100 dark:bg-stone-800 border border-theme-border flex items-center justify-center text-theme-primary hover:bg-stone-200 dark:hover:bg-stone-700 transition cursor-pointer"
-            :title="`Mode Tema: ${currentPreference.toUpperCase()} (Klik untuk ganti System/Light/Dark)`"
-          >
-            <IconThemeSun v-if="currentPreference === 'light'" :size="17" class="text-amber-500" />
-            <IconThemeMoon v-else-if="currentPreference === 'dark'" :size="17" class="text-indigo-400" />
-            <IconThemeMonitor v-else :size="17" class="text-forest dark:text-forest-glow" />
-          </button>
 
           <!-- Wishlist Badge Trigger (Opens Wishlist Drawer) -->
           <button

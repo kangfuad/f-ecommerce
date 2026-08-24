@@ -76,7 +76,6 @@ onMounted(() => {
     <!-- Header -->
     <AppHeader
       :selected-category="selectedCategory"
-      @search="setSearch"
       @select-category="(cat) => setCategory(cat as ProductCategory)"
     />
 
