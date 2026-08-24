@@ -345,19 +345,13 @@ const navCategories = [
                 </div>
               </div>
 
-              <div class="space-y-1">
-                <button
-                  @click="() => { openCart(); userMenuOpen = false; }"
-                  class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-left font-bold text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition cursor-pointer"
-                >
-                  <IconCartBag :size="14" class="text-forest" />
-                  <span>Pesanan & Keranjang Sewa</span>
-                </button>
+              <div class="pt-1">
                 <button
                   @click="() => { logout(); userMenuOpen = false; }"
-                  class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-left font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50 transition cursor-pointer"
+                  class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50 transition cursor-pointer"
                 >
                   <span>Keluar Akun (Logout)</span>
+                  <span class="text-xs">→</span>
                 </button>
               </div>
             </div>

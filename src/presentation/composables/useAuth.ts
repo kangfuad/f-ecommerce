@@ -142,6 +142,64 @@ export function useAuth() {
     }
   }
 
+  async function loginWithGoogle(): Promise<void> {
+    isLoading.value = true
+    authError.value = null
+
+    try {
+      // Simulate Google OAuth2 authentication flow
+      await new Promise((resolve) => setTimeout(resolve, 500))
+
+      const googleUser = new UserProfile({
+        id: `user_google_${Date.now()}`,
+        fullName: 'Fuad Auri (Google)',
+        email: 'fuad.auri@gmail.com',
+        phone: '081298765432',
+        isKycVerified: true,
+        memberTier: 'VERIFIED_GOLD',
+        rentalCount: 2,
+        joinedAt: new Date(),
+      })
+
+      currentUser.value = googleUser
+      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(googleUser))
+      closeAuthModal()
+    } catch (err: any) {
+      authError.value = err.message || 'Gagal masuk dengan Google SSO.'
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function loginWithApple(): Promise<void> {
+    isLoading.value = true
+    authError.value = null
+
+    try {
+      // Simulate Apple ID authentication flow
+      await new Promise((resolve) => setTimeout(resolve, 500))
+
+      const appleUser = new UserProfile({
+        id: `user_apple_${Date.now()}`,
+        fullName: 'Fuad Auri (Apple ID)',
+        email: 'fuad.auri@icloud.com',
+        phone: '081388776655',
+        isKycVerified: true,
+        memberTier: 'VERIFIED_GOLD',
+        rentalCount: 1,
+        joinedAt: new Date(),
+      })
+
+      currentUser.value = appleUser
+      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(appleUser))
+      closeAuthModal()
+    } catch (err: any) {
+      authError.value = err.message || 'Gagal masuk dengan Apple ID.'
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   function logout() {
     currentUser.value = null
     localStorage.removeItem(AUTH_STORAGE_KEY)
@@ -160,6 +218,8 @@ export function useAuth() {
     closeAuthModal,
     login,
     loginAsDemo,
+    loginWithGoogle,
+    loginWithApple,
     register,
     logout,
   }

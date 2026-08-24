@@ -7,8 +7,9 @@ import {
   IconClose,
   IconShieldCheck,
   IconCheck,
-  IconUser,
   IconLogo,
+  IconGoogle,
+  IconApple,
 } from '@/presentation/components/icons'
 
 const {
@@ -19,6 +20,8 @@ const {
   closeAuthModal,
   login,
   loginAsDemo,
+  loginWithGoogle,
+  loginWithApple,
   register,
 } = useAuth()
 
@@ -41,6 +44,14 @@ async function handleRegisterSubmit() {
   await register(regFullName.value, regEmail.value, regPhone.value, regPassword.value)
 }
 
+async function handleGoogleSSO() {
+  await loginWithGoogle()
+}
+
+async function handleAppleSSO() {
+  await loginWithApple()
+}
+
 async function handleQuickDemoLogin() {
   await loginAsDemo()
 }
@@ -51,11 +62,11 @@ async function handleQuickDemoLogin() {
     <!-- Backdrop -->
     <div
       @click="closeAuthModal"
-      class="fixed inset-0 bg-black/65 dark:bg-black/80 backdrop-blur-md transition-opacity"
+      class="fixed inset-0 bg-black/70 dark:bg-black/85 backdrop-blur-md transition-opacity"
     ></div>
 
     <!-- Modal Card -->
-    <div class="relative bg-theme-card rounded-3xl max-w-md w-full shadow-2xl border border-theme-border z-10 animate-fade-up text-theme-primary overflow-hidden">
+    <div class="relative bg-theme-card rounded-3xl max-w-md w-full shadow-2xl border border-theme-border z-10 animate-fade-up text-theme-primary overflow-hidden my-auto">
       <!-- Close Button -->
       <button
         @click="closeAuthModal"
@@ -68,7 +79,7 @@ async function handleQuickDemoLogin() {
       <!-- Modal Header with Logo & Tabs -->
       <div class="p-6 sm:p-7 pb-0 border-b border-theme-border">
         <div class="flex items-center gap-2.5 mb-4">
-          <div class="w-8 h-8 rounded-xl bg-forest flex items-center justify-center text-white shadow-sm">
+          <div class="w-8 h-8 rounded-xl bg-[#244E33] dark:bg-emerald-600 flex items-center justify-center text-white shadow-sm">
             <IconLogo :size="18" />
           </div>
           <div>
@@ -127,14 +138,14 @@ async function handleQuickDemoLogin() {
               type="text"
               required
               placeholder="contoh: fuad@gmail.com atau 0812..."
-              class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-theme-primary focus:outline-none focus:border-forest"
+              class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-theme-primary focus:outline-none focus:border-forest transition"
             />
           </div>
 
           <div>
             <div class="flex items-center justify-between mb-1">
               <label class="text-xs font-bold text-stone-600 dark:text-stone-400">Kata Sandi</label>
-              <button type="button" class="text-[11px] text-forest dark:text-forest-glow hover:underline">
+              <button type="button" class="text-[11px] text-forest dark:text-forest-glow hover:underline cursor-pointer">
                 Lupa Sandi?
               </button>
             </div>
@@ -142,7 +153,7 @@ async function handleQuickDemoLogin() {
               v-model="loginPassword"
               type="password"
               placeholder="••••••••"
-              class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-theme-primary focus:outline-none focus:border-forest"
+              class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-theme-primary focus:outline-none focus:border-forest transition"
             />
           </div>
 
@@ -156,12 +167,46 @@ async function handleQuickDemoLogin() {
             Masuk ke Akun
           </BaseButton>
 
+          <!-- Divider -->
+          <div class="relative flex py-1 items-center">
+            <div class="flex-grow border-t border-theme-border"></div>
+            <span class="flex-shrink mx-3 text-[10px] font-bold uppercase tracking-wider text-stone-400">
+              atau masuk dengan
+            </span>
+            <div class="flex-grow border-t border-theme-border"></div>
+          </div>
+
+          <!-- Single Sign-On (SSO) Buttons Below Form -->
+          <div class="grid grid-cols-2 gap-2.5">
+            <!-- Google SSO -->
+            <button
+              type="button"
+              @click="handleGoogleSSO"
+              :disabled="isLoading"
+              class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-2xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-800 dark:text-stone-100 font-bold text-xs shadow-xs hover:shadow-sm transition-all cursor-pointer"
+            >
+              <IconGoogle :size="16" class="shrink-0" />
+              <span>Google</span>
+            </button>
+
+            <!-- Apple SSO -->
+            <button
+              type="button"
+              @click="handleAppleSSO"
+              :disabled="isLoading"
+              class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-2xl border border-stone-900 dark:border-stone-700 bg-stone-950 hover:bg-stone-900 dark:bg-stone-800 dark:hover:bg-stone-700 text-white font-bold text-xs shadow-xs hover:shadow-sm transition-all cursor-pointer"
+            >
+              <IconApple :size="16" class="shrink-0" />
+              <span>Apple ID</span>
+            </button>
+          </div>
+
           <!-- Quick 1-Tap Demo Login -->
-          <div class="pt-3 border-t border-theme-border text-center">
+          <div class="pt-2 border-t border-theme-border text-center">
             <button
               @click.prevent="handleQuickDemoLogin"
               type="button"
-              class="inline-flex items-center gap-1.5 text-xs font-bold text-forest dark:text-forest-glow hover:underline cursor-pointer bg-forest/10 dark:bg-forest/20 px-3.5 py-1.5 rounded-full border border-forest/30"
+              class="inline-flex items-center gap-1.5 text-xs font-bold text-forest dark:text-forest-glow hover:underline cursor-pointer bg-forest/10 dark:bg-forest/20 px-3.5 py-1.5 rounded-full border border-forest/30 transition"
             >
               <IconShieldCheck :size="14" />
               <span>Masuk Cepat sebagai Member Terverifikasi (Demo)</span>
@@ -189,7 +234,7 @@ async function handleQuickDemoLogin() {
               type="text"
               required
               placeholder="contoh: Ahmad Fuad"
-              class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2 text-xs text-theme-primary focus:outline-none focus:border-forest"
+              class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2 text-xs text-theme-primary focus:outline-none focus:border-forest transition"
             />
           </div>
 
@@ -201,7 +246,7 @@ async function handleQuickDemoLogin() {
                 type="email"
                 required
                 placeholder="nama@email.com"
-                class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3 py-2 text-xs text-theme-primary focus:outline-none focus:border-forest"
+                class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3 py-2 text-xs text-theme-primary focus:outline-none focus:border-forest transition"
               />
             </div>
             <div>
@@ -211,7 +256,7 @@ async function handleQuickDemoLogin() {
                 type="tel"
                 required
                 placeholder="08123456789"
-                class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3 py-2 text-xs text-theme-primary focus:outline-none focus:border-forest"
+                class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3 py-2 text-xs text-theme-primary focus:outline-none focus:border-forest transition"
               />
             </div>
           </div>
@@ -223,7 +268,7 @@ async function handleQuickDemoLogin() {
               type="password"
               required
               placeholder="Minimal 8 karakter"
-              class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2 text-xs text-theme-primary focus:outline-none focus:border-forest"
+              class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2 text-xs text-theme-primary focus:outline-none focus:border-forest transition"
             />
           </div>
 
@@ -236,6 +281,40 @@ async function handleQuickDemoLogin() {
           >
             Daftar & Klaim Bebas Deposit
           </BaseButton>
+
+          <!-- Divider -->
+          <div class="relative flex py-1 items-center">
+            <div class="flex-grow border-t border-theme-border"></div>
+            <span class="flex-shrink mx-3 text-[10px] font-bold uppercase tracking-wider text-stone-400">
+              atau daftar cepat dengan
+            </span>
+            <div class="flex-grow border-t border-theme-border"></div>
+          </div>
+
+          <!-- Single Sign-On (SSO) Buttons Below Form -->
+          <div class="grid grid-cols-2 gap-2.5">
+            <!-- Google SSO -->
+            <button
+              type="button"
+              @click="handleGoogleSSO"
+              :disabled="isLoading"
+              class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-2xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-800 dark:text-stone-100 font-bold text-xs shadow-xs hover:shadow-sm transition-all cursor-pointer"
+            >
+              <IconGoogle :size="16" class="shrink-0" />
+              <span>Google</span>
+            </button>
+
+            <!-- Apple SSO -->
+            <button
+              type="button"
+              @click="handleAppleSSO"
+              :disabled="isLoading"
+              class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-2xl border border-stone-900 dark:border-stone-700 bg-stone-950 hover:bg-stone-900 dark:bg-stone-800 dark:hover:bg-stone-700 text-white font-bold text-xs shadow-xs hover:shadow-sm transition-all cursor-pointer"
+            >
+              <IconApple :size="16" class="shrink-0" />
+              <span>Apple ID</span>
+            </button>
+          </div>
         </form>
       </div>
     </div>
