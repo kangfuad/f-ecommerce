@@ -8,6 +8,12 @@ import RentalPriceBreakdown from '../rental/RentalPriceBreakdown.vue'
 import BaseBadge from '../common/BaseBadge.vue'
 import BaseButton from '../common/BaseButton.vue'
 import { ItemConditionLabel } from '@/domain/enums/ItemCondition'
+import {
+  IconClose,
+  IconBoxPackage,
+  IconStar,
+  IconCheck,
+} from '@/presentation/components/icons'
 
 interface Props {
   product: Product | null
@@ -66,10 +72,7 @@ async function handleAddToCart() {
         class="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-white/90 dark:bg-zinc-800/90 border border-theme-border shadow-md flex items-center justify-center text-theme-muted hover:text-theme-primary hover:bg-slate-100 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
         aria-label="Tutup Modal"
       >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
+        <IconClose :size="18" />
       </button>
 
       <div class="grid md:grid-cols-12 gap-6 p-6 sm:p-8">
@@ -110,12 +113,12 @@ async function handleAddToCart() {
           <!-- Included in Box Checklist -->
           <div class="bg-slate-50 dark:bg-zinc-900 rounded-2xl p-4 border border-theme-border">
             <h4 class="text-xs font-bold uppercase tracking-wider text-theme-primary mb-2 flex items-center gap-1.5">
-              <svg class="text-sage dark:text-sage-soft" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+              <IconBoxPackage :size="15" class="text-sage dark:text-sage-soft" />
               Kelengkapan Dalam Paket Sewa
             </h4>
             <ul class="space-y-1.5 text-xs text-theme-muted">
               <li v-for="(item, idx) in product.includedItems" :key="idx" class="flex items-center gap-2">
-                <span class="text-sage dark:text-sage-soft font-bold">✓</span>
+                <IconCheck :size="13" class="text-sage dark:text-sage-soft font-bold shrink-0" />
                 <span>{{ item }}</span>
               </li>
             </ul>
@@ -126,7 +129,7 @@ async function handleAddToCart() {
         <div class="md:col-span-6 space-y-5">
           <div>
             <div class="flex items-center gap-2 text-amber-500 dark:text-amber-400 mb-1">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              <IconStar :size="14" />
               <span class="text-xs font-bold text-theme-primary">{{ product.rating }}</span>
               <span class="text-xs text-theme-muted">({{ product.reviewCount }})</span>
             </div>

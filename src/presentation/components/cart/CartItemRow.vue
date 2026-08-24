@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { CartItem } from '@/domain/entities/CartItem'
 import { formatDateToIndonesian } from '@/core/utils/date'
+import {
+  IconTrash,
+  IconCalendarDate,
+} from '@/presentation/components/icons'
 
 interface Props {
   item: CartItem
@@ -29,8 +33,9 @@ const emit = defineEmits<{
         <h4 class="font-bold text-xs sm:text-sm text-theme-primary truncate">
           {{ item.product.name }}
         </h4>
-        <p class="text-[11px] text-sage-hover dark:text-sage-soft font-semibold mt-0.5">
-          📅 {{ formatDateToIndonesian(item.dateRange.startDate) }} - {{ formatDateToIndonesian(item.dateRange.endDate) }}
+        <p class="text-[11px] text-sage-hover dark:text-sage-soft font-semibold mt-0.5 flex items-center gap-1">
+          <IconCalendarDate :size="12" />
+          <span>{{ formatDateToIndonesian(item.dateRange.startDate) }} - {{ formatDateToIndonesian(item.dateRange.endDate) }}</span>
           <span class="text-theme-muted font-normal">({{ item.dateRange.durationDays }} Hari)</span>
         </p>
         <p class="text-[10px] text-theme-muted mt-0.5">
@@ -44,10 +49,7 @@ const emit = defineEmits<{
         class="text-theme-muted hover:text-red-500 p-1 transition-colors cursor-pointer"
         aria-label="Hapus item"
       >
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="3 6 5 6 21 6"></polyline>
-          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-        </svg>
+        <IconTrash :size="15" />
       </button>
     </div>
 

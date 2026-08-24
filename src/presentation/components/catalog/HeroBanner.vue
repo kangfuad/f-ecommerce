@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import BaseButton from '../common/BaseButton.vue'
 import BaseBadge from '../common/BaseBadge.vue'
+import { IconArrowRight } from '@/presentation/components/icons'
 
 const emit = defineEmits<{
   (e: 'explore'): void
@@ -44,10 +45,7 @@ const emit = defineEmits<{
           <div class="flex flex-wrap gap-3 sm:gap-4 pt-2">
             <BaseButton @click="emit('explore')" variant="primary" size="lg">
               <span>Sewa Sekarang</span>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M5 12h14"></path>
-                <path d="m12 5 7 7-7 7"></path>
-              </svg>
+              <IconArrowRight :size="18" />
             </BaseButton>
 
             <a href="#kategori" class="inline-flex items-center justify-center font-bold rounded-full px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base gap-2 border border-slate-700 dark:border-theme-border hover:border-slate-500 text-white bg-slate-800/60 dark:bg-slate-card hover:bg-slate-800 transition-colors">

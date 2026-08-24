@@ -5,6 +5,10 @@ import CartItemRow from './CartItemRow.vue'
 import BaseButton from '../common/BaseButton.vue'
 import { APP_CONFIG } from '@/core/config/app.config'
 import { formatRupiah } from '@/core/utils/currency'
+import {
+  IconCartBag,
+  IconClose,
+} from '@/presentation/components/icons'
 
 const {
   cartItems,
@@ -51,7 +55,7 @@ function handleProceedToCheckout() {
         <div class="p-5 bg-theme-card border-b border-theme-border flex items-center justify-between">
           <div class="flex items-center gap-2.5">
             <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-zinc-800 border border-theme-border text-sage dark:text-sage-soft flex items-center justify-center">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+              <IconCartBag :size="18" />
             </div>
             <div>
               <h3 class="font-bold text-sm sm:text-base text-theme-primary">Keranjang Sewa</h3>
@@ -64,10 +68,7 @@ function handleProceedToCheckout() {
             class="w-8 h-8 rounded-full bg-slate-100 dark:bg-zinc-800 border border-theme-border flex items-center justify-center text-theme-muted hover:text-theme-primary hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
             aria-label="Tutup Keranjang"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
+            <IconClose :size="16" />
           </button>
         </div>
 
@@ -96,7 +97,7 @@ function handleProceedToCheckout() {
         <div class="flex-1 overflow-y-auto p-5 space-y-3 custom-scrollbar">
           <div v-if="cartItems.length === 0" class="text-center py-16 space-y-4">
             <div class="w-16 h-16 rounded-full bg-slate-100 dark:bg-zinc-900 border border-theme-border flex items-center justify-center mx-auto text-theme-muted">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+              <IconCartBag :size="28" />
             </div>
             <div>
               <p class="font-bold text-sm text-theme-primary">Keranjang Sewa Kosong</p>

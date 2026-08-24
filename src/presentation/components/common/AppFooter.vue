@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { APP_CONFIG } from '@/core/config/app.config'
+import { IconLogo, IconLocation } from '@/presentation/components/icons'
 
 const email = ref('')
 const isSubscribed = ref(false)
@@ -57,9 +58,7 @@ function handleSubscribe() {
         <div class="lg:col-span-2 space-y-4">
           <div class="flex items-center gap-2.5">
             <div class="w-9 h-9 rounded-xl bg-sage/20 border border-sage/40 flex items-center justify-center text-sage-soft">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-              </svg>
+              <IconLogo :size="20" />
             </div>
             <span class="font-extrabold text-2xl tracking-tight text-white">
               e-punya<span class="text-sage-soft">sewa</span>
@@ -68,8 +67,9 @@ function handleSubscribe() {
           <p class="text-slate-400 dark:text-ash-gray text-sm leading-relaxed max-w-sm font-light">
             Solusi cerdas sewa perlengkapan fotografi, outdoor, audio, dan teknologi tanpa perlu membeli mahal. Praktis, terjamin, dan amanah.
           </p>
-          <div class="flex items-center gap-3 text-xs text-slate-400 dark:text-ash-gray">
-            <span>📍 Layanan: Jabodetabek, Bandung, Surabaya, Bali</span>
+          <div class="flex items-center gap-2 text-xs text-slate-400 dark:text-ash-gray">
+            <IconLocation :size="14" class="text-sage-soft shrink-0" />
+            <span>Layanan: Jabodetabek, Bandung, Surabaya, Bali</span>
           </div>
         </div>
 

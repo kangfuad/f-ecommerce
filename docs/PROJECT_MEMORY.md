@@ -51,3 +51,14 @@ Dokumentasi lengkap arsitektur, identitas, design system (Muted Sky & Sage Theme
 3. **Katalog & Kategori Sewa:** Kategori (Kamera & Lensa, Drone & Audio, Outdoor & Camping, Gadget & Laptop, Fashion & Acara).
 4. **Modal Detail & Date Picker:** Kalender tanggal sewa interaktif, kalkulasi real-time durasi hari sewa + jaminan deposit.
 5. **Slide-over Cart Drawer:** List item sewa, kontrol durasi, kalkulasi total tarif sewa & deposit, serta tombol checkout.
+
+---
+
+## 💎 Custom SVG Icon Design System (`src/presentation/components/icons/`)
+- **Format:** Pure Scalable Vector Graphics (SVG) Vue Components (0% pixelation di 4K/Retina, ukuran sub-kilobyte, reaktif dengan Tailwind `currentColor`, strokeWidth, dan class).
+- **Icon Set Asli (Original):**
+  - `IconLogo`: Emblem kubus isometrik sewa dengan loop pengembalian sirkular.
+  - Kategori: `IconCategoryAll`, `IconCategoryCamera`, `IconCategoryDrone`, `IconCategoryOutdoor`, `IconCategoryGadget`, `IconCategoryFashion`.
+  - Nilai Jaminan & Kepercayaan: `IconShieldCheck` (QC 100%), `IconRefundDeposit` (Refund Deposit), `IconInsurance` (Proteksi Asuransi), `IconDeliveryTruck` (Kurir & Pickup).
+  - UI & Aksi: `IconSearch`, `IconHeartWishlist`, `IconCartBag`, `IconThemeMonitor`, `IconThemeSun`, `IconThemeMoon`, `IconCalendarDate`, `IconUser`, `IconStar`, `IconLocation`, `IconArrowRight`, `IconChevronDown`, `IconCheck`, `IconClose`, `IconTrash`, `IconBoxPackage`, `IconMenu`.
+
