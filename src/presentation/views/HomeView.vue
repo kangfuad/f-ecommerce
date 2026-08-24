@@ -13,6 +13,7 @@ import CategoryGrid from '../components/catalog/CategoryGrid.vue'
 import ProductCard from '../components/catalog/ProductCard.vue'
 import ProductDetailModal from '../components/catalog/ProductDetailModal.vue'
 import CartDrawer from '../components/cart/CartDrawer.vue'
+import { IconArrowRight } from '@/presentation/components/icons'
 
 const {
   products,
@@ -92,12 +93,12 @@ onMounted(() => {
         @select-category="setCategory"
       />
 
-      <!-- 4. Product Catalog Section -->
+      <!-- 4. Product Catalog Showcase Section -->
       <section id="katalog" class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 scroll-mt-24 md:scroll-mt-28">
         <!-- Section Header & Filter Controls -->
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
           <div>
-            <span class="text-xs uppercase font-extrabold tracking-widest text-sage dark:text-sage-soft">Katalog Perlengkapan</span>
+            <span class="text-xs uppercase font-extrabold tracking-widest text-forest dark:text-forest-glow">Katalog Pilihan</span>
             <h2 class="font-display text-2xl sm:text-3xl font-bold text-theme-primary mt-1">
               Pilihan Unit Sewa Siap Pakai
             </h2>
@@ -108,11 +109,11 @@ onMounted(() => {
 
           <!-- Sorting & Filter options -->
           <div class="flex items-center gap-3">
-            <label class="text-xs font-bold text-theme-muted whitespace-nowrap">Urutkan:</label>
+            <label class="text-xs font-bold text-stone-500 whitespace-nowrap">Urutkan:</label>
             <select
               :value="sortBy"
               @change="(e) => setSort((e.target as HTMLSelectElement).value as any)"
-              class="bg-theme-card border border-theme-border text-theme-primary text-xs font-bold rounded-full px-4 py-2.5 focus:outline-none focus:border-sage dark:focus:border-sage-soft cursor-pointer shadow-sm"
+              class="bg-theme-card border border-theme-border text-theme-primary text-xs font-bold rounded-full px-4 py-2.5 focus:outline-none focus:border-forest cursor-pointer shadow-sm"
             >
               <option value="popular">Paling Populer</option>
               <option value="rating">Rating Tertinggi</option>
@@ -124,17 +125,17 @@ onMounted(() => {
 
         <!-- Active Filter Badge Indicator -->
         <div v-if="selectedCategory !== 'ALL' || searchQuery" class="flex items-center gap-2 mb-6">
-          <span class="text-xs text-theme-muted font-medium">Filter Aktif:</span>
+          <span class="text-xs text-stone-500 font-medium">Filter Aktif:</span>
           <span
             v-if="selectedCategory !== 'ALL'"
-            class="inline-flex items-center gap-1 text-xs font-bold bg-sage/15 dark:bg-zinc-800 text-sage-hover dark:text-sage-soft border border-sage/30 dark:border-theme-border px-3 py-1 rounded-full"
+            class="inline-flex items-center gap-1 text-xs font-bold bg-forest/15 dark:bg-stone-800 text-forest dark:text-forest-glow border border-forest/30 dark:border-theme-border px-3 py-1 rounded-full"
           >
             Kategori: {{ selectedCategory }}
             <button @click="setCategory(ProductCategory.ALL)" class="hover:text-theme-primary ml-1 font-bold">×</button>
           </span>
           <span
             v-if="searchQuery"
-            class="inline-flex items-center gap-1 text-xs font-bold bg-slate-200 dark:bg-zinc-800 text-theme-primary border border-theme-border px-3 py-1 rounded-full"
+            class="inline-flex items-center gap-1 text-xs font-bold bg-stone-200 dark:bg-stone-800 text-theme-primary border border-theme-border px-3 py-1 rounded-full"
           >
             Cari: "{{ searchQuery }}"
             <button @click="setSearch('')" class="hover:text-theme-primary ml-1 font-bold">×</button>
@@ -143,22 +144,22 @@ onMounted(() => {
 
         <!-- Loading State -->
         <div v-if="isLoading" class="text-center py-24">
-          <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-sage dark:border-sage-soft border-t-transparent"></div>
-          <p class="text-xs text-theme-muted font-semibold mt-3">Memuat unit sewa...</p>
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-forest dark:border-forest-glow border-t-transparent"></div>
+          <p class="text-xs text-stone-500 font-semibold mt-3">Memuat unit sewa...</p>
         </div>
 
         <!-- Empty State -->
         <div v-else-if="products.length === 0" class="text-center py-20 bg-theme-card rounded-3xl border border-theme-border p-8">
-          <div class="w-14 h-14 rounded-full bg-slate-100 dark:bg-zinc-900 border border-theme-border flex items-center justify-center mx-auto text-theme-muted mb-3">
+          <div class="w-14 h-14 rounded-full bg-stone-100 dark:bg-stone-900 border border-theme-border flex items-center justify-center mx-auto text-stone-400 mb-3">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           </div>
           <h3 class="font-bold text-base text-theme-primary">Unit Tidak Ditemukan</h3>
-          <p class="text-xs text-theme-muted mt-1 max-w-sm mx-auto">
+          <p class="text-xs text-stone-500 mt-1 max-w-sm mx-auto">
             Maaf, tidak ada unit yang sesuai dengan kata kunci pencarian atau kategori yang dipilih.
           </p>
           <button
             @click="() => { setCategory(ProductCategory.ALL); setSearch(''); }"
-            class="mt-4 text-xs font-bold text-sage dark:text-sage-soft hover:underline cursor-pointer"
+            class="mt-4 text-xs font-bold text-forest dark:text-forest-glow hover:underline cursor-pointer"
           >
             Reset Semua Filter
           </button>
@@ -173,6 +174,17 @@ onMounted(() => {
             @select-product="openProductModal"
             @quick-rent="openProductModal"
           />
+        </div>
+
+        <!-- Bottom CTA to Full /katalog Page -->
+        <div class="text-center mt-12 pt-8 border-t border-theme-border">
+          <router-link
+            to="/katalog"
+            class="inline-flex items-center gap-2.5 bg-theme-cta hover:bg-theme-cta-hover text-theme-cta-text font-black text-sm sm:text-base px-8 py-3.5 rounded-full shadow-md transition-all cursor-pointer group"
+          >
+            <span>Buka Seluruh Katalog Unit Sewa</span>
+            <IconArrowRight :size="16" class="group-hover:translate-x-1 transition-transform" />
+          </router-link>
         </div>
       </section>
     </main>

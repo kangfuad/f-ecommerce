@@ -7,6 +7,15 @@ export enum ProductCategory {
   FASHION_EVENT = 'FASHION_EVENT',
 }
 
+export const ProductCategoryLabel: Record<ProductCategory, string> = {
+  [ProductCategory.ALL]: 'Semua Kategori',
+  [ProductCategory.CAMERA]: 'Kamera & Lensa',
+  [ProductCategory.DRONE_AUDIO]: 'Drone & Audio',
+  [ProductCategory.OUTDOOR]: 'Outdoor & Camping',
+  [ProductCategory.GADGET]: 'Gadget & Laptop',
+  [ProductCategory.FASHION_EVENT]: 'Fashion & Acara',
+}
+
 export interface CategoryInfo {
   id: ProductCategory
   name: string
