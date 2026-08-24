@@ -103,8 +103,11 @@ const navCategories = [
 <template>
   <div class="sticky top-0 z-40 w-full">
     <!-- Top Announcement Bar -->
-    <div class="bg-[#1C1917] dark:bg-[#141211] text-stone-300 dark:text-stone-400 text-xs py-2 px-4 text-center font-medium tracking-wide flex items-center justify-center gap-2 border-b border-stone-800 dark:border-stone-900">
-      <span class="inline-block w-2 h-2 rounded-full bg-forest dark:bg-forest-glow animate-pulse shrink-0"></span>
+    <div class="bg-[#1C1917] dark:bg-[#141211] text-stone-300 dark:text-stone-300 text-xs py-2 px-4 text-center font-medium tracking-wide flex items-center justify-center gap-2.5 border-b border-stone-800 dark:border-stone-900">
+      <span class="relative flex h-2 w-2 shrink-0">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9)]"></span>
+      </span>
       <span class="truncate text-[11px] sm:text-xs">Jaminan Unit Bersih & Terawat 100% • Bebas Deposit Member Terverifikasi • CS 24/7</span>
     </div>
 

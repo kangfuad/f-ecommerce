@@ -180,14 +180,22 @@ onMounted(() => {
           />
         </div>
 
-        <!-- Bottom CTA to Full /katalog Page -->
-        <div class="text-center mt-12 pt-8 border-t border-theme-border">
+        <!-- Bottom Minimalist Contextual Explore Bar -->
+        <div class="mt-14 p-6 sm:p-8 rounded-3xl bg-stone-50/90 dark:bg-stone-900/60 border border-theme-border flex flex-col sm:flex-row items-center justify-between gap-5 shadow-xs">
+          <div class="text-center sm:text-left">
+            <h3 class="font-display text-base sm:text-lg font-bold text-theme-primary">
+              Mencari perlengkapan atau unit spesifik lainnya?
+            </h3>
+            <p class="text-xs text-stone-500 dark:text-stone-400 mt-1">
+              Jelajahi 48+ koleksi lengkap kamera cinema, drone DJI, tenda dome, dan gadget siap sewa.
+            </p>
+          </div>
           <router-link
             to="/katalog"
-            class="inline-flex items-center gap-2.5 bg-theme-cta hover:bg-theme-cta-hover text-theme-cta-text font-black text-sm sm:text-base px-8 py-3.5 rounded-full shadow-md transition-all cursor-pointer group"
+            class="inline-flex items-center gap-2 bg-forest hover:bg-forest-hover dark:bg-forest dark:hover:bg-forest-hover text-white font-extrabold text-xs sm:text-sm px-6 py-3 rounded-full shadow-sm hover:scale-103 active:scale-97 transition-all cursor-pointer whitespace-nowrap shrink-0 group"
           >
-            <span>Buka Seluruh Katalog Unit Sewa</span>
-            <IconArrowRight :size="16" class="group-hover:translate-x-1 transition-transform" />
+            <span>Buka Seluruh Katalog</span>
+            <IconArrowRight :size="14" class="group-hover:translate-x-1 transition-transform" />
           </router-link>
         </div>
       </section>
