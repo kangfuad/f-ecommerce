@@ -33,7 +33,7 @@ function getCategoryIcon(id: string) {
 </script>
 
 <template>
-  <section id="kategori" class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+  <section id="kategori" class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 scroll-mt-24 md:scroll-mt-28">
     <div class="flex items-end justify-between mb-8">
       <div>
         <span class="text-xs uppercase font-extrabold tracking-widest text-sage dark:text-sage-soft">Kategori Pilihan</span>

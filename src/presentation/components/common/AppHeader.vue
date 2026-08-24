@@ -64,7 +64,15 @@ function handleCategoryClick(cat: ProductCategory) {
 
 function scrollToSection(id: string) {
   const el = document.getElementById(id)
-  if (el) el.scrollIntoView({ behavior: 'smooth' })
+  if (el) {
+    const headerOffset = 100
+    const elementPosition = el.getBoundingClientRect().top
+    const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: 'smooth',
+    })
+  }
 }
 
 function handleClickOutside(e: MouseEvent) {
@@ -98,7 +106,7 @@ const navCategories = [
 <template>
   <div class="sticky top-0 z-40 w-full">
     <!-- Top Announcement Bar -->
-    <div class="bg-[#0F172A] dark:bg-[#121212] text-slate-300 dark:text-ash-gray text-xs py-2 px-4 text-center font-medium tracking-wide flex items-center justify-center gap-2 border-b border-slate-800 dark:border-[#262626]">
+    <div class="bg-[#1C1917] dark:bg-[#141211] text-stone-300 dark:text-stone-400 text-xs py-2 px-4 text-center font-medium tracking-wide flex items-center justify-center gap-2 border-b border-stone-800 dark:border-stone-900">
       <span class="inline-block w-2 h-2 rounded-full bg-sage dark:bg-sage-soft animate-pulse shrink-0"></span>
       <span class="truncate text-[11px] sm:text-xs">Jaminan Unit Bersih & Terawat 100% • Bebas Deposit Member Terverifikasi • CS 24/7</span>
     </div>

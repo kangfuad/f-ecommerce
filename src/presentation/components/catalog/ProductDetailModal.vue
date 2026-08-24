@@ -78,20 +78,28 @@ async function handleAddToCart() {
       <div class="grid md:grid-cols-12 gap-6 p-6 sm:p-8">
         <!-- Left: Image Gallery & Specs -->
         <div class="md:col-span-6 space-y-4">
-          <!-- Main Image -->
-          <div class="relative rounded-2xl overflow-hidden bg-slate-100 dark:bg-zinc-900 aspect-square border border-slate-200 dark:border-zinc-800">
+          <!-- Main Image Container -->
+          <div class="relative rounded-2xl overflow-hidden bg-stone-100 dark:bg-stone-900 aspect-square border border-stone-200 dark:border-stone-800">
             <img
               :src="product.images[activeImageIndex] || product.primaryImage"
               :alt="product.name"
               class="w-full h-full object-cover opacity-95"
             />
-            <div class="absolute top-3 left-3 flex gap-1.5">
-              <BaseBadge variant="primary">
+            <!-- Ambient Scrim -->
+            <div class="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-transparent pointer-events-none z-[1]"></div>
+
+            <div class="absolute top-3 left-3 flex gap-1.5 z-10">
+              <span
+                class="text-[10px] font-black px-3 py-1 rounded-full bg-white text-stone-900 border border-stone-300 shadow-[0_2px_8px_rgba(0,0,0,0.35)] tracking-wide"
+              >
                 {{ ItemConditionLabel[product.condition] }}
-              </BaseBadge>
-              <BaseBadge v-if="product.badgeText" variant="coral">
+              </span>
+              <span
+                v-if="product.badgeText"
+                class="text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-[#244E33] text-white shadow-[0_2px_8px_rgba(0,0,0,0.45)] border border-emerald-400/40"
+              >
                 {{ product.badgeText }}
-              </BaseBadge>
+              </span>
             </div>
           </div>
 

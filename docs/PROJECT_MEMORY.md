@@ -23,25 +23,25 @@ Dokumentasi lengkap arsitektur, identitas, design system (Muted Sky & Sage Theme
 
 ---
 
-## 🎨 Design System & Color Tokens (Muted Sky & Sage Theme)
+## 🎨 Design System & Color Tokens (Warm Espresso & Forest Sage Theme)
 
 ### Light Mode:
-- `Page Background`: `#F8FAFC` (Ice White)
-- `Card Background`: `#FFFFFF` (Pure White)
-- `Primary Text`: `#0F172A` (Deep Navy)
-- `Secondary Text`: `#64748B` (Slate Blue Gray)
-- `Primary CTA`: `#84A98C` (Sage Green) -> Hover: `#6B8E73`
-- `Accent Blue`: `#3B82F6` (Soft Dusty Blue)
-- `Borders`: `#E2E8F0` (Subtle Gray)
+- `Page Background`: `#FBF9F5` (Warm Alabaster / Soft Linen)
+- `Card Background`: `#FFFFFF` (Pure Off-White)
+- `Primary Text`: `#1C1917` (Deep Warm Umber / Warm Espresso)
+- `Secondary Text`: `#78716C` (Warm Taupe)
+- `Primary CTA`: `#3D634C` (Rich Forest Sage) -> Hover: `#2F4D3B`
+- `Accent Terracotta`: `#C88A58` (Warm Terracotta)
+- `Borders`: `#E7E5E4` (Soft Stone)
 
 ### Dark Mode:
-- `Page Background`: `#1A1A1A` (Deep Charcoal - *Bukan #000000*)
-- `Card Background`: `#262626` (Muted Slate Gray)
-- `Primary Text`: `#F8FAFC` (Off-White Cream)
-- `Secondary Text`: `#A1A1AA` (Soft Ash Gray)
-- `Primary CTA`: `#9DC89F` (Adapted Soft Sage) -> Hover: `#84A98C`
-- `Accent Blue`: `#3B82F6` (Soft Dusty Blue)
-- `Borders`: `#3F3F46` (Dark Slate Gray)
+- `Page Background`: `#141211` (Deep Espresso Smoke)
+- `Card Background`: `#1F1C1B` (Warm Dark Slate / Espresso Card)
+- `Primary Text`: `#F5F5F4` (Warm Cream White)
+- `Secondary Text`: `#A8A29E` (Soft Stone Ash)
+- `Primary CTA`: `#82A78F` (Soft Glowing Sage) -> Hover: `#6C9479`
+- `Accent Terracotta`: `#E09F67` (Warm Amber Clay)
+- `Borders`: `#2E2A28` (Warm Charcoal Edge)
 
 ---
 

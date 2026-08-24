@@ -26,9 +26,9 @@ const { isWishlisted, toggleWishlist } = useWishlist()
 
 <template>
   <div class="card-hover bg-theme-card rounded-3xl border border-theme-border p-3.5 sm:p-4 flex flex-col justify-between group overflow-hidden shadow-card">
-    <!-- Image & Top Badges -->
+    <!-- Image Container with Anti-Camouflage Scrim -->
     <div>
-      <div class="relative bg-slate-100 dark:bg-zinc-900 rounded-2xl aspect-square overflow-hidden mb-3.5 border border-slate-200 dark:border-zinc-800/80">
+      <div class="relative bg-stone-100 dark:bg-stone-900 rounded-2xl aspect-square overflow-hidden mb-3.5 border border-stone-200/80 dark:border-stone-800">
         <img
           :src="product.primaryImage"
           :alt="product.name"
@@ -36,56 +36,65 @@ const { isWishlisted, toggleWishlist } = useWishlist()
           loading="lazy"
         />
 
-        <!-- Top Left Badges -->
-        <div class="absolute top-2.5 left-2.5 flex flex-col gap-1.5 items-start">
-          <BaseBadge v-if="product.badgeText" variant="primary">
+        <!-- Subtle Ambient Vignette / Scrim (Guarantees Badge Contrast on Pure White & Pure Dark Photos) -->
+        <div class="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-black/35 pointer-events-none z-[1]"></div>
+
+        <!-- Top Left Badges (Guaranteed Contrast on Light & Dark Photos) -->
+        <div class="absolute top-2.5 left-2.5 flex flex-col gap-1.5 items-start z-10">
+          <span
+            v-if="product.badgeText"
+            class="text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#244E33] text-white shadow-[0_2px_8px_rgba(0,0,0,0.45)] border border-emerald-400/40"
+          >
             {{ product.badgeText }}
-          </BaseBadge>
-          <span class="text-[9px] font-bold bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm text-theme-muted px-2 py-0.5 rounded-full border border-theme-border shadow-sm">
+          </span>
+
+          <span
+            class="text-[9px] font-black px-2.5 py-0.5 rounded-full bg-white text-stone-900 border border-stone-300 shadow-[0_2px_8px_rgba(0,0,0,0.35)] tracking-wide"
+          >
             {{ ItemConditionLabel[product.condition] }}
           </span>
         </div>
 
-        <!-- Wishlist Button -->
+        <!-- Wishlist Button with Solid Contrast -->
         <button
           @click.stop="toggleWishlist(product.id)"
-          class="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm border border-theme-border shadow-sm flex items-center justify-center hover:scale-110 transition-all cursor-pointer"
+          class="absolute top-2.5 right-2.5 z-10 w-8 h-8 rounded-full bg-white text-stone-800 border border-stone-200 shadow-[0_2px_8px_rgba(0,0,0,0.30)] flex items-center justify-center hover:scale-110 transition-all cursor-pointer"
           aria-label="Simpan Favorit"
         >
           <IconHeartWishlist
             :size="15"
             :filled="isWishlisted(product.id)"
-            :class="isWishlisted(product.id) ? 'text-coral' : 'text-theme-muted'"
+            :class="isWishlisted(product.id) ? 'text-terracotta' : 'text-stone-700'"
           />
         </button>
 
         <!-- Location tag on bottom left of image -->
-        <div class="absolute bottom-2 left-2 flex items-center gap-1 bg-slate-900/80 dark:bg-zinc-950/80 backdrop-blur-sm text-white text-[10px] px-2 py-0.5 rounded-full border border-white/10 dark:border-zinc-800">
-          <IconLocation :size="11" />
-          <span class="truncate max-w-[120px]">{{ product.location }}</span>
+        <div class="absolute bottom-2 left-2 z-10 flex items-center gap-1 bg-stone-950/85 backdrop-blur-md text-white text-[10px] px-2.5 py-0.5 rounded-full border border-white/20 shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
+          <IconLocation :size="11" class="text-forest-soft" />
+          <span class="truncate max-w-[120px] font-semibold">{{ product.location }}</span>
         </div>
       </div>
 
       <!-- Content -->
       <div class="space-y-1.5">
         <div class="flex items-center justify-between gap-2">
-          <div class="flex items-center gap-1 text-amber-500 dark:text-amber-400">
+          <div class="flex items-center gap-1 text-amber-600 dark:text-amber-400">
             <IconStar :size="13" />
             <span class="text-xs font-bold text-theme-primary">{{ product.rating }}</span>
-            <span class="text-[10px] text-theme-muted">({{ product.reviewCount }})</span>
+            <span class="text-[10px] text-stone-500 dark:text-stone-400">({{ product.reviewCount }})</span>
           </div>
-          <span class="text-[10px] font-bold text-sage dark:text-emerald-300 bg-sage/10 dark:bg-emerald-950/60 border border-sage/30 dark:border-emerald-800/40 px-2 py-0.5 rounded">
+          <span class="text-[10px] font-extrabold text-forest dark:text-forest-glow bg-forest/10 dark:bg-forest-glow/15 border border-forest/30 dark:border-forest-glow/30 px-2 py-0.5 rounded-full">
             Unit Siap Sewa
           </span>
         </div>
 
         <h3
           @click="emit('select-product', product)"
-          class="font-bold text-sm sm:text-base text-theme-primary line-clamp-2 hover:text-sage dark:hover:text-sage-soft transition-colors cursor-pointer"
+          class="font-bold text-sm sm:text-base text-theme-primary line-clamp-2 hover:text-forest dark:hover:text-forest-glow transition-colors cursor-pointer"
         >
           {{ product.name }}
         </h3>
-        <p class="text-xs text-theme-muted line-clamp-1 font-light">{{ product.description }}</p>
+        <p class="text-xs text-stone-600 dark:text-stone-400 line-clamp-1 font-normal">{{ product.description }}</p>
       </div>
     </div>
 
@@ -93,14 +102,14 @@ const { isWishlisted, toggleWishlist } = useWishlist()
     <div class="pt-4 mt-4 border-t border-theme-border">
       <div class="flex items-baseline justify-between mb-3">
         <div>
-          <span class="text-[10px] text-theme-muted uppercase font-semibold">Tarif Sewa</span>
-          <p class="font-extrabold text-sm sm:text-base text-sage-hover dark:text-sage-soft">
-            {{ product.dailyRate.format() }}<span class="text-xs font-normal text-theme-muted">/hari</span>
+          <span class="text-[10px] text-stone-500 dark:text-stone-400 uppercase font-bold tracking-wider">Tarif Sewa</span>
+          <p class="font-extrabold text-sm sm:text-base text-forest dark:text-forest-glow">
+            {{ product.dailyRate.format() }}<span class="text-xs font-normal text-stone-500 dark:text-stone-400">/hari</span>
           </p>
         </div>
         <div class="text-right">
-          <span class="text-[10px] text-theme-muted uppercase font-semibold">Deposit Jaminan</span>
-          <p class="text-xs font-bold text-theme-primary">{{ product.depositAmount.format() }}</p>
+          <span class="text-[10px] text-stone-500 dark:text-stone-400 uppercase font-bold tracking-wider">Deposit Jaminan</span>
+          <p class="text-xs font-extrabold text-theme-primary">{{ product.depositAmount.format() }}</p>
         </div>
       </div>
 

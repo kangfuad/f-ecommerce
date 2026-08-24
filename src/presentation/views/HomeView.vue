@@ -41,7 +41,15 @@ function closeProductModal() {
 
 function scrollToCatalog() {
   const el = document.getElementById('katalog')
-  if (el) el.scrollIntoView({ behavior: 'smooth' })
+  if (el) {
+    const headerOffset = 100
+    const elementPosition = el.getBoundingClientRect().top
+    const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: 'smooth',
+    })
+  }
 }
 
 onMounted(() => {
@@ -75,7 +83,7 @@ onMounted(() => {
       />
 
       <!-- 4. Product Catalog Section -->
-      <section id="katalog" class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-14">
+      <section id="katalog" class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 scroll-mt-24 md:scroll-mt-28">
         <!-- Section Header & Filter Controls -->
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
           <div>
@@ -83,7 +91,7 @@ onMounted(() => {
             <h2 class="font-display text-2xl sm:text-3xl font-bold text-theme-primary mt-1">
               Pilihan Unit Sewa Siap Pakai
             </h2>
-            <p class="text-xs text-theme-muted mt-1">
+            <p class="text-xs sm:text-sm text-stone-600 dark:text-stone-300 mt-1 font-medium">
               Menampilkan {{ products.length }} unit premium dengan kondisi terawat, QC ketat, dan garansi fungsi.
             </p>
           </div>

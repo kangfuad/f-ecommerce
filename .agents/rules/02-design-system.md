@@ -1,34 +1,36 @@
-# Design System & Theme Guidelines: e-punyasewa (Muted Sky & Sage Theme)
+# Design System & Theme Guidelines: e-punyasewa (Warm Espresso & Forest Sage)
 
-Standar sistem warna, token CSS variables, tipografi, sistem icon SVG original, dan implementasi komponen UI untuk platform **e-punyasewa** yang mendukung **Light Mode** dan **Dark Mode** secara dinamis dan memenuhi standar aksesibilitas WCAG AA.
+Standar sistem warna, token CSS variables, tipografi, sistem icon SVG original, dan implementasi komponen UI untuk platform **e-punyasewa** yang mendukung **Light Mode** dan **Dark Mode** secara dinamis dan memenuhi standar aksesibilitas WCAG AA dengan nuansa *Organic Luxury & Editorial Rental*.
 
 ---
 
-## 1. Color Palette (Muted Sky & Sage Theme)
+## 1. Color Palette (Warm Espresso & Forest Sage Theme)
 
 ### A. LIGHT MODE (Default)
 | Token / Semantic | Hex Code | Nama Warna & Penggunaan |
 | :--- | :--- | :--- |
-| `--color-bg-page` / `theme-page` | `#F8FAFC` | **Page Background (Dominan)**: Ice White |
-| `--color-bg-card` / `theme-card` | `#FFFFFF` | **Card / Container Background**: Pure White |
-| `--color-text-primary` / `theme-primary` | `#0F172A` | **Primary Text**: Deep Navy (Kontras tinggi & tajam) |
-| `--color-text-muted` / `theme-muted` | `#64748B` | **Secondary Text / Muted**: Slate Blue Gray |
-| `--color-cta` / `theme-cta` | `#84A98C` | **Primary CTA / Button**: Sage Green |
-| `--color-cta-hover` | `#6B8E73` | **Hover / Active CTA**: Darker Sage |
-| `--color-accent-blue` / `theme-blue` | `#3B82F6` | **Secondary Accent / Tag**: Soft Dusty Blue |
-| `--color-border` / `theme-border` | `#E2E8F0` | **Borders / Dividers**: Subtle Gray |
+| `--color-bg-page` / `theme-page` | `#FBF9F5` | **Page Background (Dominan)**: Warm Alabaster / Soft Linen |
+| `--color-bg-card` / `theme-card` | `#FFFFFF` | **Card / Container Background**: Pure Off-White |
+| `--color-bg-card-hover` | `#F5F1E8` | **Card Hover Background**: Warm Linen Hover |
+| `--color-text-primary` / `theme-primary` | `#1C1917` | **Primary Text**: Deep Warm Umber / Warm Espresso |
+| `--color-text-muted` / `theme-muted` | `#78716C` | **Secondary Text / Muted**: Warm Taupe |
+| `--color-cta` / `theme-cta` | `#3D634C` | **Primary CTA / Button**: Rich Forest Sage |
+| `--color-cta-hover` | `#2F4D3B` | **Hover / Active CTA**: Deep Pine Sage |
+| `--color-accent-terracotta` / `theme-terracotta` | `#C88A58` | **Secondary Accent / Tag**: Warm Terracotta |
+| `--color-border` / `theme-border` | `#E7E5E4` | **Borders / Dividers**: Soft Stone |
 
 ### B. DARK MODE
 | Token / Semantic | Hex Code | Nama Warna & Penggunaan |
 | :--- | :--- | :--- |
-| `--color-bg-page` / `theme-page` | `#1A1A1A` | **Page Background (Dominan)**: Deep Charcoal (*Bukan #000000 murni*) |
-| `--color-bg-card` / `theme-card` | `#262626` | **Card / Container Background**: Muted Slate Gray (Layer kontras lembut) |
-| `--color-text-primary` / `theme-primary` | `#F8FAFC` | **Primary Text**: Off-White Cream (Nyaman di mata) |
-| `--color-text-muted` / `theme-muted` | `#A1A1AA` | **Secondary Text / Muted**: Soft Ash Gray |
-| `--color-cta` / `theme-cta` | `#9DC89F` | **Primary CTA / Button**: Adapted Soft Sage (Glowing lembut) |
-| `--color-cta-hover` | `#84A98C` | **Hover / Active CTA**: Sage Green |
-| `--color-accent-blue` / `theme-blue` | `#3B82F6` | **Secondary Accent / Tag**: Soft Dusty Blue |
-| `--color-border` / `theme-border` | `#3F3F46` | **Borders / Dividers**: Dark Slate Gray |
+| `--color-bg-page` / `theme-page` | `#141211` | **Page Background (Dominan)**: Deep Espresso Smoke (Warm Luxury) |
+| `--color-bg-card` / `theme-card` | `#1F1C1B` | **Card / Container Background**: Warm Dark Slate / Espresso Card |
+| `--color-bg-card-hover` | `#2A2624` | **Card Hover Background**: Elevated Warm Stone |
+| `--color-text-primary` / `theme-primary` | `#F5F5F4` | **Primary Text**: Warm Cream White (Nyaman di mata) |
+| `--color-text-muted` / `theme-muted` | `#A8A29E` | **Secondary Text / Muted**: Soft Stone Ash |
+| `--color-cta` / `theme-cta` | `#82A78F` | **Primary CTA / Button**: Soft Glowing Sage |
+| `--color-cta-hover` | `#6C9479` | **Hover / Active CTA**: Deep Glow Sage |
+| `--color-accent-terracotta` / `theme-terracotta` | `#E09F67` | **Secondary Accent / Tag**: Warm Amber Clay |
+| `--color-border` / `theme-border` | `#2E2A28` | **Borders / Dividers**: Warm Charcoal Edge |
 
 ---
 

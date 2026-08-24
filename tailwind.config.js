@@ -18,54 +18,40 @@ export default {
           cta: 'var(--color-cta)',
           'cta-hover': 'var(--color-cta-hover)',
           'cta-text': 'var(--color-cta-text)',
-          blue: 'var(--color-accent-blue)',
+          terracotta: 'var(--color-accent-terracotta)',
           border: 'var(--color-border)',
         },
 
-        // Muted Sky & Sage Theme Specific Tokens
-        'eps-light': {
-          bg: '#F8FAFC',        // Ice White
-          card: '#FFFFFF',      // Pure White
-          primary: '#0F172A',   // Deep Navy
-          muted: '#64748B',     // Slate Blue Gray
-          cta: '#84A98C',       // Sage Green
-          'cta-hover': '#6B8E73', // Darker Sage
-          blue: '#3B82F6',      // Soft Dusty Blue
-          border: '#E2E8F0',    // Subtle Gray
+        // Warm Espresso & Forest Sage Palette
+        'espresso': {
+          DEFAULT: '#1C1917',
+          dark: '#141211',
+          card: '#1F1C1B',
+          stone: '#2E2A28',
         },
-        'eps-dark': {
-          bg: '#1A1A1A',        // Deep Charcoal
-          card: '#262626',      // Muted Slate Gray
-          primary: '#F8FAFC',   // Off-White Cream
-          muted: '#A1A1AA',     // Soft Ash Gray
-          cta: '#9DC89F',       // Adapted Soft Sage
-          'cta-hover': '#84A98C', // Sage Green
-          blue: '#3B82F6',      // Soft Dusty Blue
-          border: '#3F3F46',    // Dark Slate Gray
+        'forest': {
+          DEFAULT: '#3D634C',
+          hover: '#2F4D3B',
+          glow: '#82A78F',
+          soft: '#A3C4AF',
         },
-
-        // Shorthand Brand Colors
         'sage': {
-          DEFAULT: '#84A98C',
-          hover: '#6B8E73',
-          soft: '#9DC89F',
-          dark: '#1B2E20',
-          light: '#E8F3E9',
+          DEFAULT: '#3D634C',
+          hover: '#2F4D3B',
+          soft: '#82A78F',
+          dark: '#141211',
+          light: '#F4F7F4',
         },
-        'dusty-blue': {
-          DEFAULT: '#3B82F6',
-          light: '#EFF6FF',
-          dark: '#1E3A8A',
+        'terracotta': {
+          DEFAULT: '#C88A58',
+          hover: '#B57745',
+          soft: '#E09F67',
+          light: '#FDF6F0',
         },
-        'deep-navy': '#0F172A',
-        'deep-charcoal': '#1A1A1A',
-        'slate-card': '#262626',
-        'ash-gray': '#A1A1AA',
-        'ice-white': '#F8FAFC',
         'coral': {
-          DEFAULT: '#E28B75',
-          hover: '#D9775E',
-          light: '#FDEEE9',
+          DEFAULT: '#C88A58',
+          hover: '#B57745',
+          light: '#FDF6F0',
         },
       },
       fontFamily: {
@@ -75,8 +61,8 @@ export default {
       boxShadow: {
         'card': 'var(--shadow-card)',
         'card-hover': 'var(--shadow-hover)',
-        'glow-sage': '0 0 25px -3px rgba(157, 200, 159, 0.4)',
-        'glow-sage-light': '0 0 20px -3px rgba(132, 169, 140, 0.35)',
+        'glow-sage': '0 0 25px -3px rgba(130, 167, 143, 0.35)',
+        'glow-sage-light': '0 0 20px -3px rgba(61, 99, 76, 0.25)',
       },
       animation: {
         'fade-up': 'fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',

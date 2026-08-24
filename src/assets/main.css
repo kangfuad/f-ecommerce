@@ -5,38 +5,38 @@
 @layer base {
   :root {
     color-scheme: light;
-    /* LIGHT MODE (Default Muted Sky & Sage) */
-    --color-bg-page: #F8FAFC;        /* Ice White */
-    --color-bg-card: #FFFFFF;        /* Pure White */
-    --color-bg-card-hover: #F1F5F9;  /* Soft Hover */
-    --color-text-primary: #0F172A;   /* Deep Navy */
-    --color-text-muted: #64748B;     /* Slate Blue Gray */
-    --color-cta: #84A98C;            /* Sage Green */
-    --color-cta-hover: #6B8E73;      /* Darker Sage */
+    /* LIGHT MODE (Warm Espresso & Forest Sage - High Contrast & Organic Luxury) */
+    --color-bg-page: #FBF9F5;        /* Warm Alabaster / Soft Linen */
+    --color-bg-card: #FFFFFF;        /* Pure Off-White */
+    --color-bg-card-hover: #F5F1E8;  /* Warm Linen Hover */
+    --color-text-primary: #1C1917;   /* Deep Warm Umber / Warm Espresso (High Contrast) */
+    --color-text-muted: #57534E;     /* Stone 600 - High Legibility & Crisp Reading */
+    --color-cta: #2D5239;            /* Deep Forest Sage */
+    --color-cta-hover: #1E3827;      /* Deep Pine Sage */
     --color-cta-text: #FFFFFF;       /* Pure White */
-    --color-accent-blue: #3B82F6;    /* Soft Dusty Blue */
-    --color-border: #E2E8F0;         /* Subtle Gray */
-    --color-glass-header: rgba(255, 255, 255, 0.90);
-    --shadow-card: 0 4px 20px -2px rgba(15, 23, 42, 0.06);
-    --shadow-hover: 0 20px 40px -12px rgba(15, 23, 42, 0.12);
+    --color-accent-terracotta: #B45309; /* Rich Terracotta Amber */
+    --color-border: #E5E0D8;         /* Defined Warm Stone Border */
+    --color-glass-header: rgba(251, 249, 245, 0.95);
+    --shadow-card: 0 4px 20px -2px rgba(28, 25, 23, 0.06);
+    --shadow-hover: 0 20px 40px -12px rgba(28, 25, 23, 0.12);
   }
 
   .dark {
     color-scheme: dark;
-    /* DARK MODE (Sophisticated Deep Charcoal & Sage) */
-    --color-bg-page: #1A1A1A;        /* Deep Charcoal (No #000000) */
-    --color-bg-card: #262626;        /* Muted Slate Gray */
-    --color-bg-card-hover: #2E2E2E;  /* Elevated Slate */
-    --color-text-primary: #F8FAFC;   /* Off-White Cream */
-    --color-text-muted: #A1A1AA;     /* Soft Ash Gray */
-    --color-cta: #9DC89F;            /* Adapted Soft Sage */
-    --color-cta-hover: #84A98C;      /* Sage Green */
-    --color-cta-text: #1A1A1A;       /* Deep Charcoal */
-    --color-accent-blue: #3B82F6;    /* Soft Dusty Blue */
-    --color-border: #3F3F46;         /* Dark Slate Gray */
-    --color-glass-header: rgba(26, 26, 26, 0.92);
-    --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.35);
-    --shadow-hover: 0 20px 40px -12px rgba(0, 0, 0, 0.60);
+    /* DARK MODE (Deep Espresso Smoke & Glow Sage) */
+    --color-bg-page: #141211;        /* Deep Espresso Smoke */
+    --color-bg-card: #1F1C1B;        /* Warm Dark Slate / Espresso Card */
+    --color-bg-card-hover: #2A2624;  /* Elevated Warm Stone */
+    --color-text-primary: #F5F5F4;   /* Warm Cream White */
+    --color-text-muted: #A8A29E;     /* Soft Stone Ash */
+    --color-cta: #82A78F;            /* Soft Glowing Sage */
+    --color-cta-hover: #6C9479;      /* Deep Glow Sage */
+    --color-cta-text: #141211;       /* Deep Charcoal for high contrast */
+    --color-accent-terracotta: #E09F67; /* Warm Amber Clay */
+    --color-border: #2E2A28;         /* Warm Charcoal Edge */
+    --color-glass-header: rgba(20, 18, 17, 0.94);
+    --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.40);
+    --shadow-hover: 0 20px 40px -12px rgba(0, 0, 0, 0.65);
   }
 
   html {
