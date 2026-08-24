@@ -135,7 +135,7 @@ function handleDateSelected(startDate: string, endDate: string) {
             'inline-flex items-center gap-1.5 text-xs font-black px-3.5 py-2 rounded-full shadow-sm transition-all duration-300 cursor-pointer shrink-0',
             isAdded
               ? 'bg-emerald-600 text-white scale-105 shadow-md ring-2 ring-emerald-400/40'
-              : 'bg-forest hover:bg-forest-hover dark:bg-forest dark:hover:bg-forest-hover text-white hover:scale-103 active:scale-97'
+              : 'bg-[#244E33] hover:bg-[#1B3B26] text-white dark:bg-emerald-500 dark:hover:bg-emerald-400 dark:text-stone-950 hover:scale-103 active:scale-97'
           ]"
           :title="isAdded ? 'Berhasil Masuk Keranjang!' : 'Sewa Cepat (Pilih Durasi & Masuk Keranjang)'"
         >

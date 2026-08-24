@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { CartItem } from '@/domain/entities/CartItem'
 import { formatDateToIndonesian, formatDateToISO } from '@/core/utils/date'
+import { useImageLightbox } from '@/presentation/composables/useImageLightbox'
 import {
   IconTrash,
   IconCalendarDate,
@@ -21,9 +22,18 @@ const emit = defineEmits<{
   (e: 'remove', id: string): void
 }>()
 
+const { openLightbox } = useImageLightbox()
+
 const isEditingDates = ref(false)
 const editStart = ref(formatDateToISO(props.item.dateRange.startDate))
 const editEnd = ref(formatDateToISO(props.item.dateRange.endDate))
+
+function handleImageClick() {
+  const images = props.item.product.images?.length
+    ? props.item.product.images
+    : [props.item.product.primaryImage]
+  openLightbox(images, props.item.product.name)
+}
 
 function startEdit() {
   editStart.value = formatDateToISO(props.item.dateRange.startDate)
@@ -46,12 +56,21 @@ function saveDates() {
 <template>
   <div class="bg-theme-card border border-theme-border rounded-2xl p-3.5 space-y-3 shadow-sm text-theme-primary">
     <div class="flex gap-3 items-start">
-      <!-- Thumbnail -->
-      <img
-        :src="item.product.primaryImage"
-        :alt="item.product.name"
-        class="w-16 h-16 rounded-xl object-cover bg-stone-100 dark:bg-stone-900 border border-theme-border shrink-0"
-      />
+      <!-- Clickable Thumbnail for Full Image Lightbox -->
+      <div
+        @click.stop="handleImageClick"
+        class="relative w-16 h-16 rounded-xl overflow-hidden bg-stone-100 dark:bg-stone-900 border border-theme-border shrink-0 cursor-zoom-in group/img"
+        title="Klik untuk melihat foto ukuran penuh"
+      >
+        <img
+          :src="item.product.primaryImage"
+          :alt="item.product.name"
+          class="w-full h-full object-cover group-hover/img:scale-110 transition-transform duration-300"
+        />
+        <div class="absolute inset-0 bg-black/0 group-hover/img:bg-black/30 transition-colors flex items-center justify-center opacity-0 group-hover/img:opacity-100">
+          <span class="text-[9px] font-black text-white bg-black/60 px-1 py-0.5 rounded">Zoom</span>
+        </div>
+      </div>
 
       <!-- Info -->
       <div class="flex-1 min-w-0">

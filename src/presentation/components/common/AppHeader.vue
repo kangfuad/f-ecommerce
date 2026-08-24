@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useCart } from '@/presentation/composables/useCart'
 import { useWishlist } from '@/presentation/composables/useWishlist'
 import { useTheme } from '@/presentation/composables/useTheme'
+import { useAuth } from '@/presentation/composables/useAuth'
 import { ProductCategory } from '@/domain/enums/ProductCategory'
 import {
   IconLogo,
@@ -18,6 +19,7 @@ import {
   IconCheck,
   IconClose,
   IconMenu,
+  IconShieldCheck,
   IconCategoryAll,
   IconCategoryCamera,
   IconCategoryDrone,
@@ -38,9 +40,12 @@ const router = useRouter()
 const { totalItemCount, openCart, isCartBadgeBouncing } = useCart()
 const { wishlistIds } = useWishlist()
 const { currentTheme, currentPreference, toggleTheme } = useTheme()
+const { currentUser, isLoggedIn, openLoginModal, openRegisterModal, logout, initAuth } = useAuth()
 
 const categoryDropdownRef = ref<HTMLElement | null>(null)
 const categoryDropdownOpen = ref(false)
+const userMenuRef = ref<HTMLElement | null>(null)
+const userMenuOpen = ref(false)
 const mobileMenuOpen = ref(false)
 const searchQuery = ref('')
 
@@ -76,9 +81,13 @@ function handleClickOutside(e: MouseEvent) {
   if (categoryDropdownRef.value && !categoryDropdownRef.value.contains(e.target as Node)) {
     categoryDropdownOpen.value = false
   }
+  if (userMenuRef.value && !userMenuRef.value.contains(e.target as Node)) {
+    userMenuOpen.value = false
+  }
 }
 
 onMounted(() => {
+  initAuth()
   if (typeof window !== 'undefined') {
     window.addEventListener('click', handleClickOutside)
   }
@@ -117,16 +126,16 @@ const navCategories = [
         
         <!-- Left: Logo & Grouped Menu Links -->
         <div class="flex items-center gap-4 sm:gap-6 shrink-0">
-          <!-- Logo with Custom Icon -->
+          <!-- Logo with Custom Icon (High Contrast in Light & Dark Mode) -->
           <router-link to="/" class="flex items-center gap-2.5 group py-1 shrink-0">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-forest to-emerald-600 dark:from-stone-800 dark:to-stone-700 dark:border dark:border-stone-600 flex items-center justify-center text-white dark:text-forest-glow shadow-md group-hover:scale-105 transition-all shrink-0">
+            <div class="w-10 h-10 rounded-xl bg-[#244E33] dark:bg-stone-800 border border-emerald-600/40 dark:border-stone-700 flex items-center justify-center text-white dark:text-emerald-400 shadow-md group-hover:scale-105 transition-all shrink-0">
               <IconLogo :size="22" />
             </div>
             <div class="flex flex-col justify-center">
-              <div class="font-extrabold text-xl tracking-tight text-theme-primary whitespace-nowrap leading-none">
-                <span>e-punya</span><span class="text-forest dark:text-forest-glow">sewa</span>
+              <div class="font-extrabold text-xl tracking-tight text-stone-900 dark:text-white whitespace-nowrap leading-none">
+                <span>e-punya</span><span class="text-[#244E33] dark:text-emerald-400">sewa</span>
               </div>
-              <span class="text-[9px] font-bold tracking-widest text-stone-500 mt-1 uppercase whitespace-nowrap leading-none hidden sm:block">
+              <span class="text-[9px] font-bold tracking-widest text-stone-500 dark:text-stone-400 mt-1 uppercase whitespace-nowrap leading-none hidden sm:block">
                 Rental Platform
               </span>
             </div>
@@ -250,7 +259,7 @@ const navCategories = [
           </form>
         </div>
 
-        <!-- Right: Action Controls (Theme, Wishlist, Cart, Mobile Menu) -->
+        <!-- Right: Action Controls (Theme, Wishlist, Cart, User Auth Profile, Mobile Menu) -->
         <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
           <!-- 3-State Theme Toggle -->
           <button
@@ -305,6 +314,66 @@ const navCategories = [
             </span>
           </button>
 
+          <!-- User Authentication Profile & Menu -->
+          <!-- State A: Logged In Member Profile -->
+          <div v-if="isLoggedIn && currentUser" class="relative hidden sm:block" ref="userMenuRef">
+            <button
+              @click.stop="userMenuOpen = !userMenuOpen"
+              class="inline-flex items-center gap-2 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 border border-theme-border py-1.5 px-3 rounded-full text-xs font-bold transition cursor-pointer"
+            >
+              <span class="w-6 h-6 rounded-full bg-forest text-white flex items-center justify-center text-[10px] font-black">
+                {{ currentUser.initials }}
+              </span>
+              <span class="text-theme-primary truncate max-w-[90px]">{{ currentUser.fullName }}</span>
+              <span class="hidden md:inline-block text-[9px] bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.2 rounded-full font-black border border-emerald-500/30">
+                ✓ Verified
+              </span>
+              <IconChevronDown :size="12" :class="['transition-transform duration-200', userMenuOpen && 'rotate-180']" />
+            </button>
+
+            <!-- Dropdown Menu -->
+            <div
+              v-if="userMenuOpen"
+              class="absolute right-0 top-full mt-2 w-60 bg-theme-card border border-theme-border rounded-2xl p-2.5 shadow-2xl z-50 animate-fade-up text-xs"
+            >
+              <div class="px-3 py-2 border-b border-theme-border mb-1.5">
+                <p class="font-bold text-theme-primary truncate">{{ currentUser.fullName }}</p>
+                <p class="text-[10px] text-stone-500 truncate">{{ currentUser.email }}</p>
+                <div class="mt-2 inline-flex items-center gap-1 text-[10px] font-extrabold text-forest dark:text-forest-glow bg-forest/10 px-2 py-0.5 rounded-md border border-forest/20">
+                  <IconShieldCheck :size="12" />
+                  <span>Bebas Deposit Member (KYC)</span>
+                </div>
+              </div>
+
+              <div class="space-y-1">
+                <button
+                  @click="() => { openCart(); userMenuOpen = false; }"
+                  class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-left font-bold text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition cursor-pointer"
+                >
+                  <IconCartBag :size="14" class="text-forest" />
+                  <span>Pesanan & Keranjang Sewa</span>
+                </button>
+                <button
+                  @click="() => { logout(); userMenuOpen = false; }"
+                  class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-left font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50 transition cursor-pointer"
+                >
+                  <span>Keluar Akun (Logout)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- State B: Guest (Login / Register Button) -->
+          <div v-else class="hidden sm:inline-flex items-center gap-1">
+            <button
+              @click="openLoginModal"
+              class="inline-flex items-center gap-1.5 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-theme-primary font-bold text-xs px-3.5 py-2 rounded-full border border-theme-border transition cursor-pointer"
+            >
+              <IconUser :size="14" />
+              <span>Masuk</span>
+            </button>
+          </div>
+
           <!-- Mobile Hamburger Toggle -->
           <button
             @click="mobileMenuOpen = !mobileMenuOpen"
@@ -322,7 +391,35 @@ const navCategories = [
         v-if="mobileMenuOpen"
         class="md:hidden border-t border-theme-border bg-theme-card px-4 py-5 space-y-4 animate-fade-up shadow-xl"
       >
-        <div class="flex items-center justify-between">
+        <!-- Mobile Auth State -->
+        <div v-if="isLoggedIn && currentUser" class="p-3 bg-stone-50 dark:bg-stone-900 rounded-2xl border border-theme-border flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-full bg-forest text-white flex items-center justify-center text-xs font-black">
+              {{ currentUser.initials }}
+            </span>
+            <div>
+              <p class="font-bold text-xs text-theme-primary">{{ currentUser.fullName }}</p>
+              <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">✓ Bebas Deposit Member</span>
+            </div>
+          </div>
+          <button @click="logout" class="text-xs font-bold text-red-500 hover:underline">Keluar</button>
+        </div>
+        <div v-else class="flex gap-2">
+          <button
+            @click="() => { openLoginModal(); mobileMenuOpen = false; }"
+            class="flex-1 py-2 rounded-full border border-theme-border text-xs font-bold bg-stone-100 dark:bg-stone-800 text-center"
+          >
+            Masuk Akun
+          </button>
+          <button
+            @click="() => { openRegisterModal(); mobileMenuOpen = false; }"
+            class="flex-1 py-2 rounded-full bg-forest text-white text-xs font-black text-center"
+          >
+            Daftar Member
+          </button>
+        </div>
+
+        <div class="flex items-center justify-between pt-2">
           <p class="text-xs font-extrabold uppercase tracking-wider text-stone-500">Pilih Kategori Sewa</p>
           <router-link
             to="/katalog"

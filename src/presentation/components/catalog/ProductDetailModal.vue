@@ -4,6 +4,7 @@ import { Product } from '@/domain/entities/Product'
 import { useRentalCalculator } from '@/presentation/composables/useRentalCalculator'
 import { useCart } from '@/presentation/composables/useCart'
 import { useBodyScrollLock } from '@/presentation/composables/useBodyScrollLock'
+import { useImageLightbox } from '@/presentation/composables/useImageLightbox'
 import DateRangePicker from '../rental/DateRangePicker.vue'
 import RentalPriceBreakdown from '../rental/RentalPriceBreakdown.vue'
 import BaseButton from '../common/BaseButton.vue'
@@ -30,6 +31,7 @@ const emit = defineEmits<{
 
 const activeImageIndex = ref(0)
 const { addToCart, isLoading: isAddingToCart } = useCart()
+const { openLightbox } = useImageLightbox()
 
 // Lock background page scroll when modal is open
 useBodyScrollLock(() => !!props.product)
@@ -144,12 +146,16 @@ async function handleAddToCart() {
       <div class="grid md:grid-cols-12 gap-6 p-5 sm:p-7 md:p-8">
         <!-- Left: Image Gallery & Included Items -->
         <div class="md:col-span-6 space-y-4">
-          <!-- Main Image Gallery with Prev/Next Navigation -->
-          <div class="relative rounded-2xl overflow-hidden bg-stone-100 dark:bg-stone-900 aspect-square border border-stone-200/80 dark:border-stone-800 select-none group">
+          <!-- Main Image Gallery with Prev/Next Navigation & Zoom Lightbox -->
+          <div
+            @click="openLightbox(productImages, product.name, activeImageIndex)"
+            class="relative rounded-2xl overflow-hidden bg-stone-100 dark:bg-stone-900 aspect-square border border-stone-200/80 dark:border-stone-800 select-none group cursor-zoom-in"
+            title="Klik untuk melihat foto ukuran penuh"
+          >
             <img
               :src="productImages[activeImageIndex]"
               :alt="product.name"
-              class="w-full h-full object-cover transition-transform duration-500"
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
 
             <!-- Ambient Scrim Top & Bottom -->

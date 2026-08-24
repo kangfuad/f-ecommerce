@@ -1,0 +1,243 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useAuth } from '@/presentation/composables/useAuth'
+import { useBodyScrollLock } from '@/presentation/composables/useBodyScrollLock'
+import BaseButton from '../common/BaseButton.vue'
+import {
+  IconClose,
+  IconShieldCheck,
+  IconCheck,
+  IconUser,
+  IconLogo,
+} from '@/presentation/components/icons'
+
+const {
+  isAuthModalOpen,
+  authModalTab,
+  isLoading,
+  authError,
+  closeAuthModal,
+  login,
+  loginAsDemo,
+  register,
+} = useAuth()
+
+useBodyScrollLock(isAuthModalOpen)
+
+// Form states
+const loginIdentifier = ref('')
+const loginPassword = ref('')
+
+const regFullName = ref('')
+const regEmail = ref('')
+const regPhone = ref('')
+const regPassword = ref('')
+
+async function handleLoginSubmit() {
+  await login(loginIdentifier.value, loginPassword.value)
+}
+
+async function handleRegisterSubmit() {
+  await register(regFullName.value, regEmail.value, regPhone.value, regPassword.value)
+}
+
+async function handleQuickDemoLogin() {
+  await loginAsDemo()
+}
+</script>
+
+<template>
+  <div v-if="isAuthModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+    <!-- Backdrop -->
+    <div
+      @click="closeAuthModal"
+      class="fixed inset-0 bg-black/65 dark:bg-black/80 backdrop-blur-md transition-opacity"
+    ></div>
+
+    <!-- Modal Card -->
+    <div class="relative bg-theme-card rounded-3xl max-w-md w-full shadow-2xl border border-theme-border z-10 animate-fade-up text-theme-primary overflow-hidden">
+      <!-- Close Button -->
+      <button
+        @click="closeAuthModal"
+        class="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 border border-theme-border flex items-center justify-center text-stone-500 hover:text-theme-primary transition cursor-pointer"
+        aria-label="Tutup"
+      >
+        <IconClose :size="15" />
+      </button>
+
+      <!-- Modal Header with Logo & Tabs -->
+      <div class="p-6 sm:p-7 pb-0 border-b border-theme-border">
+        <div class="flex items-center gap-2.5 mb-4">
+          <div class="w-8 h-8 rounded-xl bg-forest flex items-center justify-center text-white shadow-sm">
+            <IconLogo :size="18" />
+          </div>
+          <div>
+            <h2 class="font-extrabold text-base tracking-tight text-theme-primary">
+              Akun e-punya<span class="text-forest dark:text-forest-glow">sewa</span>
+            </h2>
+            <p class="text-[11px] text-stone-500">Platform Persewaan Perlengkapan Premium</p>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="flex border-b border-theme-border gap-6">
+          <button
+            @click="authModalTab = 'login'"
+            :class="[
+              'pb-3 text-xs font-black uppercase tracking-wider transition cursor-pointer relative',
+              authModalTab === 'login'
+                ? 'text-forest dark:text-forest-glow border-b-2 border-forest dark:border-forest-glow'
+                : 'text-stone-400 hover:text-theme-primary',
+            ]"
+          >
+            Masuk Akun
+          </button>
+          <button
+            @click="authModalTab = 'register'"
+            :class="[
+              'pb-3 text-xs font-black uppercase tracking-wider transition cursor-pointer relative',
+              authModalTab === 'register'
+                ? 'text-forest dark:text-forest-glow border-b-2 border-forest dark:border-forest-glow'
+                : 'text-stone-400 hover:text-theme-primary',
+            ]"
+          >
+            Daftar Member
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 sm:p-7 space-y-4">
+        <!-- Error Alert -->
+        <div
+          v-if="authError"
+          class="p-3 rounded-xl bg-red-100 dark:bg-red-950/80 text-red-700 dark:text-red-300 text-xs font-semibold border border-red-200 dark:border-red-800/60"
+        >
+          {{ authError }}
+        </div>
+
+        <!-- TAB 1: LOGIN -->
+        <form v-if="authModalTab === 'login'" @submit.prevent="handleLoginSubmit" class="space-y-3.5">
+          <div>
+            <label class="text-xs font-bold text-stone-600 dark:text-stone-400 block mb-1">
+              Email atau No. WhatsApp
+            </label>
+            <input
+              v-model="loginIdentifier"
+              type="text"
+              required
+              placeholder="contoh: fuad@gmail.com atau 0812..."
+              class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-theme-primary focus:outline-none focus:border-forest"
+            />
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-xs font-bold text-stone-600 dark:text-stone-400">Kata Sandi</label>
+              <button type="button" class="text-[11px] text-forest dark:text-forest-glow hover:underline">
+                Lupa Sandi?
+              </button>
+            </div>
+            <input
+              v-model="loginPassword"
+              type="password"
+              placeholder="••••••••"
+              class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-theme-primary focus:outline-none focus:border-forest"
+            />
+          </div>
+
+          <BaseButton
+            type="submit"
+            :loading="isLoading"
+            variant="primary"
+            size="md"
+            class="w-full mt-2"
+          >
+            Masuk ke Akun
+          </BaseButton>
+
+          <!-- Quick 1-Tap Demo Login -->
+          <div class="pt-3 border-t border-theme-border text-center">
+            <button
+              @click.prevent="handleQuickDemoLogin"
+              type="button"
+              class="inline-flex items-center gap-1.5 text-xs font-bold text-forest dark:text-forest-glow hover:underline cursor-pointer bg-forest/10 dark:bg-forest/20 px-3.5 py-1.5 rounded-full border border-forest/30"
+            >
+              <IconShieldCheck :size="14" />
+              <span>Masuk Cepat sebagai Member Terverifikasi (Demo)</span>
+            </button>
+          </div>
+        </form>
+
+        <!-- TAB 2: REGISTER -->
+        <form v-else @submit.prevent="handleRegisterSubmit" class="space-y-3">
+          <!-- Member Benefit Badge -->
+          <div class="bg-forest/10 dark:bg-forest/20 border border-forest/30 rounded-2xl p-3 flex items-start gap-2.5">
+            <IconShieldCheck :size="18" class="text-forest dark:text-forest-glow shrink-0 mt-0.5" />
+            <div>
+              <p class="text-xs font-extrabold text-forest dark:text-forest-glow">Keuntungan Member</p>
+              <p class="text-[11px] text-stone-600 dark:text-stone-300 mt-0.5">
+                Verifikasi identitas (KYC) dan nikmati jaminan sewa <strong>Bebas Deposit 100%</strong>.
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-stone-600 dark:text-stone-400 block mb-1">Nama Lengkap Sesuai KTP</label>
+            <input
+              v-model="regFullName"
+              type="text"
+              required
+              placeholder="contoh: Ahmad Fuad"
+              class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2 text-xs text-theme-primary focus:outline-none focus:border-forest"
+            />
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="text-xs font-bold text-stone-600 dark:text-stone-400 block mb-1">Email</label>
+              <input
+                v-model="regEmail"
+                type="email"
+                required
+                placeholder="nama@email.com"
+                class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3 py-2 text-xs text-theme-primary focus:outline-none focus:border-forest"
+              />
+            </div>
+            <div>
+              <label class="text-xs font-bold text-stone-600 dark:text-stone-400 block mb-1">No. WhatsApp</label>
+              <input
+                v-model="regPhone"
+                type="tel"
+                required
+                placeholder="08123456789"
+                class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3 py-2 text-xs text-theme-primary focus:outline-none focus:border-forest"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-stone-600 dark:text-stone-400 block mb-1">Buat Kata Sandi</label>
+            <input
+              v-model="regPassword"
+              type="password"
+              required
+              placeholder="Minimal 8 karakter"
+              class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2 text-xs text-theme-primary focus:outline-none focus:border-forest"
+            />
+          </div>
+
+          <BaseButton
+            type="submit"
+            :loading="isLoading"
+            variant="primary"
+            size="md"
+            class="w-full mt-2"
+          >
+            Daftar & Klaim Bebas Deposit
+          </BaseButton>
+        </form>
+      </div>
+    </div>
+  </div>
+</template>
