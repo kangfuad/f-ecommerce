@@ -1,16 +1,28 @@
 import { shallowRef, ref, computed, inject } from 'vue'
 import { CartItem } from '@/domain/entities/CartItem'
+import { Product } from '@/domain/entities/Product'
 import { Money } from '@/domain/value-objects/Money'
 import { TOKENS } from '@/infrastructure/di/tokens'
 import { DIContainer } from '@/infrastructure/di/container'
 import type { AddToCartInput } from '@/application/use-cases/ManageCartUseCase'
 import { APP_CONFIG } from '@/core/config/app.config'
 
+export interface CartToastNotification {
+  id: string
+  productName: string
+  message: string
+}
+
 // Global reactive state shared across components
 const cartItems = shallowRef<CartItem[]>([])
 const isCartOpen = ref(false)
 const isLoading = ref(false)
 const cartError = ref<string | null>(null)
+const cartToast = ref<CartToastNotification | null>(null)
+const isCartBadgeBouncing = ref(false)
+
+let toastTimeout: any = null
+let badgeTimeout: any = null
 
 export function useCart() {
   const manageCartUseCase = inject(TOKENS.MANAGE_CART_USE_CASE, DIContainer.manageCartUseCase)
@@ -50,6 +62,28 @@ export function useCart() {
     subtotalRental.value.add(totalDeposit.value).add(estimatedDeliveryFee.value)
   )
 
+  function triggerCartAnimation(productName?: string) {
+    // 1. Trigger Badge Bounce in Header
+    isCartBadgeBouncing.value = true
+    if (badgeTimeout) clearTimeout(badgeTimeout)
+    badgeTimeout = setTimeout(() => {
+      isCartBadgeBouncing.value = false
+    }, 1000)
+
+    // 2. Trigger Subtle Notification Toast
+    if (productName) {
+      if (toastTimeout) clearTimeout(toastTimeout)
+      cartToast.value = {
+        id: Date.now().toString(),
+        productName,
+        message: `berhasil ditambahkan ke keranjang sewa`,
+      }
+      toastTimeout = setTimeout(() => {
+        cartToast.value = null
+      }, 3000)
+    }
+  }
+
   async function loadCart() {
     isLoading.value = true
     cartError.value = null
@@ -62,18 +96,43 @@ export function useCart() {
     }
   }
 
-  async function addToCart(input: AddToCartInput) {
+  async function addToCart(input: AddToCartInput, openDrawer: boolean = false, productName?: string) {
     isLoading.value = true
     cartError.value = null
     try {
       cartItems.value = await manageCartUseCase.addToCart(input)
-      isCartOpen.value = true
+      
+      // Trigger non-intrusive animation and toast instead of forced drawer opening
+      triggerCartAnimation(productName)
+
+      if (openDrawer) {
+        isCartOpen.value = true
+      }
     } catch (err: any) {
       cartError.value = err.message || 'Gagal menambahkan barang ke keranjang'
       throw err
     } finally {
       isLoading.value = false
     }
+  }
+
+  async function quickAddToCart(product: Product, days: number = 3) {
+    const tomorrow = new Date()
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    const endDate = new Date(tomorrow)
+    endDate.setDate(endDate.getDate() + (days - 1))
+
+    await addToCart(
+      {
+        productId: product.id,
+        startDate: tomorrow,
+        endDate: endDate,
+        quantity: 1,
+        includeInsurance: true,
+      },
+      false, // Do NOT open drawer
+      product.name // Provide product name for toast
+    )
   }
 
   async function updateQuantity(cartItemId: string, newQuantity: number) {
@@ -92,6 +151,10 @@ export function useCart() {
     }
   }
 
+  function dismissToast() {
+    cartToast.value = null
+  }
+
   function openCart() {
     isCartOpen.value = true
   }
@@ -105,6 +168,8 @@ export function useCart() {
     isCartOpen,
     isLoading,
     cartError,
+    cartToast,
+    isCartBadgeBouncing,
     totalItemCount,
     subtotalRental,
     totalDeposit,
@@ -113,6 +178,8 @@ export function useCart() {
     grandTotal,
     loadCart,
     addToCart,
+    quickAddToCart,
+    dismissToast,
     updateQuantity,
     removeItem,
     openCart,

@@ -1,13 +1,14 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { Product } from '@/domain/entities/Product'
 import { useWishlist } from '@/presentation/composables/useWishlist'
-import BaseButton from '../common/BaseButton.vue'
 import { ItemConditionLabel } from '@/domain/enums/ItemCondition'
 import {
   IconHeartWishlist,
   IconLocation,
   IconStar,
   IconCheck,
+  IconCartBag,
 } from '@/presentation/components/icons'
 
 interface Props {
@@ -18,14 +19,26 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<{
   (e: 'select-product', product: Product): void
-  (e: 'quick-rent', product: Product): void
+  (e: 'quick-add-to-cart', product: Product): void
 }>()
 
 const { isWishlisted, toggleWishlist } = useWishlist()
+const isAdded = ref(false)
+
+function handleQuickAdd() {
+  emit('quick-add-to-cart', props.product)
+  isAdded.value = true
+  setTimeout(() => {
+    isAdded.value = false
+  }, 1500)
+}
 </script>
 
 <template>
-  <div class="card-hover bg-theme-card rounded-3xl border border-theme-border p-4 sm:p-5 flex flex-col md:flex-row gap-5 items-stretch shadow-card group">
+  <div
+    @click="emit('select-product', product)"
+    class="card-hover bg-theme-card rounded-3xl border border-theme-border hover:border-forest/50 dark:hover:border-forest-glow/50 p-4 sm:p-5 flex flex-col md:flex-row gap-5 items-stretch shadow-card group cursor-pointer transition-all"
+  >
     <!-- Image Thumbnail -->
     <div class="relative w-full md:w-56 h-48 md:h-auto rounded-2xl overflow-hidden bg-stone-100 dark:bg-stone-900 shrink-0 border border-stone-200/80 dark:border-stone-800">
       <img
@@ -53,11 +66,12 @@ const { isWishlisted, toggleWishlist } = useWishlist()
         </span>
       </div>
 
-      <!-- Wishlist button -->
+      <!-- Wishlist button (isolated with @click.stop) -->
       <button
         @click.stop="toggleWishlist(product.id)"
         class="absolute top-2.5 right-2.5 z-10 w-7 h-7 rounded-full bg-white text-stone-800 border border-stone-200 shadow-md flex items-center justify-center hover:scale-110 transition-all cursor-pointer"
         aria-label="Simpan Favorit"
+        title="Simpan Favorit"
       >
         <IconHeartWishlist
           :size="13"
@@ -88,8 +102,7 @@ const { isWishlisted, toggleWishlist } = useWishlist()
         </div>
 
         <h3
-          @click="emit('select-product', product)"
-          class="font-bold text-base sm:text-lg text-theme-primary hover:text-forest dark:hover:text-forest-glow transition-colors cursor-pointer"
+          class="font-bold text-base sm:text-lg text-theme-primary group-hover:text-forest dark:group-hover:text-forest-glow transition-colors"
         >
           {{ product.name }}
         </h3>
@@ -126,21 +139,22 @@ const { isWishlisted, toggleWishlist } = useWishlist()
           </div>
         </div>
 
-        <div class="flex items-center gap-2">
-          <BaseButton
-            @click="emit('select-product', product)"
-            variant="outline"
-            size="sm"
+        <div>
+          <!-- Quick Add Button with Micro-Feedback Animation -->
+          <button
+            @click.stop="handleQuickAdd"
+            :class="[
+              'inline-flex items-center gap-1.5 text-xs font-black px-4 py-2.5 rounded-full shadow-sm transition-all duration-300 cursor-pointer',
+              isAdded
+                ? 'bg-emerald-600 text-white scale-105 shadow-md ring-2 ring-emerald-400/40'
+                : 'bg-forest hover:bg-forest-hover dark:bg-forest dark:hover:bg-forest-hover text-white hover:scale-103 active:scale-97'
+            ]"
+            :title="isAdded ? 'Berhasil Masuk Keranjang!' : 'Sewa Cepat (Tambah ke Keranjang)'"
           >
-            Detail Unit
-          </BaseButton>
-          <BaseButton
-            @click="emit('quick-rent', product)"
-            variant="primary"
-            size="sm"
-          >
-            Sewa Sekarang
-          </BaseButton>
+            <IconCheck v-if="isAdded" :size="14" class="animate-bounce" />
+            <IconCartBag v-else :size="14" />
+            <span>{{ isAdded ? '✓ Masuk' : '+ Keranjang' }}</span>
+          </button>
         </div>
       </div>
     </div>

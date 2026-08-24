@@ -27,7 +27,7 @@ const {
   setSort,
 } = useProducts()
 
-const { loadCart } = useCart()
+const { loadCart, quickAddToCart } = useCart()
 const { initTheme } = useTheme()
 
 const selectedProductForModal = shallowRef<Product | null>(null)
@@ -38,6 +38,10 @@ function openProductModal(product: Product) {
 
 function closeProductModal() {
   selectedProductForModal.value = null
+}
+
+async function handleQuickAddToCart(product: Product) {
+  await quickAddToCart(product)
 }
 
 function scrollToCatalog() {
@@ -172,7 +176,7 @@ onMounted(() => {
             :key="product.id"
             :product="product"
             @select-product="openProductModal"
-            @quick-rent="openProductModal"
+            @quick-add-to-cart="handleQuickAddToCart"
           />
         </div>
 

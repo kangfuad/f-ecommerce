@@ -1,13 +1,14 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { Product } from '@/domain/entities/Product'
 import { useWishlist } from '@/presentation/composables/useWishlist'
-import BaseBadge from '../common/BaseBadge.vue'
-import BaseButton from '../common/BaseButton.vue'
 import { ItemConditionLabel } from '@/domain/enums/ItemCondition'
 import {
   IconHeartWishlist,
   IconLocation,
   IconStar,
+  IconCartBag,
+  IconCheck,
 } from '@/presentation/components/icons'
 
 interface Props {
@@ -18,14 +19,26 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<{
   (e: 'select-product', product: Product): void
-  (e: 'quick-rent', product: Product): void
+  (e: 'quick-add-to-cart', product: Product): void
 }>()
 
 const { isWishlisted, toggleWishlist } = useWishlist()
+const isAdded = ref(false)
+
+function handleQuickAdd() {
+  emit('quick-add-to-cart', props.product)
+  isAdded.value = true
+  setTimeout(() => {
+    isAdded.value = false
+  }, 1500)
+}
 </script>
 
 <template>
-  <div class="card-hover bg-theme-card rounded-3xl border border-theme-border p-3.5 sm:p-4 flex flex-col justify-between group overflow-hidden shadow-card">
+  <div
+    @click="emit('select-product', product)"
+    class="card-hover bg-theme-card rounded-3xl border border-theme-border hover:border-forest/50 dark:hover:border-forest-glow/50 p-3.5 sm:p-4 flex flex-col justify-between group overflow-hidden shadow-card cursor-pointer transition-all"
+  >
     <!-- Image Container with Anti-Camouflage Scrim -->
     <div>
       <div class="relative bg-stone-100 dark:bg-stone-900 rounded-2xl aspect-square overflow-hidden mb-3.5 border border-stone-200/80 dark:border-stone-800">
@@ -36,10 +49,10 @@ const { isWishlisted, toggleWishlist } = useWishlist()
           loading="lazy"
         />
 
-        <!-- Subtle Ambient Vignette / Scrim (Guarantees Badge Contrast on Pure White & Pure Dark Photos) -->
+        <!-- Subtle Ambient Vignette / Scrim -->
         <div class="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-black/35 pointer-events-none z-[1]"></div>
 
-        <!-- Top Left Badges (Guaranteed Contrast on Light & Dark Photos) -->
+        <!-- Top Left Badges -->
         <div class="absolute top-2.5 left-2.5 flex flex-col gap-1.5 items-start z-10">
           <span
             v-if="product.badgeText"
@@ -55,11 +68,12 @@ const { isWishlisted, toggleWishlist } = useWishlist()
           </span>
         </div>
 
-        <!-- Wishlist Button with Solid Contrast -->
+        <!-- Wishlist Button with Solid Contrast (Isolated with @click.stop) -->
         <button
           @click.stop="toggleWishlist(product.id)"
           class="absolute top-2.5 right-2.5 z-10 w-8 h-8 rounded-full bg-white text-stone-800 border border-stone-200 shadow-[0_2px_8px_rgba(0,0,0,0.30)] flex items-center justify-center hover:scale-110 transition-all cursor-pointer"
           aria-label="Simpan Favorit"
+          title="Simpan Favorit"
         >
           <IconHeartWishlist
             :size="15"
@@ -89,8 +103,7 @@ const { isWishlisted, toggleWishlist } = useWishlist()
         </div>
 
         <h3
-          @click="emit('select-product', product)"
-          class="font-bold text-sm sm:text-base text-theme-primary line-clamp-2 hover:text-forest dark:hover:text-forest-glow transition-colors cursor-pointer"
+          class="font-bold text-sm sm:text-base text-theme-primary line-clamp-2 group-hover:text-forest dark:group-hover:text-forest-glow transition-colors"
         >
           {{ product.name }}
         </h3>
@@ -98,39 +111,30 @@ const { isWishlisted, toggleWishlist } = useWishlist()
       </div>
     </div>
 
-    <!-- Pricing & Action -->
-    <div class="pt-4 mt-4 border-t border-theme-border">
-      <div class="flex items-baseline justify-between mb-3">
-        <div>
-          <span class="text-[10px] text-stone-500 dark:text-stone-400 uppercase font-bold tracking-wider">Tarif Sewa</span>
-          <p class="font-extrabold text-sm sm:text-base text-forest dark:text-forest-glow">
-            {{ product.dailyRate.format() }}<span class="text-xs font-normal text-stone-500 dark:text-stone-400">/hari</span>
-          </p>
-        </div>
-        <div class="text-right">
-          <span class="text-[10px] text-stone-500 dark:text-stone-400 uppercase font-bold tracking-wider">Deposit Jaminan</span>
-          <p class="text-xs font-extrabold text-theme-primary">{{ product.depositAmount.format() }}</p>
-        </div>
+    <!-- Pricing & Micro-Animated Add-to-Cart Action -->
+    <div class="mt-4 pt-3.5 border-t border-theme-border flex items-center justify-between gap-3">
+      <div>
+        <span class="text-[10px] text-stone-500 dark:text-stone-400 uppercase font-bold tracking-wider block">Tarif Sewa</span>
+        <p class="font-black text-sm sm:text-base text-forest dark:text-forest-glow leading-tight">
+          {{ product.dailyRate.format() }}<span class="text-[11px] font-normal text-stone-500">/hari</span>
+        </p>
       </div>
 
-      <div class="grid grid-cols-2 gap-2">
-        <BaseButton
-          @click="emit('select-product', product)"
-          variant="outline"
-          size="sm"
-          class="w-full"
-        >
-          Detail
-        </BaseButton>
-        <BaseButton
-          @click="emit('quick-rent', product)"
-          variant="primary"
-          size="sm"
-          class="w-full"
-        >
-          Sewa Sekarang
-        </BaseButton>
-      </div>
+      <!-- Quick Add Button with Micro-Feedback Animation -->
+      <button
+        @click.stop="handleQuickAdd"
+        :class="[
+          'inline-flex items-center gap-1.5 text-xs font-black px-3.5 py-2 rounded-full shadow-sm transition-all duration-300 cursor-pointer shrink-0',
+          isAdded
+            ? 'bg-emerald-600 text-white scale-105 shadow-md ring-2 ring-emerald-400/40'
+            : 'bg-forest hover:bg-forest-hover dark:bg-forest dark:hover:bg-forest-hover text-white hover:scale-103 active:scale-97'
+        ]"
+        :title="isAdded ? 'Berhasil Masuk Keranjang!' : 'Sewa Cepat (Tambah ke Keranjang)'"
+      >
+        <IconCheck v-if="isAdded" :size="13" class="animate-bounce" />
+        <IconCartBag v-else :size="13" />
+        <span>{{ isAdded ? '✓ Masuk' : '+ Keranjang' }}</span>
+      </button>
     </div>
   </div>
 </template>

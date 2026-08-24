@@ -40,7 +40,7 @@ const {
   setSort,
 } = useProducts()
 
-const { loadCart } = useCart()
+const { loadCart, quickAddToCart } = useCart()
 const { initTheme } = useTheme()
 
 // Local Filter States
@@ -60,6 +60,10 @@ function openProductModal(product: Product) {
 
 function closeProductModal() {
   selectedProductForModal.value = null
+}
+
+async function handleQuickAddToCart(product: Product) {
+  await quickAddToCart(product)
 }
 
 // Available filter options
@@ -618,7 +622,7 @@ onMounted(() => {
               :key="product.id"
               :product="product"
               @select-product="openProductModal"
-              @quick-rent="openProductModal"
+              @quick-add-to-cart="handleQuickAddToCart"
             />
           </div>
 
@@ -632,7 +636,7 @@ onMounted(() => {
               :key="product.id"
               :product="product"
               @select-product="openProductModal"
-              @quick-rent="openProductModal"
+              @quick-add-to-cart="handleQuickAddToCart"
             />
           </div>
         </div>
