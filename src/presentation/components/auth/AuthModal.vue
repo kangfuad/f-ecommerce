@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuth } from '@/presentation/composables/useAuth'
 import { useBodyScrollLock } from '@/presentation/composables/useBodyScrollLock'
 import BaseButton from '../common/BaseButton.vue'
@@ -11,6 +12,9 @@ import {
   IconGoogle,
   IconApple,
 } from '@/presentation/components/icons'
+
+const route = useRoute()
+const router = useRouter()
 
 const {
   isAuthModalOpen,
@@ -36,24 +40,41 @@ const regEmail = ref('')
 const regPhone = ref('')
 const regPassword = ref('')
 
+function checkRedirectAfterAuth() {
+  const target = (route.query.redirect as string) || ''
+  if (target && target.startsWith('/')) {
+    router.replace(target).catch(() => {})
+  } else if (route.query.auth) {
+    const cleanQuery = { ...route.query }
+    delete cleanQuery.auth
+    delete cleanQuery.redirect
+    router.replace({ query: cleanQuery }).catch(() => {})
+  }
+}
+
 async function handleLoginSubmit() {
   await login(loginIdentifier.value, loginPassword.value)
+  checkRedirectAfterAuth()
 }
 
 async function handleRegisterSubmit() {
   await register(regFullName.value, regEmail.value, regPhone.value, regPassword.value)
+  checkRedirectAfterAuth()
 }
 
 async function handleGoogleSSO() {
   await loginWithGoogle()
+  checkRedirectAfterAuth()
 }
 
 async function handleAppleSSO() {
   await loginWithApple()
+  checkRedirectAfterAuth()
 }
 
 async function handleQuickDemoLogin() {
   await loginAsDemo()
+  checkRedirectAfterAuth()
 }
 </script>
 
