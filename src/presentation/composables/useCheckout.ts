@@ -3,6 +3,7 @@ import { useRouter } from 'vue-router'
 import { useCart } from './useCart'
 import { useAuth } from './useAuth'
 import { useWishlist } from './useWishlist'
+import { PickupHubService, type PickupHubDto } from '@/infrastructure/services/api'
 import {
   RentalOrder,
   type DeliveryMethod,
@@ -19,7 +20,7 @@ const email = ref('')
 const phone = ref('')
 const deliveryMethod = ref<DeliveryMethod>('DELIVERY')
 const deliveryAddress = ref('')
-const pickupHub = ref('Hub Jakarta Selatan (Gandaria)')
+const pickupHub = ref('Hub Jakarta Selatan (Gandaria / Pondok Indah)')
 const ktpPhotoName = ref('')
 const selectedPaymentMethod = ref<PaymentMethodType>('QRIS')
 const agreeTerms = ref(true)
@@ -33,13 +34,13 @@ const checkoutError = ref<string | null>(null)
 const timeLeftSeconds = ref(900)
 let timerInterval: any = null
 
-export const AVAILABLE_PICKUP_HUBS = [
+export const AVAILABLE_PICKUP_HUBS = ref<string[]>([
   'Hub Jakarta Selatan (Gandaria / Pondok Indah)',
   'Hub BSD Serpong (The Breeze)',
   'Hub Jakarta Barat (Central Park)',
   'Hub Jakarta Pusat (Sudirman / Thamrin)',
   'Hub Bandung (Dago / Riau)',
-]
+])
 
 export function useCheckout() {
   const router = useRouter()
@@ -47,7 +48,19 @@ export function useCheckout() {
   const { currentUser } = useAuth()
   const { removeWishlist } = useWishlist()
 
+  async function loadPickupHubs() {
+    try {
+      const res = await PickupHubService.getPickupHubs()
+      if (res.status === 'success' && Array.isArray(res.data) && res.data.length > 0) {
+        AVAILABLE_PICKUP_HUBS.value = res.data.map((h) => h.name)
+      }
+    } catch (e) {
+      console.warn('Failed to load pickup hubs:', e)
+    }
+  }
+
   function initForm() {
+    loadPickupHubs()
     if (currentUser.value) {
       fullName.value = currentUser.value.fullName
       email.value = currentUser.value.email

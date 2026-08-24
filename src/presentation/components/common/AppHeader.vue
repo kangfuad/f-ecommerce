@@ -86,8 +86,45 @@ function handleClickOutside(e: MouseEvent) {
   }
 }
 
+import { CategoryService, type CategoryDto } from '@/infrastructure/services/api'
+
+const iconMap: Record<string, any> = {
+  IconCategoryAll,
+  IconCategoryCamera,
+  IconCategoryDrone,
+  IconCategoryOutdoor,
+  IconCategoryGadget,
+  IconCategoryFashion,
+}
+
+const navCategories = ref([
+  { id: ProductCategory.ALL, label: 'Semua Produk', icon: IconCategoryAll, desc: 'Lihat seluruh katalog siap sewa' },
+  { id: ProductCategory.CAMERA, label: 'Kamera & Lensa', icon: IconCategoryCamera, desc: 'Sony, Canon, Lensa GM, Lighting' },
+  { id: ProductCategory.DRONE_AUDIO, label: 'Drone & Audio', icon: IconCategoryDrone, desc: 'DJI Mavic, Mic Wireless, Mixer' },
+  { id: ProductCategory.OUTDOOR, label: 'Outdoor & Camping', icon: IconCategoryOutdoor, desc: 'Tenda Dome, Carrier, Cooking Set' },
+  { id: ProductCategory.GADGET, label: 'Gadget & Laptop', icon: IconCategoryGadget, desc: 'MacBook Pro, iPad Pro, Flagship' },
+  { id: ProductCategory.FASHION_EVENT, label: 'Fashion & Acara', icon: IconCategoryFashion, desc: 'Tuxedo, Gaun Pesta, Sound' },
+])
+
+async function loadNavCategories() {
+  try {
+    const res = await CategoryService.getCategories()
+    if (res.status === 'success' && Array.isArray(res.data) && res.data.length > 0) {
+      navCategories.value = res.data.map((cat: CategoryDto) => ({
+        id: (cat.id === 'GADGET_OFFICE' ? ProductCategory.GADGET : cat.id) as ProductCategory,
+        label: cat.label,
+        icon: iconMap[cat.icon] || IconCategoryAll,
+        desc: cat.description || '',
+      }))
+    }
+  } catch (e) {
+    console.warn('Failed to load categories from API:', e)
+  }
+}
+
 onMounted(() => {
   initAuth()
+  loadNavCategories()
   if (typeof window !== 'undefined') {
     window.addEventListener('click', handleClickOutside)
   }
@@ -98,15 +135,6 @@ onUnmounted(() => {
     window.removeEventListener('click', handleClickOutside)
   }
 })
-
-const navCategories = [
-  { id: ProductCategory.ALL, label: 'Semua Produk', icon: IconCategoryAll, desc: 'Lihat seluruh katalog siap sewa' },
-  { id: ProductCategory.CAMERA, label: 'Kamera & Lensa', icon: IconCategoryCamera, desc: 'Sony, Canon, Lensa GM, Lighting' },
-  { id: ProductCategory.DRONE_AUDIO, label: 'Drone & Audio', icon: IconCategoryDrone, desc: 'DJI Mavic, Mic Wireless, Mixer' },
-  { id: ProductCategory.OUTDOOR, label: 'Outdoor & Camping', icon: IconCategoryOutdoor, desc: 'Tenda Dome, Carrier, Cooking Set' },
-  { id: ProductCategory.GADGET, label: 'Gadget & Laptop', icon: IconCategoryGadget, desc: 'MacBook Pro, iPad Pro, Flagship' },
-  { id: ProductCategory.FASHION_EVENT, label: 'Fashion & Acara', icon: IconCategoryFashion, desc: 'Tuxedo, Gaun Pesta, Sound' },
-]
 </script>
 
 <template>

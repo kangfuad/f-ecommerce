@@ -1,0 +1,46 @@
+{
+  "status": "success",
+  "data": [
+    {
+      "id": "hub_jaksel",
+      "name": "Hub Jakarta Selatan (Gandaria / Pondok Indah)",
+      "address": "Jl. Gandaria 1 No. 88, Kebayoran Baru, Jakarta Selatan",
+      "city": "Jakarta Selatan",
+      "operationalHours": "08:00 - 21:00 WIB",
+      "phone": "+62 811-9876-1234"
+    },
+    {
+      "id": "hub_bsd",
+      "name": "Hub BSD Serpong (The Breeze)",
+      "address": "The Breeze BSD Blok L-12, Tangerang Selatan",
+      "city": "Tangerang Selatan",
+      "operationalHours": "08:00 - 21:00 WIB",
+      "phone": "+62 811-9876-5678"
+    },
+    {
+      "id": "hub_jakbar",
+      "name": "Hub Jakarta Barat (Central Park)",
+      "address": "Ruko Garden Shopping Arcade No. 09, Tanjung Duren, Jakarta Barat",
+      "city": "Jakarta Barat",
+      "operationalHours": "09:00 - 20:00 WIB",
+      "phone": "+62 811-9876-9012"
+    },
+    {
+      "id": "hub_jakpus",
+      "name": "Hub Jakarta Pusat (Sudirman / Thamrin)",
+      "address": "MidPlaza Tower 1 Lantai Dasar, Jl. Jend. Sudirman Kav. 10-11, Jakarta Pusat",
+      "city": "Jakarta Pusat",
+      "operationalHours": "08:00 - 21:00 WIB",
+      "phone": "+62 811-9876-3456"
+    },
+    {
+      "id": "hub_bdg",
+      "name": "Hub Bandung (Dago / Riau)",
+      "address": "Jl. LLRE Martadinata (Riau) No. 45, Citarum, Bandung",
+      "city": "Bandung",
+      "operationalHours": "09:00 - 20:00 WIB",
+      "phone": "+62 811-9876-7890"
+    }
+  ],
+  "message": "Pickup hubs retrieved successfully!"
+}

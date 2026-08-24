@@ -3,9 +3,12 @@ import { Product } from '@/domain/entities/Product'
 import { ProductCategory } from '@/domain/enums/ProductCategory'
 import { RentalStatus } from '@/domain/enums/RentalStatus'
 import { ItemCondition } from '@/domain/enums/ItemCondition'
+import { ProductService, type ProductRawDto } from '../services/api'
 
 export class MockProductRepository implements IProductRepository {
-  private readonly products: Product[] = [
+  private productsCache: Product[] | null = null
+
+  private readonly fallbackProducts: Product[] = [
     new Product({
       id: 'eps_cam_01',
       name: 'Sony Alpha 7 IV Mirrorless Camera Kit',
@@ -172,6 +175,7 @@ export class MockProductRepository implements IProductRepository {
       location: 'Jakarta & Tangerang',
       isFeatured: false,
       isPopular: true,
+      badgeText: 'Podcast Studio',
     }),
     new Product({
       id: 'eps_fash_01',
@@ -207,8 +211,49 @@ export class MockProductRepository implements IProductRepository {
     }),
   ]
 
+  private async fetchProducts(): Promise<Product[]> {
+    if (this.productsCache) {
+      return this.productsCache
+    }
+
+    try {
+      const response = await ProductService.getProducts()
+      if (response.status === 'success' && Array.isArray(response.data) && response.data.length > 0) {
+        this.productsCache = response.data.map(
+          (raw: ProductRawDto) =>
+            new Product({
+              id: raw.id,
+              name: raw.name,
+              category: raw.category,
+              dailyRate: raw.dailyRate,
+              marketValue: raw.marketValue,
+              depositAmount: raw.depositAmount,
+              images: raw.images,
+              description: raw.description,
+              specs: raw.specs,
+              includedItems: raw.includedItems,
+              status: raw.status,
+              condition: raw.condition,
+              rating: raw.rating,
+              reviewCount: raw.reviewCount,
+              location: raw.location,
+              isFeatured: raw.isFeatured,
+              isPopular: raw.isPopular,
+              badgeText: raw.badgeText,
+            })
+        )
+        return this.productsCache
+      }
+    } catch (e) {
+      console.warn('Fallback to local products array:', e)
+    }
+
+    return this.fallbackProducts
+  }
+
   public async getAll(filter?: ProductFilterParams): Promise<Product[]> {
-    let result = [...this.products]
+    const products = await this.fetchProducts()
+    let result = [...products]
 
     if (filter?.category && filter.category !== ProductCategory.ALL) {
       result = result.filter((p) => p.category === filter.category)
@@ -262,19 +307,23 @@ export class MockProductRepository implements IProductRepository {
   }
 
   public async getById(id: string): Promise<Product | null> {
-    return this.products.find((p) => p.id === id) || null
+    const products = await this.fetchProducts()
+    return products.find((p) => p.id === id) || null
   }
 
   public async getFeatured(): Promise<Product[]> {
-    return this.products.filter((p) => p.isFeatured)
+    const products = await this.fetchProducts()
+    return products.filter((p) => p.isFeatured)
   }
 
   public async getPopular(): Promise<Product[]> {
-    return this.products.filter((p) => p.isPopular)
+    const products = await this.fetchProducts()
+    return products.filter((p) => p.isPopular)
   }
 
   public async getByCategory(category: ProductCategory): Promise<Product[]> {
-    if (category === ProductCategory.ALL) return this.products
-    return this.products.filter((p) => p.category === category)
+    const products = await this.fetchProducts()
+    if (category === ProductCategory.ALL) return products
+    return products.filter((p) => p.category === category)
   }
 }

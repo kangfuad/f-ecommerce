@@ -1,0 +1,18 @@
+{
+  "status": "success",
+  "data": {
+    "token": "eps_jwt_token_sample_1234567890abcdef",
+    "refreshToken": "eps_refresh_sample_0987654321fedcba",
+    "user": {
+      "id": "usr_aurifd",
+      "fullName": "Auri Fuad",
+      "email": "auri.fuad@example.com",
+      "phone": "081234567890",
+      "isKycVerified": true,
+      "initials": "AF",
+      "membershipTier": "GOLD",
+      "avatarUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop"
+    }
+  },
+  "message": "Token refreshed successfully!"
+}
