@@ -35,7 +35,7 @@ const emit = defineEmits<{
         :key="cat.id"
         @click="emit('select-category', cat.id)"
         :class="[
-          'relative text-left p-3.5 sm:p-4 rounded-2xl border transition-all duration-300 group cursor-pointer overflow-hidden flex flex-col justify-between h-36 sm:h-40',
+          'relative text-left p-3 sm:p-4 rounded-2xl border transition-all duration-300 group cursor-pointer overflow-hidden flex flex-col justify-between min-h-[120px] sm:min-h-[135px] lg:min-h-[145px]',
           selectedCategory === cat.id
             ? 'border-sage dark:border-sage-soft bg-sage/10 dark:bg-zinc-800/90 shadow-lg ring-2 ring-sage/30'
             : 'border-theme-border bg-theme-card hover:border-slate-400 dark:hover:border-zinc-500 hover:shadow-card'
