@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+    /* LIGHT MODE (Default Muted Sky & Sage) */
+    --color-bg-page: #F8FAFC;        /* Ice White */
+    --color-bg-card: #FFFFFF;        /* Pure White */
+    --color-bg-card-hover: #F1F5F9;  /* Soft Hover */
+    --color-text-primary: #0F172A;   /* Deep Navy */
+    --color-text-muted: #64748B;     /* Slate Blue Gray */
+    --color-cta: #84A98C;            /* Sage Green */
+    --color-cta-hover: #6B8E73;      /* Darker Sage */
+    --color-cta-text: #FFFFFF;       /* Pure White */
+    --color-accent-blue: #3B82F6;    /* Soft Dusty Blue */
+    --color-border: #E2E8F0;         /* Subtle Gray */
+    --color-glass-header: rgba(255, 255, 255, 0.90);
+    --shadow-card: 0 4px 20px -2px rgba(15, 23, 42, 0.06);
+    --shadow-hover: 0 20px 40px -12px rgba(15, 23, 42, 0.12);
+  }
+
+  .dark {
+    color-scheme: dark;
+    /* DARK MODE (Sophisticated Deep Charcoal & Sage) */
+    --color-bg-page: #1A1A1A;        /* Deep Charcoal (No #000000) */
+    --color-bg-card: #262626;        /* Muted Slate Gray */
+    --color-bg-card-hover: #2E2E2E;  /* Elevated Slate */
+    --color-text-primary: #F8FAFC;   /* Off-White Cream */
+    --color-text-muted: #A1A1AA;     /* Soft Ash Gray */
+    --color-cta: #9DC89F;            /* Adapted Soft Sage */
+    --color-cta-hover: #84A98C;      /* Sage Green */
+    --color-cta-text: #1A1A1A;       /* Deep Charcoal */
+    --color-accent-blue: #3B82F6;    /* Soft Dusty Blue */
+    --color-border: #3F3F46;         /* Dark Slate Gray */
+    --color-glass-header: rgba(26, 26, 26, 0.92);
+    --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.35);
+    --shadow-hover: 0 20px 40px -12px rgba(0, 0, 0, 0.60);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: var(--color-bg-page);
+    color: var(--color-text-primary);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  ::selection {
+    background-color: var(--color-cta);
+    color: var(--color-cta-text);
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: 'Playfair Display', serif;
+  }
+
+  .card-hover {
+    transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.3s ease;
+  }
+
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover);
+  }
+
+  .glass-header {
+    background: var(--color-glass-header);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: var(--color-bg-page);
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 9999px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-muted);
+  }
+}

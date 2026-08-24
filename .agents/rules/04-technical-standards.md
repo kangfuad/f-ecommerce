@@ -1,0 +1,44 @@
+# Standar Teknis & Konvensi Kode: e-punyasewa
+
+Panduan teknis bagi agen AI dan pengembang dalam memelihara dan menulis kode pada platform **e-punyasewa**.
+
+---
+
+## 1. Tech Stack & Arsitektur Utama
+- **Core Framework:** Vue 3 (Composition API + `<script setup lang="ts">`) + Vite.
+- **Styling:** Tailwind CSS + Custom Design Tokens (`eps-*`).
+- **Pola Arsitektur:** Clean Architecture (Hexagonal / Layered):
+  - `src/domain/`: Entities, Value Objects, Enums, Domain Exceptions.
+  - `src/application/`: Use Cases / Business Services, Repository Contracts.
+  - `src/infrastructure/`: Repository Implementations, LocalStorage Adapter, DI Container.
+  - `src/presentation/`: Vue Components, Composables (Controllers/ViewModels), Styles.
+  - `src/core/`: Global Config, Centralized Error Handling, Helpers.
+
+---
+
+## 2. Fokus Fase 1: UI/UX Excellence & Interactive Rental Flow
+1. **Visual Excellence (Aesthetics First):**
+   - Menggunakan palet `eps-*` (Teal `#0D9488`, Dark Slate `#0F172A`, Cream `#F8FAFC`, Coral `#E28B75`, Amber `#F59E0B`).
+   - Tipografi: *Plus Jakarta Sans* untuk UI jernih & *Playfair Display* untuk sentuhan editorial mewah.
+   - Micro-animations: *Staggered fade-in*, *card hover elevation*, *drawer slide-over*, *badge pulsing*.
+2. **Interactive Rental Experience:**
+   - **Date Range Picker:** Memilih tanggal mulai dan selesai sewa secara interaktif.
+   - **Kalkulator Sewa & Jaminan Deposit Real-time:** Menghitung durasi hari/minggu, diskon otomatis, dan *refundable deposit*.
+   - **Slide-over Cart Drawer:** Pengalaman keranjang modern tanpa reload halaman, penghitungan subtotal & jaminan.
+   - **Filter & Kategori Interaktif:** Pengelompokan barang sewa (Kamera, Drone, Outdoor, Gadget, Fashion).
+
+---
+
+## 3. Prinsip Kode & Clean Code (SOLID)
+- **SRP (Single Responsibility):** Pisahkan komponen UI presentasi dari logika perhitungan sewa (gunakan composables & use cases).
+- **No Magic Numbers / Strings:** Semua tarif sewa default, batas gratis ongkir/asuransi, dan status sewa didefinisikan dalam `src/core/config/app.config.ts` dan Enums.
+- **Dependency Injection:** Gunakan DI Container untuk inject repositori ke dalam composable/use cases sehingga mudah di-mock dan diuji.
+- **Centralized Error Handling:** Tangkap error validasi tanggal, durasi sewa, atau stok menggunakan Custom Exception terpusat.
+
+---
+
+## 4. Manajemen State & Penyimpanan Lokal
+- Gunakan `localStorage` untuk persistensi data frontend:
+  - `eps_cart`: Daftar item sewa, durasi tanggal sewa, kuantitas, dan deposit.
+  - `eps_wishlist`: Daftar ID barang favorit.
+  - `eps_user`: Simulasi sesi pengguna.
