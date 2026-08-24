@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { Product } from '@/domain/entities/Product'
 import { useRentalCalculator } from '@/presentation/composables/useRentalCalculator'
 import { useCart } from '@/presentation/composables/useCart'
+import { useBodyScrollLock } from '@/presentation/composables/useBodyScrollLock'
 import DateRangePicker from '../rental/DateRangePicker.vue'
 import RentalPriceBreakdown from '../rental/RentalPriceBreakdown.vue'
 import BaseBadge from '../common/BaseBadge.vue'
@@ -27,6 +28,9 @@ const emit = defineEmits<{
 
 const activeImageIndex = ref(0)
 const { addToCart, isLoading: isAddingToCart } = useCart()
+
+// Lock background page scroll when modal is open
+useBodyScrollLock(() => !!props.product)
 
 const {
   startDate,
@@ -190,8 +194,9 @@ async function handleAddToCart() {
           </div>
 
           <!-- Calculation Error if any -->
-          <div v-if="calculationError" class="p-3 rounded-xl bg-red-100 dark:bg-red-950/80 text-red-700 dark:text-red-300 text-xs font-medium border border-red-200 dark:border-red-800/60">
-            ⚠️ {{ calculationError }}
+          <div v-if="calculationError" class="p-3 rounded-xl bg-red-100 dark:bg-red-950/80 text-red-700 dark:text-red-300 text-xs font-semibold border border-red-200 dark:border-red-800/60 flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-red-600 dark:bg-red-400 shrink-0"></span>
+            <span>{{ calculationError }}</span>
           </div>
 
           <!-- Live Breakdown Component -->

@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import BaseButton from '../common/BaseButton.vue'
-import BaseBadge from '../common/BaseBadge.vue'
 import { IconArrowRight } from '@/presentation/components/icons'
+
+const FEATURED_PRODUCT_ID = 'eps_cam_01'
 
 const emit = defineEmits<{
   (e: 'explore'): void
+  (e: 'select-featured', productId: string): void
 }>()
 </script>
 
@@ -20,7 +22,7 @@ const emit = defineEmits<{
         <div class="lg:col-span-7 space-y-4 sm:space-y-6">
           <div class="flex items-center gap-2">
             <span class="inline-flex items-center gap-1.5 text-xs px-3.5 py-1.5 font-black uppercase tracking-wider rounded-full bg-[#244E33]/70 text-[#A3C4AF] border border-[#82A78F]/50 shadow-sm">
-              ✨ Premium Gear Rental 2026
+              Premium Gear Rental 2026
             </span>
             <span class="text-xs text-stone-300 dark:text-stone-400 font-medium hidden sm:inline">Bebas Ribet • Jaminan 100% Original</span>
           </div>
@@ -72,29 +74,41 @@ const emit = defineEmits<{
           </div>
         </div>
 
-        <!-- Right: Visual Hero Card -->
+        <!-- Right: Interactive Visual Hero Card -->
         <div class="lg:col-span-5 relative">
-          <div class="relative rounded-3xl overflow-hidden shadow-2xl border border-stone-700/80 dark:border-stone-750 bg-stone-800/80 dark:bg-espresso-card group">
+          <div
+            @click="emit('select-featured', FEATURED_PRODUCT_ID)"
+            class="relative rounded-3xl overflow-hidden shadow-2xl border border-stone-700/80 hover:border-forest-soft/80 dark:border-stone-700 hover:ring-2 hover:ring-forest-soft/40 bg-stone-800/80 dark:bg-espresso-card group cursor-pointer transition-all duration-500 hover:scale-[1.01]"
+            title="Klik untuk lihat detail & kalkulasi sewa unit ini"
+          >
             <img
               src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1000&auto=format&fit=crop"
               alt="Sony A7 IV Rental Unit"
-              class="w-full h-72 sm:h-80 lg:h-80 xl:h-96 object-cover group-hover:scale-105 transition-transform duration-700 opacity-90"
+              class="w-full h-72 sm:h-80 lg:h-80 xl:h-96 object-cover group-hover:scale-108 transition-transform duration-700 opacity-90 group-hover:opacity-100"
             />
-            <div class="absolute inset-0 bg-gradient-to-t from-[#141211]/90 via-transparent to-transparent"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-[#141211]/90 via-transparent to-black/20"></div>
+
+            <!-- Interactive Click-Hint Pill -->
+            <div class="absolute top-3.5 right-3.5 z-10 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1 rounded-full border border-white/20 group-hover:bg-forest group-hover:border-forest-soft transition-all flex items-center gap-1.5 shadow-lg">
+              <span>Detail Unit</span>
+              <IconArrowRight :size="12" class="group-hover:translate-x-0.5 transition-transform" />
+            </div>
 
             <!-- Floating rental quick card -->
-            <div class="absolute bottom-4 left-4 right-4 sm:bottom-5 sm:left-5 sm:right-5 bg-[#1C1917]/90 dark:bg-espresso-card/95 backdrop-blur-md border border-stone-700/80 rounded-2xl p-3 sm:p-4 text-white shadow-xl">
+            <div class="absolute bottom-4 left-4 right-4 sm:bottom-5 sm:left-5 sm:right-5 bg-[#1C1917]/90 dark:bg-espresso-card/95 backdrop-blur-md border border-stone-700/80 group-hover:border-forest-soft/50 rounded-2xl p-3.5 sm:p-4 text-white shadow-xl transition-all">
               <div class="flex items-start justify-between gap-2 sm:gap-3">
                 <div>
-                  <span class="text-[9px] sm:text-[10px] uppercase tracking-wider font-extrabold text-forest-soft dark:text-sage-soft bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800/40">
+                  <span class="text-[9px] sm:text-[10px] uppercase tracking-wider font-extrabold text-[#A3C4AF] bg-[#244E33]/90 px-2 py-0.5 rounded border border-emerald-500/40">
                     Unit Terpopuler
                   </span>
-                  <p class="font-bold text-sm sm:text-base mt-1 text-white truncate">Sony Alpha 7 IV Kit</p>
+                  <p class="font-bold text-sm sm:text-base mt-1 text-white group-hover:text-forest-soft transition-colors truncate">
+                    Sony Alpha 7 IV Kit
+                  </p>
                   <p class="text-[11px] sm:text-xs text-stone-300 dark:text-stone-400 line-clamp-1">Siap pakai lengkap lensa GM & memory</p>
                 </div>
                 <div class="text-right shrink-0">
                   <p class="text-[9px] sm:text-[10px] text-stone-400">Mulai dari</p>
-                  <p class="text-sm sm:text-base font-extrabold text-sage-soft">Rp 350rb<span class="text-[10px] sm:text-xs font-normal text-stone-300">/hari</span></p>
+                  <p class="text-sm sm:text-base font-extrabold text-forest-soft">Rp 350rb<span class="text-[10px] sm:text-xs font-normal text-stone-300">/hari</span></p>
                 </div>
               </div>
             </div>

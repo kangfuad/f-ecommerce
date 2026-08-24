@@ -13,11 +13,11 @@ Standar sistem warna, token CSS variables, tipografi, sistem icon SVG original, 
 | `--color-bg-card` / `theme-card` | `#FFFFFF` | **Card / Container Background**: Pure Off-White |
 | `--color-bg-card-hover` | `#F5F1E8` | **Card Hover Background**: Warm Linen Hover |
 | `--color-text-primary` / `theme-primary` | `#1C1917` | **Primary Text**: Deep Warm Umber / Warm Espresso |
-| `--color-text-muted` / `theme-muted` | `#78716C` | **Secondary Text / Muted**: Warm Taupe |
-| `--color-cta` / `theme-cta` | `#3D634C` | **Primary CTA / Button**: Rich Forest Sage |
-| `--color-cta-hover` | `#2F4D3B` | **Hover / Active CTA**: Deep Pine Sage |
-| `--color-accent-terracotta` / `theme-terracotta` | `#C88A58` | **Secondary Accent / Tag**: Warm Terracotta |
-| `--color-border` / `theme-border` | `#E7E5E4` | **Borders / Dividers**: Soft Stone |
+| `--color-text-muted` / `theme-muted` | `#57534E` | **Secondary Text / Muted**: Stone 600 (High Contrast) |
+| `--color-cta` / `theme-cta` | `#2D5239` | **Primary CTA / Button**: Rich Forest Sage |
+| `--color-cta-hover` | `#1E3827` | **Hover / Active CTA**: Deep Pine Sage |
+| `--color-accent-terracotta` / `theme-terracotta` | `#B45309` | **Secondary Accent / Tag**: Warm Terracotta |
+| `--color-border` / `theme-border` | `#E5E0D8` | **Borders / Dividers**: Soft Stone |
 
 ### B. DARK MODE
 | Token / Semantic | Hex Code | Nama Warna & Penggunaan |
@@ -57,18 +57,25 @@ Standar sistem warna, token CSS variables, tipografi, sistem icon SVG original, 
 
 ### A. Aturan Wajib (Mandatory Rules):
 1. **100% Original & Mandiri:** Semua icon pada platform **e-punyasewa** harus dibuat sendiri sebagai komponen SVG Vue murni di folder `@/presentation/components/icons/`.
-2. **Dilarang Icon Library Eksternal / Font Icons:** Jangan menginstal atau mengimpor icon library eksternal (seperti Lucide, FontAwesome, Heroicons, Material Icons dsb.) atau menggunakan emoji sebagai icon UI utama.
+2. **Dilarang Icon Library Eksternal / Font Icons:** Jangan menginstal atau mengimpor icon library eksternal (seperti Lucide, FontAwesome, Heroicons, Material Icons dsb.).
 3. **Format Standar SVG Component:**
    - Menggunakan `viewBox="0 0 24 24"`.
    - Menggunakan `fill="none"` dan `stroke="currentColor"`.
    - Menggunakan `stroke-linecap="round"` dan `stroke-linejoin="round"`.
-   - Mendukung props fleksibel: `size` (number/string, default 20/16/14) dan `strokeWidth` (default 2 atau 2.2).
+   - Mendukung props fleksibel: `size` (number/string) dan `strokeWidth` (default 2 atau 2.2).
    - Menyertakan atribut aksesibilitas `aria-hidden="true"`.
 4. **Barrel Export Centralization:** Setiap icon baru WAJIB didaftarkan dan diekspor melalui [`src/presentation/components/icons/index.ts`](file:///Users/auri/fuad/LATIHAN/ecommerce/src/presentation/components/icons/index.ts).
-5. **Pewarnaan Dinamis:** Hindari hardcode warna hex pada path/stroke di dalam komponen icon kecuali untuk accent khusus. Biarkan mewarisi warna dari elemen induk via `currentColor` atau kelas utilitas Tailwind (`text-sage`, `text-theme-muted`, `text-coral`, dsb.).
 
 ### B. Daftar Icon Resmi & Kategori:
 - **Brand Identity:** `IconLogo`
 - **Kategori Sewa:** `IconCategoryAll`, `IconCategoryCamera`, `IconCategoryDrone`, `IconCategoryOutdoor`, `IconCategoryGadget`, `IconCategoryFashion`
 - **Pilar Kepercayaan & Jaminan:** `IconShieldCheck`, `IconRefundDeposit`, `IconInsurance`, `IconDeliveryTruck`
 - **Navigasi & Interaksi:** `IconSearch`, `IconHeartWishlist`, `IconCartBag`, `IconThemeMonitor`, `IconThemeSun`, `IconThemeMoon`, `IconCalendarDate`, `IconUser`, `IconStar`, `IconLocation`, `IconArrowRight`, `IconChevronDown`, `IconCheck`, `IconClose`, `IconTrash`, `IconBoxPackage`, `IconMenu`
+
+---
+
+## 5. Larangan Penggunaan Emoticon (Strict No-Emoji Rule)
+1. **Dilarang Keras Emoticon Generik:** Jangan menggunakan emoticon/emoji teks Unicode (seperti `✨`, `🎉`, `🚀`, `📦`, `💡`, `🛡️`, `🔒`, `⚠️`, `⚡`, `🔥`, `💎`, dll.) pada judul halaman, badge promosi, tombol, banner, label formulir, maupun pesan notifikasi sistem.
+2. **Karakter Visual yang Profesional & Editorial:**
+   - Gunakan tipografi editorial yang bersih, percaya diri, dan profesional (*high-end luxury aesthetic*).
+   - Bila memerlukan penegas visual, gunakan komponen SVG icon resmi dari `@/presentation/components/icons/` (`IconCheck`, `IconShieldCheck`, `IconDeliveryTruck`, dll.).

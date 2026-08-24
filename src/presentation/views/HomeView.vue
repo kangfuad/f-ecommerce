@@ -52,6 +52,13 @@ function scrollToCatalog() {
   }
 }
 
+function handleSelectFeatured(productId: string) {
+  const product = products.value.find((p) => p.id === productId)
+  if (product) {
+    openProductModal(product)
+  }
+}
+
 onMounted(() => {
   initTheme()
   fetchProducts()
@@ -71,7 +78,10 @@ onMounted(() => {
     <!-- Main Content -->
     <main class="flex-1">
       <!-- 1. Hero Section -->
-      <HeroBanner @explore="scrollToCatalog" />
+      <HeroBanner
+        @explore="scrollToCatalog"
+        @select-featured="handleSelectFeatured"
+      />
 
       <!-- 2. Value Proposition -->
       <ValueProps />

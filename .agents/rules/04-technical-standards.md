@@ -6,7 +6,7 @@ Panduan teknis bagi agen AI dan pengembang dalam memelihara dan menulis kode pad
 
 ## 1. Tech Stack & Arsitektur Utama
 - **Core Framework:** Vue 3 (Composition API + `<script setup lang="ts">`) + Vite.
-- **Styling:** Tailwind CSS + Muted Sky & Sage Theme tokens (`:root` / `.dark`).
+- **Styling:** Tailwind CSS + Warm Espresso & Forest Sage tokens (`:root` / `.dark`).
 - **Iconography:** 100% Original SVG Component System (`src/presentation/components/icons/`).
 - **Pola Arsitektur:** Clean Architecture (Hexagonal / Layered):
   - `src/domain/`: Entities, Value Objects, Enums, Domain Exceptions.
@@ -17,17 +17,18 @@ Panduan teknis bagi agen AI dan pengembang dalam memelihara dan menulis kode pad
 
 ---
 
-## 2. Standar Icon & Asset UI (Icon System Rules)
+## 2. Standar Icon & Asset UI (Icon System & No-Emoji Rules)
 1. **Original SVG Only:** Seluruh icon harus berupa komponen SVG Vue mandiri (`.vue`) yang tersimpan di `src/presentation/components/icons/`.
 2. **Tanpa Library Pihak Ketiga:** Dilarang menginstal atau mengimpor icon library luar (Lucide, FontAwesome, Material Icons, dsb.).
-3. **Pewarnaan Dinamis:** Komponen icon menggunakan `stroke="currentColor"` dan `fill="none"` (kecuali aksen khusus) sehingga responsif terhadap perubahan tema Light/Dark.
-4. **Sentralisasi Import:** Seluruh import icon dilakukan via barrel export `@/presentation/components/icons`.
+3. **Dilarang Emoticon Generik AI (Strict No-Emoji Rule):** Dilarang keras menggunakan emoticon Unicode (`✨`, `🎉`, `🚀`, `📦`, `💡`, `🛡️`, `🔒`, `⚠️`, `⚡`, dll.) pada UI teks, badge, tombol, maupun notifikasi. Gunakan tipografi editorial berkelas atau komponen SVG Icon.
+4. **Pewarnaan Dinamis:** Komponen icon menggunakan `stroke="currentColor"` dan `fill="none"` (kecuali aksen khusus) sehingga responsif terhadap perubahan tema Light/Dark.
+5. **Sentralisasi Import:** Seluruh import icon dilakukan via barrel export `@/presentation/components/icons`.
 
 ---
 
 ## 3. Fokus Fase 1: UI/UX Excellence & Interactive Rental Flow
 1. **Visual Excellence (Aesthetics First):**
-   - Menggunakan tema *Muted Sky & Sage* (Light Mode & Dark Mode dengan Deep Charcoal `#1A1A1A`).
+   - Menggunakan tema *Warm Espresso & Forest Sage* (Light Mode & Dark Mode dengan Deep Espresso Smoke `#141211`).
    - Tipografi: *Plus Jakarta Sans* untuk UI jernih & *Playfair Display* untuk sentuhan editorial mewah.
    - Micro-animations: *Staggered fade-in*, *card hover elevation*, *drawer slide-over*, *badge pulsing*.
 2. **Interactive Rental Experience:**
