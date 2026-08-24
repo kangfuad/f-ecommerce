@@ -34,6 +34,7 @@ const routes = [
     path: '/pesanan-saya',
     name: 'my-orders',
     component: MyOrdersView,
+    meta: { requiresAuth: true },
   },
   {
     path: '/riwayat-sewa',
@@ -58,4 +59,17 @@ export const router = createRouter({
     }
     return { top: 0, behavior: 'smooth' }
   },
+})
+
+// Navigation Guard: Protect auth-only routes
+router.beforeEach((to, _from, next) => {
+  const userRaw = localStorage.getItem('epunyasewa_auth_user')
+  const isLoggedIn = !!userRaw
+
+  if (to.matched.some((record) => record.meta.requiresAuth) && !isLoggedIn) {
+    // Redirect to home if unauthenticated
+    next({ path: '/', query: { redirect: to.fullPath, auth: 'login' } })
+  } else {
+    next()
+  }
 })

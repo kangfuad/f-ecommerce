@@ -123,7 +123,21 @@ watch([selectedTab, pageSize], () => {
   currentPage.value = 1
 })
 
+watch(
+  isLoggedIn,
+  (loggedIn) => {
+    if (!loggedIn) {
+      router.replace('/')
+    }
+  }
+)
+
 onMounted(() => {
+  if (!isLoggedIn.value) {
+    openLoginModal()
+    router.replace('/')
+    return
+  }
   loadOrders()
 })
 
@@ -179,28 +193,47 @@ function getStatusBadge(order: OrderDto) {
     <AppHeader />
 
     <main class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-6">
-      <!-- Page Header -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-theme-border">
-        <div>
-          <span class="text-[11px] font-extrabold uppercase tracking-widest text-forest dark:text-forest-glow">
-            Dashboard Pelanggan
-          </span>
-          <h1 class="font-display text-2xl sm:text-3xl font-black text-theme-primary mt-0.5">
-            Riwayat Pesanan & Tracking Rental
-          </h1>
-          <p class="text-xs text-stone-500 mt-1">
-            Pantau status pengiriman, sisa durasi masa sewa, batalkan sewa, dan akses invoice digital Anda.
-          </p>
+      <!-- Unauthenticated State -->
+      <div v-if="!isLoggedIn" class="text-center py-20 bg-theme-card rounded-3xl border border-theme-border p-8 animate-fade-up">
+        <div class="w-16 h-16 rounded-full bg-forest/10 dark:bg-forest/20 text-forest dark:text-forest-glow border border-forest/20 flex items-center justify-center mx-auto mb-4">
+          <IconShieldCheck :size="32" />
         </div>
-
-        <router-link
-          to="/katalog"
-          class="inline-flex items-center gap-2 bg-[#244E33] hover:bg-[#1B3B26] dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-stone-950 text-xs font-black px-4 py-2.5 rounded-full shadow-sm transition self-start sm:self-auto cursor-pointer"
+        <h2 class="font-display text-2xl font-black text-theme-primary">Akses Khusus Member</h2>
+        <p class="text-xs sm:text-sm text-stone-500 max-w-md mx-auto mt-2">
+          Halaman riwayat pesanan dan pelacakan sewa hanya dapat diakses oleh akun yang sudah masuk.
+        </p>
+        <button
+          @click="openLoginModal"
+          class="mt-6 px-6 py-2.5 bg-[#244E33] hover:bg-[#1B3B26] text-white rounded-full text-xs font-bold shadow-md cursor-pointer transition"
         >
-          <span>+ Sewa Unit Baru</span>
-          <IconArrowRight :size="13" />
-        </router-link>
+          Masuk ke Akun Anda
+        </button>
       </div>
+
+      <!-- Authenticated Member Dashboard -->
+      <div v-else class="space-y-6">
+        <!-- Page Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-theme-border">
+          <div>
+            <span class="text-[11px] font-extrabold uppercase tracking-widest text-forest dark:text-forest-glow">
+              Dashboard Pelanggan
+            </span>
+            <h1 class="font-display text-2xl sm:text-3xl font-black text-theme-primary mt-0.5">
+              Riwayat Pesanan & Tracking Rental
+            </h1>
+            <p class="text-xs text-stone-500 mt-1">
+              Pantau status pengiriman, sisa durasi masa sewa, batalkan sewa, dan akses invoice digital Anda.
+            </p>
+          </div>
+
+          <router-link
+            to="/katalog"
+            class="inline-flex items-center gap-2 bg-[#244E33] hover:bg-[#1B3B26] dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-stone-950 text-xs font-black px-4 py-2.5 rounded-full shadow-sm transition self-start sm:self-auto cursor-pointer"
+          >
+            <span>+ Sewa Unit Baru</span>
+            <IconArrowRight :size="13" />
+          </router-link>
+        </div>
 
       <!-- Status Filter Tabs -->
       <div id="my-orders-list" class="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-2">
@@ -423,6 +456,7 @@ function getStatusBadge(order: OrderDto) {
             </div>
           </div>
         </div>
+      </div>
 
         <!-- Interactive Pagination Controls -->
         <div

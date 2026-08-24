@@ -268,27 +268,28 @@ onUnmounted(() => {
             </span>
           </button>
 
-          <!-- Cart Slide-over Trigger Button with Dynamic Bounce Animation -->
+          <!-- Cart Slide-over Trigger Button (Neutral when 0, Active/Badge when > 0) -->
           <button
             @click="openCart"
             :class="[
-              'relative inline-flex items-center gap-2 bg-theme-cta hover:bg-theme-cta-hover text-theme-cta-text font-extrabold text-xs sm:text-sm px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full shadow-md transition-all duration-300 cursor-pointer group',
-              isCartBadgeBouncing ? 'scale-110 ring-4 ring-forest/40' : ''
+              'relative w-9 h-9 sm:w-10 sm:h-10 rounded-full border flex items-center justify-center transition-all duration-300 cursor-pointer group',
+              totalItemCount > 0
+                ? 'bg-forest/15 dark:bg-stone-800 text-forest dark:text-forest-glow border-forest/30 dark:border-forest/40 hover:bg-forest/20'
+                : 'bg-stone-100 dark:bg-stone-800 border-theme-border text-theme-primary hover:bg-stone-200 dark:hover:bg-stone-700',
+              isCartBadgeBouncing ? 'scale-115 ring-4 ring-forest/40' : ''
             ]"
             title="Buka Keranjang Sewa"
+            aria-label="Keranjang Sewa"
           >
             <IconCartBag
               :size="17"
-              :class="['transition-transform duration-300', isCartBadgeBouncing ? 'scale-125 text-forest-soft animate-bounce' : 'group-hover:scale-110']"
+              :class="['transition-transform duration-300', isCartBadgeBouncing ? 'scale-125 text-emerald-500 animate-bounce' : 'group-hover:scale-110']"
             />
-            <span class="hidden sm:inline">Keranjang</span>
             <span
               v-if="totalItemCount > 0"
               :class="[
-                'text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow-xs ml-0.5 transition-all duration-300',
-                isCartBadgeBouncing
-                  ? 'bg-emerald-500 text-white scale-135'
-                  : 'bg-white/95 text-stone-900'
+                'absolute -top-1 -right-1 bg-forest dark:bg-emerald-500 text-white text-[10px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center shadow-sm transition-all duration-300',
+                isCartBadgeBouncing ? 'scale-125' : ''
               ]"
             >
               {{ totalItemCount }}

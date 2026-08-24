@@ -222,6 +222,15 @@ export function useAuth() {
     currentUser.value = null
     localStorage.removeItem(AUTH_STORAGE_KEY)
     localStorage.removeItem(AUTH_TOKEN_KEY)
+
+    // If current route requires authentication (e.g. /pesanan-saya), redirect immediately
+    try {
+      if (typeof window !== 'undefined' && window.location.pathname.includes('pesanan-saya')) {
+        window.location.href = '/'
+      }
+    } catch {
+      // ignore
+    }
   }
 
   return {
