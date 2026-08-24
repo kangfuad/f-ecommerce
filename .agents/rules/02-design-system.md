@@ -1,6 +1,6 @@
 # Design System & Theme Guidelines: e-punyasewa (Muted Sky & Sage Theme)
 
-Standar sistem warna, token CSS variables, tipografi, dan implementasi komponen UI untuk platform **e-punyasewa** yang mendukung **Light Mode** dan **Dark Mode** secara dinamis dan memenuhi standar aksesibilitas WCAG AA.
+Standar sistem warna, token CSS variables, tipografi, sistem icon SVG original, dan implementasi komponen UI untuk platform **e-punyasewa** yang mendukung **Light Mode** dan **Dark Mode** secara dinamis dan memenuhi standar aksesibilitas WCAG AA.
 
 ---
 
@@ -48,3 +48,25 @@ Standar sistem warna, token CSS variables, tipografi, dan implementasi komponen 
   - Teks Sekunder / Label: `text-theme-muted`
   - Tombol CTA: `bg-theme-cta hover:bg-theme-cta-hover text-theme-cta-text`
   - Garis Pembatas: `border-theme-border`
+
+---
+
+## 4. Standar & Aturan Penggunaan Icon (Icon System Guidelines)
+
+### A. Aturan Wajib (Mandatory Rules):
+1. **100% Original & Mandiri:** Semua icon pada platform **e-punyasewa** harus dibuat sendiri sebagai komponen SVG Vue murni di folder `@/presentation/components/icons/`.
+2. **Dilarang Icon Library Eksternal / Font Icons:** Jangan menginstal atau mengimpor icon library eksternal (seperti Lucide, FontAwesome, Heroicons, Material Icons dsb.) atau menggunakan emoji sebagai icon UI utama.
+3. **Format Standar SVG Component:**
+   - Menggunakan `viewBox="0 0 24 24"`.
+   - Menggunakan `fill="none"` dan `stroke="currentColor"`.
+   - Menggunakan `stroke-linecap="round"` dan `stroke-linejoin="round"`.
+   - Mendukung props fleksibel: `size` (number/string, default 20/16/14) dan `strokeWidth` (default 2 atau 2.2).
+   - Menyertakan atribut aksesibilitas `aria-hidden="true"`.
+4. **Barrel Export Centralization:** Setiap icon baru WAJIB didaftarkan dan diekspor melalui [`src/presentation/components/icons/index.ts`](file:///Users/auri/fuad/LATIHAN/ecommerce/src/presentation/components/icons/index.ts).
+5. **Pewarnaan Dinamis:** Hindari hardcode warna hex pada path/stroke di dalam komponen icon kecuali untuk accent khusus. Biarkan mewarisi warna dari elemen induk via `currentColor` atau kelas utilitas Tailwind (`text-sage`, `text-theme-muted`, `text-coral`, dsb.).
+
+### B. Daftar Icon Resmi & Kategori:
+- **Brand Identity:** `IconLogo`
+- **Kategori Sewa:** `IconCategoryAll`, `IconCategoryCamera`, `IconCategoryDrone`, `IconCategoryOutdoor`, `IconCategoryGadget`, `IconCategoryFashion`
+- **Pilar Kepercayaan & Jaminan:** `IconShieldCheck`, `IconRefundDeposit`, `IconInsurance`, `IconDeliveryTruck`
+- **Navigasi & Interaksi:** `IconSearch`, `IconHeartWishlist`, `IconCartBag`, `IconThemeMonitor`, `IconThemeSun`, `IconThemeMoon`, `IconCalendarDate`, `IconUser`, `IconStar`, `IconLocation`, `IconArrowRight`, `IconChevronDown`, `IconCheck`, `IconClose`, `IconTrash`, `IconBoxPackage`, `IconMenu`

@@ -6,19 +6,28 @@ Panduan teknis bagi agen AI dan pengembang dalam memelihara dan menulis kode pad
 
 ## 1. Tech Stack & Arsitektur Utama
 - **Core Framework:** Vue 3 (Composition API + `<script setup lang="ts">`) + Vite.
-- **Styling:** Tailwind CSS + Custom Design Tokens (`eps-*`).
+- **Styling:** Tailwind CSS + Muted Sky & Sage Theme tokens (`:root` / `.dark`).
+- **Iconography:** 100% Original SVG Component System (`src/presentation/components/icons/`).
 - **Pola Arsitektur:** Clean Architecture (Hexagonal / Layered):
   - `src/domain/`: Entities, Value Objects, Enums, Domain Exceptions.
   - `src/application/`: Use Cases / Business Services, Repository Contracts.
   - `src/infrastructure/`: Repository Implementations, LocalStorage Adapter, DI Container.
-  - `src/presentation/`: Vue Components, Composables (Controllers/ViewModels), Styles.
+  - `src/presentation/`: Vue Components, Composables (Controllers/ViewModels), Styles, Icons.
   - `src/core/`: Global Config, Centralized Error Handling, Helpers.
 
 ---
 
-## 2. Fokus Fase 1: UI/UX Excellence & Interactive Rental Flow
+## 2. Standar Icon & Asset UI (Icon System Rules)
+1. **Original SVG Only:** Seluruh icon harus berupa komponen SVG Vue mandiri (`.vue`) yang tersimpan di `src/presentation/components/icons/`.
+2. **Tanpa Library Pihak Ketiga:** Dilarang menginstal atau mengimpor icon library luar (Lucide, FontAwesome, Material Icons, dsb.).
+3. **Pewarnaan Dinamis:** Komponen icon menggunakan `stroke="currentColor"` dan `fill="none"` (kecuali aksen khusus) sehingga responsif terhadap perubahan tema Light/Dark.
+4. **Sentralisasi Import:** Seluruh import icon dilakukan via barrel export `@/presentation/components/icons`.
+
+---
+
+## 3. Fokus Fase 1: UI/UX Excellence & Interactive Rental Flow
 1. **Visual Excellence (Aesthetics First):**
-   - Menggunakan palet `eps-*` (Teal `#0D9488`, Dark Slate `#0F172A`, Cream `#F8FAFC`, Coral `#E28B75`, Amber `#F59E0B`).
+   - Menggunakan tema *Muted Sky & Sage* (Light Mode & Dark Mode dengan Deep Charcoal `#1A1A1A`).
    - Tipografi: *Plus Jakarta Sans* untuk UI jernih & *Playfair Display* untuk sentuhan editorial mewah.
    - Micro-animations: *Staggered fade-in*, *card hover elevation*, *drawer slide-over*, *badge pulsing*.
 2. **Interactive Rental Experience:**
@@ -29,7 +38,7 @@ Panduan teknis bagi agen AI dan pengembang dalam memelihara dan menulis kode pad
 
 ---
 
-## 3. Prinsip Kode & Clean Code (SOLID)
+## 4. Prinsip Kode & Clean Code (SOLID)
 - **SRP (Single Responsibility):** Pisahkan komponen UI presentasi dari logika perhitungan sewa (gunakan composables & use cases).
 - **No Magic Numbers / Strings:** Semua tarif sewa default, batas gratis ongkir/asuransi, dan status sewa didefinisikan dalam `src/core/config/app.config.ts` dan Enums.
 - **Dependency Injection:** Gunakan DI Container untuk inject repositori ke dalam composable/use cases sehingga mudah di-mock dan diuji.
@@ -37,8 +46,9 @@ Panduan teknis bagi agen AI dan pengembang dalam memelihara dan menulis kode pad
 
 ---
 
-## 4. Manajemen State & Penyimpanan Lokal
+## 5. Manajemen State & Penyimpanan Lokal
 - Gunakan `localStorage` untuk persistensi data frontend:
+  - `eps_color_theme`: Preferensi tema pengguna (`system`, `light`, `dark`).
   - `eps_cart`: Daftar item sewa, durasi tanggal sewa, kuantitas, dan deposit.
   - `eps_wishlist`: Daftar ID barang favorit.
   - `eps_user`: Simulasi sesi pengguna.
