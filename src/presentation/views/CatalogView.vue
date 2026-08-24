@@ -261,6 +261,64 @@ function parseUrlQuery() {
   }
 }
 
+// Pagination States & Logic
+const currentPage = ref(1)
+const pageSize = ref(6)
+const pageSizeOptions = [6, 9, 12, 18]
+
+const totalItems = computed(() => filteredProducts.value.length)
+const totalPages = computed(() => Math.max(1, Math.ceil(totalItems.value / pageSize.value)))
+
+const paginatedProducts = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  return filteredProducts.value.slice(start, start + pageSize.value)
+})
+
+const paginationStart = computed(() => {
+  if (totalItems.value === 0) return 0
+  return (currentPage.value - 1) * pageSize.value + 1
+})
+
+const paginationEnd = computed(() => {
+  return Math.min(currentPage.value * pageSize.value, totalItems.value)
+})
+
+function goToPage(page: number) {
+  if (page < 1 || page > totalPages.value) return
+  currentPage.value = page
+  if (typeof window !== 'undefined') {
+    const el = document.getElementById('catalog-search-toolbar')
+    if (el) {
+      const headerOffset = 145 // Increased offset to scroll slightly higher up
+      const elementPosition = el.getBoundingClientRect().top
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+
+      window.scrollTo({
+        top: Math.max(0, offsetPosition),
+        behavior: 'smooth',
+      })
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+}
+
+function prevPage() {
+  goToPage(currentPage.value - 1)
+}
+
+function nextPage() {
+  goToPage(currentPage.value + 1)
+}
+
+// Reset page to 1 whenever filters change
+watch(
+  [selectedCategory, searchQuery, sortBy, selectedPriceRange, selectedLocations, selectedConditions, minRating, pageSize],
+  () => {
+    currentPage.value = 1
+  }
+)
+
 watch(
   () => [
     selectedCategory.value,
@@ -330,7 +388,7 @@ onMounted(() => {
       </div>
 
       <!-- Controls & Active Filters Bar -->
-      <div class="bg-theme-card rounded-2xl border border-theme-border p-3 sm:p-4 mb-6 shadow-card flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+      <div id="catalog-search-toolbar" class="bg-theme-card rounded-2xl border border-theme-border p-3 sm:p-4 mb-6 shadow-card flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
         <!-- Search Input -->
         <div class="relative flex-1 max-w-md">
           <IconSearch :size="16" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
@@ -614,11 +672,12 @@ onMounted(() => {
 
           <!-- Grid View Mode -->
           <div
+            id="catalog-product-list"
             v-else-if="viewMode === 'grid'"
             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
           >
             <ProductCard
-              v-for="product in filteredProducts"
+              v-for="product in paginatedProducts"
               :key="product.id"
               :product="product"
               @select-product="openProductModal"
@@ -628,16 +687,95 @@ onMounted(() => {
 
           <!-- List View Mode -->
           <div
+            id="catalog-product-list"
             v-else
             class="space-y-4"
           >
             <ProductListRow
-              v-for="product in filteredProducts"
+              v-for="product in paginatedProducts"
               :key="product.id"
               :product="product"
               @select-product="openProductModal"
               @quick-add-to-cart="handleQuickAddToCart"
             />
+          </div>
+
+          <!-- Interactive Pagination Controls -->
+          <div
+            v-if="filteredProducts.length > 0"
+            class="pt-6 border-t border-theme-border flex flex-col sm:flex-row items-center justify-between gap-4 text-xs"
+          >
+            <!-- Showing Entries Summary -->
+            <div class="text-stone-500 font-semibold text-center sm:text-left">
+              Menampilkan <span class="font-bold text-theme-primary">{{ paginationStart }}</span> –
+              <span class="font-bold text-theme-primary">{{ paginationEnd }}</span> dari
+              <span class="font-bold text-theme-primary">{{ totalItems }}</span> unit siap sewa
+            </div>
+
+            <!-- Page Navigation Controls -->
+            <div class="flex items-center gap-1.5">
+              <!-- Prev Button -->
+              <button
+                @click="prevPage"
+                :disabled="currentPage === 1"
+                :class="[
+                  'px-3 py-2 rounded-xl border border-theme-border font-bold transition cursor-pointer flex items-center gap-1',
+                  currentPage === 1
+                    ? 'opacity-40 cursor-not-allowed bg-stone-100 dark:bg-stone-800'
+                    : 'hover:bg-stone-100 dark:hover:bg-stone-800 text-theme-primary hover:border-forest/40'
+                ]"
+                aria-label="Halaman Sebelumnya"
+              >
+                <span>←</span>
+                <span class="hidden sm:inline">Sebelumnya</span>
+              </button>
+
+              <!-- Page Number Pills -->
+              <div class="flex items-center gap-1">
+                <button
+                  v-for="page in totalPages"
+                  :key="page"
+                  @click="goToPage(page)"
+                  :class="[
+                    'w-8 h-8 rounded-xl font-black text-xs transition cursor-pointer flex items-center justify-center border',
+                    currentPage === page
+                      ? 'bg-forest text-white border-forest shadow-sm'
+                      : 'border-theme-border text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
+                  ]"
+                >
+                  {{ page }}
+                </button>
+              </div>
+
+              <!-- Next Button -->
+              <button
+                @click="nextPage"
+                :disabled="currentPage === totalPages"
+                :class="[
+                  'px-3 py-2 rounded-xl border border-theme-border font-bold transition cursor-pointer flex items-center gap-1',
+                  currentPage === totalPages
+                    ? 'opacity-40 cursor-not-allowed bg-stone-100 dark:bg-stone-800'
+                    : 'hover:bg-stone-100 dark:hover:bg-stone-800 text-theme-primary hover:border-forest/40'
+                ]"
+                aria-label="Halaman Selanjutnya"
+              >
+                <span class="hidden sm:inline">Selanjutnya</span>
+                <span>→</span>
+              </button>
+            </div>
+
+            <!-- Per Page Selector -->
+            <div class="flex items-center gap-2 text-stone-500 font-semibold">
+              <span>Tampilkan:</span>
+              <select
+                v-model="pageSize"
+                class="bg-stone-100 dark:bg-stone-800 border border-theme-border rounded-lg px-2.5 py-1 text-xs font-bold text-theme-primary cursor-pointer focus:outline-none focus:ring-1 focus:ring-forest"
+              >
+                <option v-for="size in pageSizeOptions" :key="size" :value="size">
+                  {{ size }} unit
+                </option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
