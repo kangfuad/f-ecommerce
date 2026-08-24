@@ -42,6 +42,24 @@ export interface OrderItemDto {
   totalAmount: number
 }
 
+export interface OrderPricingDto {
+  subtotalRental: number
+  totalDeposit: number
+  isDepositWaived: boolean
+  deliveryFee: number
+  grandTotal: number
+}
+
+export interface OrderCustomerDto {
+  fullName: string
+  email: string
+  phone: string
+  deliveryMethod: DeliveryMethod
+  deliveryAddress?: string
+  pickupHub?: string
+  ktpPhotoName?: string
+}
+
 export interface OrderDto {
   id: string
   createdAt: string
@@ -50,51 +68,48 @@ export interface OrderDto {
   paymentStatus: PaymentStatus
   paymentMethod: PaymentMethodType
   vaNumber?: string
-  customer: {
-    fullName: string
-    email: string
-    phone: string
-    deliveryMethod: DeliveryMethod
-    deliveryAddress?: string
-    pickupHub?: string
-    ktpPhotoName?: string
-  }
+  customer: OrderCustomerDto
   items: OrderItemDto[]
-  pricing: {
-    subtotalRental: number
-    totalDeposit: number
-    isDepositWaived: boolean
-    deliveryFee: number
-    grandTotal: number
-  }
+  pricing: OrderPricingDto
   tracking?: OrderTrackingInfo
 }
 
 const LOCAL_ORDERS_STORAGE_KEY = 'epunyasewa_my_orders_list'
 
 export class OrderService {
+  /**
+   * Fetch all orders merging dummy orders.json and user active checkout orders from localStorage
+   */
   public static async getOrders(): Promise<ApiResponse<OrderDto[]>> {
     try {
       const response = await apiClient.get<OrderDto[]>('/data/orders.json')
-      const baseOrders = response.status === 'success' && Array.isArray(response.data) ? response.data : []
+      const baseOrders = response.data || []
 
-      // Merge with locally stored active/created orders from checkout
+      // Read local custom orders created during runtime checkout
       const localRaw = localStorage.getItem(LOCAL_ORDERS_STORAGE_KEY)
-      const localOrders: OrderDto[] = localRaw ? JSON.parse(localRaw) : []
-
-      // Also check checkout active order
-      const checkoutActiveRaw = localStorage.getItem('epunyasewa_active_order')
-      if (checkoutActiveRaw) {
+      let localOrders: OrderDto[] = []
+      if (localRaw) {
         try {
-          const parsed = JSON.parse(checkoutActiveRaw)
-          if (!localOrders.some((o) => o.id === parsed.id) && !baseOrders.some((o) => o.id === parsed.id)) {
+          localOrders = JSON.parse(localRaw)
+        } catch {
+          localOrders = []
+        }
+      }
+
+      // Check active order in checkout key as well
+      const activeRaw = localStorage.getItem('epunyasewa_active_order')
+      if (activeRaw) {
+        try {
+          const parsed = JSON.parse(activeRaw)
+          const exists = localOrders.some((o) => o.id === parsed.id) || baseOrders.some((o) => o.id === parsed.id)
+          if (!exists && parsed.id) {
             const mappedOrder: OrderDto = {
               id: parsed.id,
-              createdAt: parsed.createdAt,
+              createdAt: parsed.createdAt || new Date().toISOString(),
               paidAt: parsed.paidAt,
-              lifecycleStatus: parsed.paymentStatus === 'PAID' ? 'ACTIVE_RENTAL' : 'PENDING_PAYMENT',
-              paymentStatus: parsed.paymentStatus,
-              paymentMethod: parsed.paymentMethod,
+              lifecycleStatus: parsed.lifecycleStatus || (parsed.paymentStatus === 'PAID' ? 'ACTIVE_RENTAL' : 'PENDING_PAYMENT'),
+              paymentStatus: parsed.paymentStatus || 'PENDING',
+              paymentMethod: parsed.paymentMethod || 'QRIS',
               vaNumber: parsed.vaNumber,
               customer: parsed.customer,
               items: parsed.items,
@@ -143,6 +158,9 @@ export class OrderService {
   }
 
   public static async getOrderById(orderId: string): Promise<ApiResponse<OrderDto | null>> {
+    if (!orderId || typeof orderId !== 'string') {
+      return { status: 'error', data: null, message: 'ID Pesanan tidak valid' }
+    }
     const ordersResponse = await this.getOrders()
     if (ordersResponse.status === 'success') {
       const found = ordersResponse.data.find((o) => o.id === orderId) || null
@@ -159,104 +177,299 @@ export class OrderService {
     }
   }
 
+  /**
+   * Extend active rental duration with strict defensive validations
+   */
   public static async extendRental(orderId: string, additionalDays: number): Promise<ApiResponse<OrderDto | null>> {
-    const ordersResponse = await this.getOrders()
-    if (ordersResponse.status === 'success') {
-      const order = ordersResponse.data.find((o) => o.id === orderId)
-      if (!order) {
-        return { status: 'error', data: null, message: 'Pesanan tidak ditemukan' }
-      }
+    // 1. Validate payload inputs
+    if (!orderId || typeof orderId !== 'string') {
+      return { status: 'error', data: null, message: 'ID Pesanan tidak valid' }
+    }
 
-      // Calculate additional daily price
-      let extraRental = 0
-      for (const item of order.items) {
-        item.rentalDays += additionalDays
-        const itemExtra = item.dailyRate * additionalDays * item.quantity
-        item.totalAmount += itemExtra
-        extraRental += itemExtra
-
-        // extend end date
-        const currentEnd = new Date(item.endDate)
-        currentEnd.setDate(currentEnd.getDate() + additionalDays)
-        item.endDate = currentEnd.toISOString().split('T')[0]
-      }
-
-      order.pricing.subtotalRental += extraRental
-      order.pricing.grandTotal += extraRental
-
-      // Save to localStorage
-      const localRaw = localStorage.getItem(LOCAL_ORDERS_STORAGE_KEY)
-      const localOrders: OrderDto[] = localRaw ? JSON.parse(localRaw) : []
-      const existingIdx = localOrders.findIndex((o) => o.id === orderId)
-      if (existingIdx > -1) {
-        localOrders[existingIdx] = order
-      } else {
-        localOrders.push(order)
-      }
-      localStorage.setItem(LOCAL_ORDERS_STORAGE_KEY, JSON.stringify(localOrders))
-
+    if (typeof additionalDays !== 'number' || isNaN(additionalDays) || !Number.isInteger(additionalDays) || additionalDays < 1 || additionalDays > 30) {
       return {
-        status: 'success',
-        data: order,
-        message: `Durasi sewa berhasil diperpanjang +${additionalDays} hari!`,
+        status: 'error',
+        data: null,
+        message: 'Durasi perpanjangan tidak valid (harus berupa bilangan bulat antara 1 s/d 30 hari).',
       }
     }
-    return { status: 'error', data: null, message: 'Gagal memperpanjang sewa' }
+
+    const ordersResponse = await this.getOrders()
+    if (ordersResponse.status !== 'success') {
+      return { status: 'error', data: null, message: ordersResponse.message || 'Gagal mengakses data pesanan' }
+    }
+
+    const order = ordersResponse.data.find((o) => o.id === orderId)
+    if (!order) {
+      return { status: 'error', data: null, message: 'Pesanan tidak ditemukan' }
+    }
+
+    // 2. Validate state machine permissions
+    if (order.lifecycleStatus === 'CANCELLED' || order.paymentStatus === 'CANCELLED') {
+      return {
+        status: 'error',
+        data: null,
+        message: 'Operasi tidak sah: Pesanan yang telah dibatalkan tidak dapat diperpanjang.',
+      }
+    }
+
+    if (order.lifecycleStatus === 'PENDING_PAYMENT' || order.paymentStatus === 'PENDING') {
+      return {
+        status: 'error',
+        data: null,
+        message: 'Operasi tidak sah: Selesaikan pembayaran tagihan awal terlebih dahulu sebelum mengajukan perpanjangan.',
+      }
+    }
+
+    if (order.lifecycleStatus === 'COMPLETED') {
+      return {
+        status: 'error',
+        data: null,
+        message: 'Operasi tidak sah: Pesanan telah selesai dan masa sewa telah ditutup.',
+      }
+    }
+
+    if (order.lifecycleStatus !== 'ACTIVE_RENTAL') {
+      return {
+        status: 'error',
+        data: null,
+        message: `Operasi tidak sah: Perpanjangan hanya dapat diajukan pada pesanan yang sedang aktif berjalan (Status saat ini: ${order.lifecycleStatus}).`,
+      }
+    }
+
+    // 3. Process extension calculation
+    let extraRental = 0
+    for (const item of order.items) {
+      item.rentalDays += additionalDays
+      const itemExtra = item.dailyRate * additionalDays * item.quantity
+      item.totalAmount += itemExtra
+      extraRental += itemExtra
+
+      const currentEnd = new Date(item.endDate)
+      currentEnd.setDate(currentEnd.getDate() + additionalDays)
+      item.endDate = currentEnd.toISOString().split('T')[0]
+    }
+
+    order.pricing.subtotalRental += extraRental
+    order.pricing.grandTotal += extraRental
+
+    // Save to localStorage
+    const localRaw = localStorage.getItem(LOCAL_ORDERS_STORAGE_KEY)
+    const localOrders: OrderDto[] = localRaw ? JSON.parse(localRaw) : []
+    const existingIdx = localOrders.findIndex((o) => o.id === orderId)
+    if (existingIdx > -1) {
+      localOrders[existingIdx] = order
+    } else {
+      localOrders.push(order)
+    }
+    localStorage.setItem(LOCAL_ORDERS_STORAGE_KEY, JSON.stringify(localOrders))
+
+    return {
+      status: 'success',
+      data: order,
+      message: `Durasi sewa berhasil diperpanjang +${additionalDays} hari!`,
+    }
   }
 
+  /**
+   * Process and verify payment with strict state-machine checks
+   */
   public static async payOrder(orderId: string): Promise<ApiResponse<OrderDto | null>> {
+    // 1. Validate payload inputs
+    if (!orderId || typeof orderId !== 'string') {
+      return { status: 'error', data: null, message: 'ID Pesanan tidak valid' }
+    }
+
     const ordersResponse = await this.getOrders()
-    if (ordersResponse.status === 'success') {
-      const order = ordersResponse.data.find((o) => o.id === orderId)
-      if (!order) {
-        return { status: 'error', data: null, message: 'Pesanan tidak ditemukan' }
-      }
+    if (ordersResponse.status !== 'success') {
+      return { status: 'error', data: null, message: ordersResponse.message || 'Gagal mengakses data pesanan' }
+    }
 
-      order.paymentStatus = 'PAID'
-      order.paidAt = new Date().toISOString()
-      order.lifecycleStatus = 'ACTIVE_RENTAL'
-      if (order.tracking) {
-        order.tracking.currentStep = 3
-        order.tracking.steps = [
-          { title: 'Pembayaran Terverifikasi', time: 'Baru saja (Lunas)', completed: true },
-          { title: 'QC & Sterilisasi Unit', time: 'Dalam proses pengecekan', completed: true },
-          { title: 'Sewa Aktif Digunakan', time: 'Masa sewa aktif berjalan', completed: true, isCurrent: true },
-          { title: 'Pengembalian & Tutup Sewa', time: 'Menunggu jadwal pengembalian', completed: false },
-        ]
-      }
+    const order = ordersResponse.data.find((o) => o.id === orderId)
+    if (!order) {
+      return { status: 'error', data: null, message: 'Pesanan tidak ditemukan' }
+    }
 
-      // Save to localStorage
-      const localRaw = localStorage.getItem(LOCAL_ORDERS_STORAGE_KEY)
-      const localOrders: OrderDto[] = localRaw ? JSON.parse(localRaw) : []
-      const existingIdx = localOrders.findIndex((o) => o.id === orderId)
-      if (existingIdx > -1) {
-        localOrders[existingIdx] = order
-      } else {
-        localOrders.push(order)
-      }
-      localStorage.setItem(LOCAL_ORDERS_STORAGE_KEY, JSON.stringify(localOrders))
-
-      // Update checkout active order if matching
-      const checkoutActiveRaw = localStorage.getItem('epunyasewa_active_order')
-      if (checkoutActiveRaw) {
-        try {
-          const parsed = JSON.parse(checkoutActiveRaw)
-          if (parsed.id === orderId) {
-            parsed.paymentStatus = 'PAID'
-            parsed.paidAt = new Date()
-            localStorage.setItem('epunyasewa_active_order', JSON.stringify(parsed))
-          }
-        } catch {
-          // ignore
-        }
-      }
-
+    // 2. Validate state machine permissions
+    if (order.lifecycleStatus === 'CANCELLED' || order.paymentStatus === 'CANCELLED') {
       return {
-        status: 'success',
-        data: order,
-        message: 'Pembayaran berhasil dikonfirmasi!',
+        status: 'error',
+        data: null,
+        message: 'Operasi tidak sah: Pesanan ini telah dibatalkan sebelumnya dan tidak dapat dibayar.',
       }
     }
-    return { status: 'error', data: null, message: 'Gagal mengonfirmasi pembayaran' }
+
+    if (order.paymentStatus === 'PAID') {
+      return {
+        status: 'error',
+        data: null,
+        message: 'Operasi tidak sah: Tagihan pesanan ini sudah berstatus lunas.',
+      }
+    }
+
+    if (order.lifecycleStatus === 'COMPLETED') {
+      return {
+        status: 'error',
+        data: null,
+        message: 'Operasi tidak sah: Masa sewa pesanan ini telah selesai.',
+      }
+    }
+
+    if (order.lifecycleStatus !== 'PENDING_PAYMENT' && order.paymentStatus !== 'PENDING') {
+      return {
+        status: 'error',
+        data: null,
+        message: `Operasi tidak sah: Status pesanan (${order.lifecycleStatus}) tidak valid untuk pelunasan.`,
+      }
+    }
+
+    // 3. Process payment confirmation
+    order.paymentStatus = 'PAID'
+    order.paidAt = new Date().toISOString()
+    order.lifecycleStatus = 'ACTIVE_RENTAL'
+    if (order.tracking) {
+      order.tracking.currentStep = 3
+      order.tracking.steps = [
+        { title: 'Pembayaran Terverifikasi', time: 'Baru saja (Lunas)', completed: true },
+        { title: 'QC & Sterilisasi Unit', time: 'Dalam proses pengecekan', completed: true },
+        { title: 'Sewa Aktif Digunakan', time: 'Masa sewa aktif berjalan', completed: true, isCurrent: true },
+        { title: 'Pengembalian & Tutup Sewa', time: 'Menunggu jadwal pengembalian', completed: false },
+      ]
+    }
+
+    // Save to localStorage
+    const localRaw = localStorage.getItem(LOCAL_ORDERS_STORAGE_KEY)
+    const localOrders: OrderDto[] = localRaw ? JSON.parse(localRaw) : []
+    const existingIdx = localOrders.findIndex((o) => o.id === orderId)
+    if (existingIdx > -1) {
+      localOrders[existingIdx] = order
+    } else {
+      localOrders.push(order)
+    }
+    localStorage.setItem(LOCAL_ORDERS_STORAGE_KEY, JSON.stringify(localOrders))
+
+    // Update checkout active order if matching
+    const checkoutActiveRaw = localStorage.getItem('epunyasewa_active_order')
+    if (checkoutActiveRaw) {
+      try {
+        const parsed = JSON.parse(checkoutActiveRaw)
+        if (parsed.id === orderId) {
+          parsed.paymentStatus = 'PAID'
+          parsed.paidAt = new Date()
+          parsed.lifecycleStatus = 'ACTIVE_RENTAL'
+          localStorage.setItem('epunyasewa_active_order', JSON.stringify(parsed))
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    return {
+      status: 'success',
+      data: order,
+      message: 'Pembayaran berhasil dikonfirmasi!',
+    }
+  }
+
+  /**
+   * Cancel unpaid order with strict state-machine checks
+   */
+  public static async cancelOrder(orderId: string, reason?: string): Promise<ApiResponse<OrderDto | null>> {
+    // 1. Validate payload inputs
+    if (!orderId || typeof orderId !== 'string') {
+      return { status: 'error', data: null, message: 'ID Pesanan tidak valid' }
+    }
+
+    const ordersResponse = await this.getOrders()
+    if (ordersResponse.status !== 'success') {
+      return { status: 'error', data: null, message: ordersResponse.message || 'Gagal mengakses data pesanan' }
+    }
+
+    const order = ordersResponse.data.find((o) => o.id === orderId)
+    if (!order) {
+      return { status: 'error', data: null, message: 'Pesanan tidak ditemukan' }
+    }
+
+    // 2. Validate state machine permissions
+    if (order.lifecycleStatus === 'CANCELLED' || order.paymentStatus === 'CANCELLED') {
+      return {
+        status: 'error',
+        data: null,
+        message: 'Operasi tidak sah: Pesanan ini sudah dibatalkan sebelumnya.',
+      }
+    }
+
+    if (order.paymentStatus === 'PAID' || ['ACTIVE_RENTAL', 'SHIPPING', 'PREPARING_QC', 'READY_PICKUP'].includes(order.lifecycleStatus)) {
+      return {
+        status: 'error',
+        data: null,
+        message: 'Operasi tidak sah: Pesanan yang telah dibayar atau sedang aktif tidak dapat dibatalkan.',
+      }
+    }
+
+    if (order.lifecycleStatus === 'COMPLETED') {
+      return {
+        status: 'error',
+        data: null,
+        message: 'Operasi tidak sah: Pesanan telah selesai dan tidak dapat dibatalkan.',
+      }
+    }
+
+    if (order.lifecycleStatus !== 'PENDING_PAYMENT' && order.paymentStatus !== 'PENDING') {
+      return {
+        status: 'error',
+        data: null,
+        message: `Operasi tidak sah: Status pesanan (${order.lifecycleStatus}) tidak valid untuk pembatalan.`,
+      }
+    }
+
+    const safeReason = typeof reason === 'string' && reason.trim().length > 0
+      ? reason.trim().slice(0, 150)
+      : 'Pengajuan Pembatalan oleh Pengguna'
+
+    // 3. Process cancellation
+    order.lifecycleStatus = 'CANCELLED'
+    order.paymentStatus = 'CANCELLED'
+    if (order.tracking) {
+      order.tracking.currentStep = order.tracking.steps.length
+      order.tracking.steps.push({
+        title: `Tagihan Pesanan Dibatalkan (${safeReason})`,
+        time: 'Baru saja',
+        completed: true,
+        isCurrent: true,
+      })
+    }
+
+    // Save to localStorage
+    const localRaw = localStorage.getItem(LOCAL_ORDERS_STORAGE_KEY)
+    const localOrders: OrderDto[] = localRaw ? JSON.parse(localRaw) : []
+    const existingIdx = localOrders.findIndex((o) => o.id === orderId)
+    if (existingIdx > -1) {
+      localOrders[existingIdx] = order
+    } else {
+      localOrders.push(order)
+    }
+    localStorage.setItem(LOCAL_ORDERS_STORAGE_KEY, JSON.stringify(localOrders))
+
+    // Update checkout active order if matching
+    const checkoutActiveRaw = localStorage.getItem('epunyasewa_active_order')
+    if (checkoutActiveRaw) {
+      try {
+        const parsed = JSON.parse(checkoutActiveRaw)
+        if (parsed.id === orderId) {
+          parsed.paymentStatus = 'CANCELLED'
+          parsed.lifecycleStatus = 'CANCELLED'
+          localStorage.setItem('epunyasewa_active_order', JSON.stringify(parsed))
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    return {
+      status: 'success',
+      data: order,
+      message: 'Tagihan pesanan berhasil dibatalkan.',
+    }
   }
 }

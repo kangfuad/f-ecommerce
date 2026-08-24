@@ -1,6 +1,6 @@
 export type DeliveryMethod = 'DELIVERY' | 'PICKUP'
 export type PaymentMethodType = 'QRIS' | 'BCA_VA' | 'MANDIRI_VA' | 'BRI_VA' | 'CREDIT_CARD'
-export type PaymentStatus = 'PENDING' | 'PAID' | 'EXPIRED'
+export type PaymentStatus = 'PENDING' | 'PAID' | 'EXPIRED' | 'CANCELLED'
 
 export interface OrderCustomerInfo {
   fullName: string

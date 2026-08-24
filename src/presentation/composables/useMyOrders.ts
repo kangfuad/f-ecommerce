@@ -13,6 +13,7 @@ const selectedTab = ref<OrderStatusFilter>('ALL')
 const activeTimelineOrder = shallowRef<OrderDto | null>(null)
 const activeExtendOrder = shallowRef<OrderDto | null>(null)
 const activePaymentOrder = shallowRef<OrderDto | null>(null)
+const activeCancelOrder = shallowRef<OrderDto | null>(null)
 
 export function useMyOrders() {
   const { showToast } = useToast()
@@ -40,10 +41,14 @@ export function useMyOrders() {
         return ['SHIPPING', 'READY_PICKUP', 'ACTIVE_RENTAL', 'PREPARING_QC'].includes(order.lifecycleStatus)
       }
       if (selectedTab.value === 'PENDING') {
-        return order.lifecycleStatus === 'PENDING_PAYMENT' || order.paymentStatus === 'PENDING'
+        return (
+          (order.lifecycleStatus === 'PENDING_PAYMENT' || order.paymentStatus === 'PENDING') &&
+          order.lifecycleStatus !== 'CANCELLED' &&
+          order.paymentStatus !== 'CANCELLED'
+        )
       }
       if (selectedTab.value === 'COMPLETED') {
-        return order.lifecycleStatus === 'COMPLETED'
+        return order.lifecycleStatus === 'COMPLETED' || order.lifecycleStatus === 'CANCELLED' || order.paymentStatus === 'CANCELLED'
       }
       return true
     })
@@ -71,6 +76,14 @@ export function useMyOrders() {
 
   function closePayment() {
     activePaymentOrder.value = null
+  }
+
+  function openCancel(order: OrderDto) {
+    activeCancelOrder.value = order
+  }
+
+  function closeCancel() {
+    activeCancelOrder.value = null
   }
 
   async function confirmExtendRental(orderId: string, additionalDays: number) {
@@ -140,6 +153,33 @@ export function useMyOrders() {
     }
   }
 
+  async function confirmCancelOrder(orderId: string, reason: string) {
+    try {
+      const res = await OrderService.cancelOrder(orderId, reason)
+      if (res.status === 'success') {
+        showToast({
+          type: 'info',
+          title: 'Pesanan Telah Dibatalkan',
+          message: `Pesanan ${orderId} berhasil dibatalkan. Pengembalian dana 100% sedang diproses.`,
+        })
+        closeCancel()
+        await loadOrders()
+      } else {
+        showToast({
+          type: 'error',
+          title: 'Gagal Membatalkan Pesanan',
+          message: res.message || 'Terjadi kesalahan.',
+        })
+      }
+    } catch (e: any) {
+      showToast({
+        type: 'error',
+        title: 'Gagal Membatalkan Pesanan',
+        message: e.message || 'Terjadi kesalahan sistem.',
+      })
+    }
+  }
+
   return {
     orders,
     filteredOrders,
@@ -148,6 +188,7 @@ export function useMyOrders() {
     activeTimelineOrder,
     activeExtendOrder,
     activePaymentOrder,
+    activeCancelOrder,
     loadOrders,
     openTimeline,
     closeTimeline,
@@ -155,7 +196,10 @@ export function useMyOrders() {
     closeExtend,
     openPayment,
     closePayment,
+    openCancel,
+    closeCancel,
     confirmExtendRental,
     confirmPayOrder,
+    confirmCancelOrder,
   }
 }

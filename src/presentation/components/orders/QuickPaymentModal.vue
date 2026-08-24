@@ -21,6 +21,7 @@ const props = defineProps<Props>()
 const emit = defineEmits<{
   (e: 'close'): void
   (e: 'confirm-payment', orderId: string): void
+  (e: 'cancel-order', order: OrderDto): void
 }>()
 
 useBodyScrollLock(() => !!props.order)
@@ -156,7 +157,7 @@ async function handleConfirm() {
             <rect x="10" y="70" width="20" height="20" fill="white" />
             <rect x="15" y="75" width="10" height="10" fill="black" />
 
-            <!-- Random grid dots -->
+            <!-- Grid dots -->
             <rect x="42" y="8" width="6" height="6" fill="black" />
             <rect x="52" y="8" width="6" height="6" fill="black" />
             <rect x="42" y="20" width="16" height="6" fill="black" />
@@ -229,22 +230,33 @@ async function handleConfirm() {
       </div>
 
       <!-- Action Buttons -->
-      <div class="pt-2 flex items-center gap-3">
-        <button
-          @click="emit('close')"
-          class="flex-1 py-2.5 px-4 rounded-full border border-theme-border hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-bold text-theme-primary transition cursor-pointer text-center"
-        >
-          Bayar Nanti
-        </button>
-        <button
-          @click="handleConfirm"
-          :disabled="isSubmitting"
-          class="flex-1 py-2.5 px-4 rounded-full bg-[#244E33] hover:bg-[#1B3B26] dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-stone-950 text-xs font-black shadow-md transition cursor-pointer text-center flex items-center justify-center gap-1.5"
-        >
-          <div v-if="isSubmitting" class="w-3.5 h-3.5 border-2 border-white dark:border-stone-950 border-t-transparent rounded-full animate-spin"></div>
-          <IconCheck v-else :size="14" />
-          <span>{{ isSubmitting ? 'Memverifikasi...' : 'Konfirmasi Pembayaran' }}</span>
-        </button>
+      <div class="pt-2 space-y-2.5">
+        <div class="flex items-center gap-3">
+          <button
+            @click="emit('close')"
+            class="flex-1 py-2.5 px-4 rounded-full border border-theme-border hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-bold text-theme-primary transition cursor-pointer text-center"
+          >
+            Bayar Nanti
+          </button>
+          <button
+            @click="handleConfirm"
+            :disabled="isSubmitting"
+            class="flex-1 py-2.5 px-4 rounded-full bg-[#244E33] hover:bg-[#1B3B26] dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-stone-950 text-xs font-black shadow-md transition cursor-pointer text-center flex items-center justify-center gap-1.5"
+          >
+            <div v-if="isSubmitting" class="w-3.5 h-3.5 border-2 border-white dark:border-stone-950 border-t-transparent rounded-full animate-spin"></div>
+            <IconCheck v-else :size="14" />
+            <span>{{ isSubmitting ? 'Memverifikasi...' : 'Konfirmasi Pembayaran' }}</span>
+          </button>
+        </div>
+
+        <div class="text-center pt-1">
+          <button
+            @click="emit('close'); emit('cancel-order', order)"
+            class="text-[11px] font-bold text-rose-600 dark:text-rose-400 hover:underline cursor-pointer"
+          >
+            Batalkan Tagihan Pesanan Ini
+          </button>
+        </div>
       </div>
     </div>
   </div>

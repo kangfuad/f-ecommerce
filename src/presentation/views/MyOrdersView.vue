@@ -9,6 +9,7 @@ import AppFooter from '@/presentation/components/common/AppFooter.vue'
 import OrderTimelineModal from '@/presentation/components/orders/OrderTimelineModal.vue'
 import ExtendRentalModal from '@/presentation/components/orders/ExtendRentalModal.vue'
 import QuickPaymentModal from '@/presentation/components/orders/QuickPaymentModal.vue'
+import CancelOrderModal from '@/presentation/components/orders/CancelOrderModal.vue'
 import type { OrderDto } from '@/infrastructure/services/api/OrderService'
 import {
   IconDeliveryTruck,
@@ -20,6 +21,7 @@ import {
   IconSearch,
   IconChevronDown,
   IconQrcode,
+  IconClose,
 } from '@/presentation/components/icons'
 
 const router = useRouter()
@@ -31,6 +33,7 @@ const {
   activeTimelineOrder,
   activeExtendOrder,
   activePaymentOrder,
+  activeCancelOrder,
   loadOrders,
   openTimeline,
   closeTimeline,
@@ -38,15 +41,18 @@ const {
   closeExtend,
   openPayment,
   closePayment,
+  openCancel,
+  closeCancel,
   confirmExtendRental,
   confirmPayOrder,
+  confirmCancelOrder,
 } = useMyOrders()
 
 const tabs: { id: OrderStatusFilter; label: string }[] = [
   { id: 'ALL', label: 'Semua Pesanan' },
   { id: 'ACTIVE', label: 'Sedang Berjalan (Aktif)' },
   { id: 'PENDING', label: 'Menunggu Bayar' },
-  { id: 'COMPLETED', label: 'Selesai' },
+  { id: 'COMPLETED', label: 'Selesai & Dibatalkan' },
 ]
 
 // Set to track expanded multi-item cards
@@ -122,6 +128,12 @@ onMounted(() => {
 })
 
 function getStatusBadge(order: OrderDto) {
+  if (order.lifecycleStatus === 'CANCELLED' || order.paymentStatus === 'CANCELLED') {
+    return {
+      label: 'Dibatalkan',
+      classes: 'bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 border-stone-300 dark:border-stone-700 font-bold',
+    }
+  }
   switch (order.lifecycleStatus) {
     case 'ACTIVE_RENTAL':
       return {
@@ -177,7 +189,7 @@ function getStatusBadge(order: OrderDto) {
             Riwayat Pesanan & Tracking Rental
           </h1>
           <p class="text-xs text-stone-500 mt-1">
-            Pantau status pengiriman, sisa durasi masa sewa, dan akses invoice digital Anda.
+            Pantau status pengiriman, sisa durasi masa sewa, batalkan sewa, dan akses invoice digital Anda.
           </p>
         </div>
 
@@ -361,9 +373,9 @@ function getStatusBadge(order: OrderDto) {
 
             <!-- Interactive Action Buttons -->
             <div class="flex flex-wrap items-center gap-2">
-              <!-- Pending Payment Action Button -->
+              <!-- Pending Payment Action Button (Hidden if cancelled) -->
               <button
-                v-if="order.paymentStatus === 'PENDING' || order.lifecycleStatus === 'PENDING_PAYMENT'"
+                v-if="(order.paymentStatus === 'PENDING' || order.lifecycleStatus === 'PENDING_PAYMENT') && order.lifecycleStatus !== 'CANCELLED' && order.paymentStatus !== 'CANCELLED'"
                 @click="openPayment(order)"
                 class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-stone-950 text-xs font-black shadow-md transition cursor-pointer animate-pulse"
               >
@@ -388,6 +400,16 @@ function getStatusBadge(order: OrderDto) {
               >
                 <IconCalendarDate :size="14" />
                 <span>Perpanjang Sewa</span>
+              </button>
+
+              <!-- Cancel Unpaid Order Button (Hidden if cancelled or paid) -->
+              <button
+                v-if="(order.paymentStatus === 'PENDING' || order.lifecycleStatus === 'PENDING_PAYMENT') && order.lifecycleStatus !== 'CANCELLED' && order.paymentStatus !== 'CANCELLED'"
+                @click="openCancel(order)"
+                class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-800 text-xs font-bold transition shadow-xs cursor-pointer"
+              >
+                <IconClose :size="12" class="stroke-[2.5]" />
+                <span>Batalkan Pesanan</span>
               </button>
 
               <!-- Digital Invoice Link -->
@@ -483,10 +505,17 @@ function getStatusBadge(order: OrderDto) {
     </main>
 
     <!-- Modals -->
+    <CancelOrderModal
+      :order="activeCancelOrder"
+      @close="closeCancel"
+      @confirm-cancel="confirmCancelOrder"
+    />
+
     <QuickPaymentModal
       :order="activePaymentOrder"
       @close="closePayment"
       @confirm-payment="confirmPayOrder"
+      @cancel-order="openCancel"
     />
 
     <OrderTimelineModal
