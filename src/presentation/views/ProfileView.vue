@@ -900,10 +900,10 @@ function handleAddAddressSubmit() {
                 />
               </div>
 
-              <div class="space-y-1">
+              <div class="space-y-1.5">
                 <div class="flex items-center justify-between">
                   <label class="font-bold block text-theme-primary">Alamat Email Terdaftar</label>
-                  <span class="text-[9px] font-black text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-full border border-emerald-500/20">
+                  <span class="text-[9px] font-black text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
                     ✓ Terhubung
                   </span>
                 </div>
@@ -913,10 +913,12 @@ function handleAddAddressSubmit() {
                   disabled
                   class="w-full bg-stone-100 dark:bg-stone-800/60 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-stone-500 cursor-not-allowed"
                 />
-                <span class="text-[10px] text-stone-400">Digunakan untuk pengiriman faktur & invoice sewa resmi.</span>
+                <p class="text-[11px] text-stone-500 dark:text-stone-400 pt-1 leading-relaxed">
+                  Digunakan untuk pengiriman faktur & invoice sewa resmi.
+                </p>
               </div>
 
-              <div class="space-y-1">
+              <div class="space-y-1.5">
                 <label class="font-bold block text-theme-primary">Nomor WhatsApp Utama <span class="text-rose-500">*</span></label>
                 <input
                   v-model="editPhone"
@@ -925,7 +927,9 @@ function handleAddAddressSubmit() {
                   class="w-full bg-white dark:bg-stone-800 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
                   required
                 />
-                <span class="text-[10px] text-stone-400">Untuk koordinasi pengiriman dan serah terima unit.</span>
+                <p class="text-[11px] text-stone-500 dark:text-stone-400 pt-1 leading-relaxed">
+                  Untuk koordinasi pengiriman dan serah terima unit sewa.
+                </p>
               </div>
             </div>
           </div>
@@ -947,7 +951,7 @@ function handleAddAddressSubmit() {
             />
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1">
-              <div class="sm:col-span-2 space-y-1">
+              <div class="sm:col-span-2 space-y-1.5">
                 <label class="font-bold block text-theme-primary">Alamat Lengkap (Nama Jalan, No. Bangunan, RT/RW)</label>
                 <textarea
                   v-model="editAddress"
@@ -955,9 +959,12 @@ function handleAddAddressSubmit() {
                   placeholder="Contoh: Jl. Senopati Raya No. 45, Kebayoran Baru"
                   class="w-full bg-white dark:bg-stone-800 border border-theme-border rounded-xl p-3 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
                 ></textarea>
+                <p class="text-[11px] text-stone-500 dark:text-stone-400 pt-0.5 leading-relaxed">
+                  Tuliskan nomor rumah/gedung, RT/RW, dan patokan lokasi.
+                </p>
               </div>
 
-              <div class="space-y-1">
+              <div class="space-y-1.5">
                 <label class="font-bold block text-theme-primary">Kode Pos</label>
                 <input
                   v-model="editPostalCode"
@@ -975,13 +982,13 @@ function handleAddAddressSubmit() {
               <h4 class="font-black text-xs uppercase tracking-wider text-forest dark:text-forest-glow flex items-center gap-1.5 border-b border-theme-border pb-2">
                 <span>3. Kontak Darurat Kerabat / Studio</span>
               </h4>
-              <p class="text-[11px] text-stone-500 mt-1">
-                Diperlukan untuk koordinasi darurat keamanan unit sewa jika nomor utama tidak dapat dihubungi.
+              <p class="text-[11px] text-stone-500 dark:text-stone-400 pt-1.5 leading-relaxed">
+                Diperlukan untuk koordinasi darurat keamanan unit sewa bernilai tinggi jika nomor utama tidak dapat dihubungi.
               </p>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-              <div class="space-y-1">
+              <div class="space-y-1.5">
                 <label class="font-bold block text-theme-primary">Nama Kontak Darurat</label>
                 <input
                   v-model="editEmergencyContactName"
@@ -991,7 +998,7 @@ function handleAddAddressSubmit() {
                 />
               </div>
 
-              <div class="space-y-1">
+              <div class="space-y-1.5">
                 <label class="font-bold block text-theme-primary">No. Telepon Darurat</label>
                 <input
                   v-model="editEmergencyPhone"
@@ -1001,7 +1008,7 @@ function handleAddAddressSubmit() {
                 />
               </div>
 
-              <div class="space-y-1">
+              <div class="space-y-1.5">
                 <label class="font-bold block text-theme-primary">Hubungan Kerabat</label>
                 <select
                   v-model="editEmergencyRelation"
@@ -1023,7 +1030,7 @@ function handleAddAddressSubmit() {
             </h4>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-              <div class="space-y-1">
+              <div class="space-y-1.5">
                 <label class="font-bold block text-theme-primary">Profesi / Spesialisasi</label>
                 <input
                   v-model="editProfession"
@@ -1033,7 +1040,7 @@ function handleAddAddressSubmit() {
                 />
               </div>
 
-              <div class="space-y-1">
+              <div class="space-y-1.5">
                 <label class="font-bold block text-theme-primary">Nama Studio / PH</label>
                 <input
                   v-model="editCompanyOrStudio"
@@ -1043,7 +1050,7 @@ function handleAddAddressSubmit() {
                 />
               </div>
 
-              <div class="space-y-1">
+              <div class="space-y-1.5">
                 <label class="font-bold block text-theme-primary">Akun Instagram / Portofolio</label>
                 <input
                   v-model="editSocialMediaInstagram"
@@ -1054,7 +1061,7 @@ function handleAddAddressSubmit() {
               </div>
             </div>
 
-            <div class="space-y-1 pt-1">
+            <div class="space-y-1.5 pt-1">
               <label class="font-bold block text-theme-primary">Bio / Catatan Profil Singkat</label>
               <textarea
                 v-model="editBio"
@@ -1062,6 +1069,9 @@ function handleAddAddressSubmit() {
                 placeholder="Deskripsi singkat spesialisasi karya atau kebutuhan produksi Anda..."
                 class="w-full bg-white dark:bg-stone-800 border border-theme-border rounded-xl p-3 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
               ></textarea>
+              <p class="text-[11px] text-stone-500 dark:text-stone-400 pt-0.5 leading-relaxed">
+                Tuliskan ringkasan portofolio atau kebutuhan sewa perlengkapan rutin Anda.
+              </p>
             </div>
           </div>
 
