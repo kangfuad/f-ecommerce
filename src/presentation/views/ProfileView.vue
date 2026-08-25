@@ -914,35 +914,37 @@ function handleAddAddressSubmit() {
         <div v-if="activeTab === 'addresses'" class="space-y-6 animate-fade-up">
           <div class="flex items-center justify-between gap-4">
             <div>
-              <h2 class="font-display text-xl font-black text-theme-primary">Buku Alamat Pengiriman</h2>
-              <p class="text-xs text-stone-500">Kelola alamat favorit untuk pengiriman unit sewa yang cepat.</p>
+              <h2 class="font-display text-xl sm:text-2xl font-black text-theme-primary">Buku Alamat Pengiriman</h2>
+              <p class="text-xs sm:text-sm text-stone-600 dark:text-stone-300 font-medium mt-0.5">Kelola alamat favorit untuk pengiriman unit sewa yang cepat.</p>
             </div>
 
             <button
               @click="isAddAddressModalOpen = true"
               class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#244E33] hover:bg-[#1B3B26] dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-stone-950 text-xs font-black shadow-sm transition cursor-pointer shrink-0"
             >
-              <span>+ Tambah Alamat</span>
+              <span class="text-sm font-bold leading-none">+</span>
+              <span>Tambah Alamat</span>
             </button>
           </div>
 
           <!-- Empty Addresses State -->
           <div
             v-if="currentUser.savedAddresses.length === 0"
-            class="text-center py-16 bg-theme-card rounded-3xl border border-theme-border p-8 space-y-3"
+            class="text-center py-16 bg-theme-card rounded-3xl border border-theme-border p-8 space-y-3 shadow-card"
           >
-            <div class="w-14 h-14 rounded-2xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center mx-auto text-stone-400">
+            <div class="w-14 h-14 rounded-2xl bg-stone-100 dark:bg-stone-800/80 flex items-center justify-center mx-auto text-stone-400 dark:text-stone-300 border border-theme-border">
               <IconLocation :size="24" />
             </div>
-            <h3 class="font-bold text-sm text-theme-primary">Belum Ada Alamat Tersimpan</h3>
-            <p class="text-xs text-stone-500 max-w-sm mx-auto">
+            <h3 class="font-bold text-sm sm:text-base text-theme-primary">Belum Ada Alamat Tersimpan</h3>
+            <p class="text-xs sm:text-sm text-stone-600 dark:text-stone-300 max-w-sm mx-auto leading-relaxed font-medium">
               Simpan alamat rumah, studio, atau kantor Anda agar proses checkout sewa unit lebih cepat.
             </p>
             <button
               @click="isAddAddressModalOpen = true"
-              class="mt-2 px-5 py-2 bg-forest text-white rounded-full text-xs font-bold cursor-pointer"
+              class="mt-3 px-6 py-2.5 bg-forest hover:bg-forest/90 text-white rounded-full text-xs font-bold cursor-pointer transition shadow-md inline-flex items-center gap-1.5"
             >
-              Tambah Alamat Pertama
+              <span class="text-sm font-bold leading-none">+</span>
+              <span>Tambah Alamat Pertama</span>
             </button>
           </div>
 
@@ -954,20 +956,21 @@ function handleAddAddressSubmit() {
               class="bg-theme-card rounded-3xl border border-theme-border p-5 shadow-card space-y-3 relative hover:border-forest/40 transition"
             >
               <div class="flex items-center justify-between gap-2">
-                <span class="font-extrabold text-xs text-theme-primary bg-stone-100 dark:bg-stone-800 px-2.5 py-1 rounded-md border border-theme-border">
+                <span class="font-extrabold text-xs text-theme-primary bg-stone-100 dark:bg-stone-800/80 px-2.5 py-1 rounded-lg border border-theme-border">
                   {{ addr.label }}
                 </span>
                 <span
                   v-if="addr.isDefault"
-                  class="text-[10px] font-black bg-forest/15 text-forest dark:text-forest-glow px-2 py-0.5 rounded-full border border-forest/30"
+                  class="text-[10px] font-black bg-forest/15 text-forest dark:text-forest-glow px-2.5 py-0.5 rounded-full border border-forest/30 flex items-center gap-1"
                 >
-                  Alamat Utama
+                  <IconCheck :size="10" class="stroke-[3]" />
+                  <span>Alamat Utama</span>
                 </span>
               </div>
 
               <div>
                 <h4 class="font-bold text-sm text-theme-primary">{{ addr.recipientName }}</h4>
-                <p class="text-xs text-stone-500 mt-0.5">{{ addr.phone }}</p>
+                <p class="text-xs text-stone-600 dark:text-stone-300 mt-0.5 font-medium">{{ addr.phone }}</p>
                 <p class="text-xs text-stone-600 dark:text-stone-300 mt-2 leading-relaxed font-normal">
                   {{ addr.fullAddress }}, {{ addr.city }}
                 </p>
@@ -981,7 +984,10 @@ function handleAddAddressSubmit() {
                 >
                   Jadikan Utama
                 </button>
-                <span v-else class="text-[11px] text-stone-400 font-semibold">Default Checkout</span>
+                <span v-else class="text-[11px] text-stone-500 dark:text-stone-300 font-semibold flex items-center gap-1">
+                  <IconCheck :size="11" class="text-emerald-500 stroke-[3]" />
+                  <span>Default Checkout</span>
+                </span>
 
                 <button
                   @click="deleteSavedAddress(addr.id)"
