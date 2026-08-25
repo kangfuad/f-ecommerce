@@ -40,7 +40,7 @@ const { showToast } = useToast()
 
 async function copyProductLink() {
   if (!props.product) return
-  const url = `${window.location.origin}/katalog?produk=${props.product.id}`
+  const url = `${window.location.origin}/produk/${props.product.id}`
   const shareData = {
     title: `${props.product.name} — e-punyasewa`,
     text: `Sewa ${props.product.name} (${formatRupiah(props.product.dailyRate.amount)}/hari) di e-punyasewa. Bebas Deposit Rp 0 & Garansi QC 100%!`,
