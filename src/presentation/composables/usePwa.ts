@@ -1,4 +1,8 @@
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
+
+const PWA_DISMISS_KEY = 'eps_pwa_dismissed_until'
+const PWA_INSTALLED_KEY = 'eps_pwa_installed'
+const DISMISS_COOLDOWN_DAYS = 7
 
 const isInstallable = ref(false)
 const isInstalled = ref(false)
@@ -15,7 +19,33 @@ export function usePwa() {
       (window.navigator as any).standalone === true ||
       document.referrer.includes('android-app://')
 
-    isInstalled.value = isStandalone
+    if (isStandalone) {
+      isInstalled.value = true
+      try {
+        localStorage.setItem(PWA_INSTALLED_KEY, 'true')
+      } catch {}
+    } else {
+      try {
+        if (localStorage.getItem(PWA_INSTALLED_KEY) === 'true') {
+          isInstalled.value = true
+        }
+      } catch {}
+    }
+  }
+
+  function checkDismissedState(): boolean {
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const until = localStorage.getItem(PWA_DISMISS_KEY)
+        if (until) {
+          const expireTime = Number(until)
+          if (!isNaN(expireTime) && Date.now() < expireTime) {
+            return true
+          }
+        }
+      }
+    } catch {}
+    return false
   }
 
   function initPwa() {
@@ -24,11 +54,22 @@ export function usePwa() {
 
     checkDisplayMode()
 
+    // Check if user previously dismissed the prompt (7-day cooldown)
+    if (checkDismissedState()) {
+      isInstallBannerDismissed.value = true
+    }
+
     // Listen for beforeinstallprompt (Chrome / Android / Edge / Desktop)
     window.addEventListener('beforeinstallprompt', (e: Event) => {
       e.preventDefault()
       deferredPrompt.value = e
-      isInstallable.value = true
+
+      // Delay prompt appearance by 3.5 seconds so it doesn't block the user immediately
+      setTimeout(() => {
+        if (!isInstalled.value && !checkDismissedState()) {
+          isInstallable.value = true
+        }
+      }, 3500)
     })
 
     // Listen for app installed event
@@ -36,6 +77,9 @@ export function usePwa() {
       isInstalled.value = true
       isInstallable.value = false
       deferredPrompt.value = null
+      try {
+        localStorage.setItem(PWA_INSTALLED_KEY, 'true')
+      } catch {}
       console.log('[PWA] e-punyasewa app was successfully installed.')
     })
 
@@ -47,13 +91,6 @@ export function usePwa() {
     window.addEventListener('offline', () => {
       isOffline.value = true
     })
-
-    // Check session dismissed state
-    try {
-      if (sessionStorage.getItem('eps_pwa_dismissed') === 'true') {
-        isInstallBannerDismissed.value = true
-      }
-    } catch {}
   }
 
   async function installApp(): Promise<boolean> {
@@ -66,6 +103,9 @@ export function usePwa() {
         isInstalled.value = true
         isInstallable.value = false
         deferredPrompt.value = null
+        try {
+          localStorage.setItem(PWA_INSTALLED_KEY, 'true')
+        } catch {}
         return true
       }
     } catch (e) {
@@ -76,8 +116,11 @@ export function usePwa() {
 
   function dismissInstallPrompt() {
     isInstallBannerDismissed.value = true
+    isInstallable.value = false
     try {
-      sessionStorage.setItem('eps_pwa_dismissed', 'true')
+      // Set 7-day cooldown in localStorage so user is not repeatedly prompted
+      const cooldownMs = DISMISS_COOLDOWN_DAYS * 24 * 60 * 60 * 1000
+      localStorage.setItem(PWA_DISMISS_KEY, String(Date.now() + cooldownMs))
     } catch {}
   }
 
