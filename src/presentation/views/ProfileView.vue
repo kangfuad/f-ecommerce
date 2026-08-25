@@ -657,7 +657,7 @@ function handleAddAddressSubmit() {
                   <h3 class="font-extrabold text-base sm:text-xl text-theme-primary mt-0.5">
                     Identitas Anda Telah Terverifikasi
                   </h3>
-                  <p class="text-xs text-stone-500 mt-0.5">
+                  <p class="text-xs text-stone-500 dark:text-stone-300 mt-0.5">
                     Fasilitas Bebas Deposit 100% (Rp 0) aktif secara permanen untuk seluruh transaksi sewa.
                   </p>
                 </div>
@@ -677,41 +677,49 @@ function handleAddAddressSubmit() {
             <!-- Verified Document Details Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-5 rounded-2xl bg-stone-50 dark:bg-stone-900/80 border border-theme-border text-xs">
               <div class="space-y-1">
-                <span class="text-stone-400 font-bold block text-[10px] uppercase">Jenis Dokumen</span>
+                <span class="text-stone-400 dark:text-stone-400 font-bold block text-[10px] uppercase">Jenis Dokumen</span>
                 <p class="font-extrabold text-theme-primary text-sm">{{ currentUser.idType || 'e-KTP Nasional' }}</p>
               </div>
               <div class="space-y-1">
-                <span class="text-stone-400 font-bold block text-[10px] uppercase">Nomor Identitas (NIK)</span>
+                <span class="text-stone-400 dark:text-stone-400 font-bold block text-[10px] uppercase">Nomor Identitas (NIK)</span>
                 <p class="font-mono font-black text-theme-primary text-sm">{{ currentUser.idNumber || '3174************' }}</p>
               </div>
               <div class="space-y-1">
-                <span class="text-stone-400 font-bold block text-[10px] uppercase">Nama Pemilik Dokumen</span>
+                <span class="text-stone-400 dark:text-stone-400 font-bold block text-[10px] uppercase">Nama Pemilik Dokumen</span>
                 <p class="font-bold text-theme-primary text-sm">{{ currentUser.fullName }}</p>
               </div>
             </div>
 
             <!-- 3 Key KYC Benefits Highlights -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1">
-              <div class="p-3.5 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 text-xs space-y-1">
-                <p class="font-extrabold text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5">
-                  <IconCheck :size="11" class="stroke-[3] shrink-0" />
+              <div class="p-4 rounded-2xl bg-emerald-500/10 dark:bg-emerald-950/60 border border-emerald-500/25 dark:border-emerald-500/30 text-xs space-y-1.5 shadow-2xs">
+                <p class="font-extrabold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5 text-xs sm:text-sm">
+                  <IconCheck :size="13" class="stroke-[3] shrink-0 text-emerald-600 dark:text-emerald-400" />
                   <span>Bebas Deposit Rp 0</span>
                 </p>
-                <p class="text-[11px] text-stone-500 leading-relaxed">Penyewaan langsung tanpa menahan dana jaminan uang tunai.</p>
+                <p class="text-[11px] sm:text-xs text-stone-600 dark:text-stone-300 leading-relaxed font-medium">
+                  Penyewaan langsung tanpa menahan dana jaminan uang tunai.
+                </p>
               </div>
-              <div class="p-3.5 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 text-xs space-y-1">
-                <p class="font-extrabold text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5">
-                  <IconCheck :size="11" class="stroke-[3] shrink-0" />
+
+              <div class="p-4 rounded-2xl bg-emerald-500/10 dark:bg-emerald-950/60 border border-emerald-500/25 dark:border-emerald-500/30 text-xs space-y-1.5 shadow-2xs">
+                <p class="font-extrabold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5 text-xs sm:text-sm">
+                  <IconCheck :size="13" class="stroke-[3] shrink-0 text-emerald-600 dark:text-emerald-400" />
                   <span>Fast Track Pick Up</span>
                 </p>
-                <p class="text-[11px] text-stone-500 leading-relaxed">Serah terima unit di Hub Rental tanpa verifikasi manual ulang.</p>
+                <p class="text-[11px] sm:text-xs text-stone-600 dark:text-stone-300 leading-relaxed font-medium">
+                  Serah terima unit di Hub Rental tanpa verifikasi manual ulang.
+                </p>
               </div>
-              <div class="p-3.5 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 text-xs space-y-1">
-                <p class="font-extrabold text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5">
-                  <IconCheck :size="11" class="stroke-[3] shrink-0" />
+
+              <div class="p-4 rounded-2xl bg-emerald-500/10 dark:bg-emerald-950/60 border border-emerald-500/25 dark:border-emerald-500/30 text-xs space-y-1.5 shadow-2xs">
+                <p class="font-extrabold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5 text-xs sm:text-sm">
+                  <IconCheck :size="13" class="stroke-[3] shrink-0 text-emerald-600 dark:text-emerald-400" />
                   <span>Akses Cinema Gear</span>
                 </p>
-                <p class="text-[11px] text-stone-500 leading-relaxed">Izin sewa kamera bioskop & lensa anamorphic kelas profesional.</p>
+                <p class="text-[11px] sm:text-xs text-stone-600 dark:text-stone-300 leading-relaxed font-medium">
+                  Izin sewa kamera bioskop & lensa anamorphic kelas profesional.
+                </p>
               </div>
             </div>
           </div>
