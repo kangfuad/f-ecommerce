@@ -338,13 +338,12 @@ export function useAuth() {
 
       const updated = new UserProfile({
         ...currentUser.value,
-        isKycVerified: true,
-        kycStatus: 'VERIFIED',
+        isKycVerified: false,
+        kycStatus: 'PENDING_REVIEW',
         idType: data.idType,
         idNumber: data.idNumber,
         idPhotoUrl: data.idPhotoUrl,
         selfiePhotoUrl: data.selfiePhotoUrl,
-        memberTier: 'VERIFIED_GOLD',
       })
 
       currentUser.value = updated
@@ -352,6 +351,36 @@ export function useAuth() {
     } finally {
       isLoading.value = false
     }
+  }
+
+  async function approveKycVerification(): Promise<void> {
+    if (!currentUser.value) return
+    isLoading.value = true
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 600))
+      const updated = new UserProfile({
+        ...currentUser.value,
+        isKycVerified: true,
+        kycStatus: 'VERIFIED',
+        memberTier: 'VERIFIED_GOLD',
+      })
+      currentUser.value = updated
+      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(updated))
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  function resetKycVerification(): void {
+    if (!currentUser.value) return
+    const updated = new UserProfile({
+      ...currentUser.value,
+      isKycVerified: false,
+      kycStatus: 'UNVERIFIED',
+      memberTier: 'STARTER',
+    })
+    currentUser.value = updated
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(updated))
   }
 
   function addSavedAddress(addr: {
@@ -461,6 +490,8 @@ export function useAuth() {
     logout,
     updateProfile,
     submitKycVerification,
+    approveKycVerification,
+    resetKycVerification,
     addSavedAddress,
     deleteSavedAddress,
     setDefaultAddress,

@@ -30,6 +30,8 @@ const {
   openLoginModal,
   updateProfile,
   submitKycVerification,
+  approveKycVerification,
+  resetKycVerification,
   addSavedAddress,
   deleteSavedAddress,
   setDefaultAddress,
@@ -263,16 +265,36 @@ async function handleKycSubmit() {
     isEditingKyc.value = false
     showToast({
       type: 'success',
-      title: 'Verifikasi KYC Berhasil!',
-      message: 'Status akun Anda kini Verified Gold. Nikmati sewa bebas deposit Rp 0!',
+      title: 'Dokumen Berhasil Dikirim!',
+      message: 'Dokumen identitas Anda sedang diproses oleh administrator (Estimasi: 15-30 menit).',
       duration: 6000,
     })
     activeTab.value = 'kyc'
   } catch (err: any) {
-    showToast({ type: 'error', title: 'Gagal Verifikasi', message: err.message || 'Terjadi kesalahan sistem.' })
+    showToast({ type: 'error', title: 'Gagal Mengirim Dokumen', message: err.message || 'Terjadi kesalahan sistem.' })
   } finally {
     isSubmittingKyc.value = false
   }
+}
+
+async function handleSimulateAdminApprove() {
+  await approveKycVerification()
+  showToast({
+    type: 'success',
+    title: 'KYC Disetujui Administrator!',
+    message: 'Selamat! Akun Anda kini Verified Gold. Fasilitas Bebas Deposit Rp 0 aktif permanen.',
+    duration: 5000,
+  })
+}
+
+function handleResetKyc() {
+  resetKycVerification()
+  isEditingKyc.value = false
+  showToast({
+    type: 'info',
+    title: 'Status KYC Direset',
+    message: 'Status akun dikembalikan ke Starter (Belum Verifikasi).',
+  })
 }
 
 function handleAddAddressSubmit() {
@@ -350,6 +372,14 @@ function handleAddAddressSubmit() {
                   ]"
                 >
                   {{ currentUser.tierBadge.label }}
+                </span>
+                <span
+                  :class="[
+                    'text-[10px] font-black px-2.5 py-0.5 rounded-full border shrink-0',
+                    currentUser.kycBadge.classes
+                  ]"
+                >
+                  {{ currentUser.kycBadge.label }}
                 </span>
               </div>
 
@@ -444,6 +474,7 @@ function handleAddAddressSubmit() {
             <IconShieldCheck :size="14" />
             <span>Verifikasi Identitas (KYC)</span>
             <span v-if="currentUser.isKycVerified" class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span v-else-if="currentUser.kycStatus === 'PENDING_REVIEW'" class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
           </button>
 
           <button
@@ -712,14 +743,16 @@ function handleAddAddressSubmit() {
               </div>
 
               <!-- Button to open editing / re-uploading KYC -->
-              <button
-                type="button"
-                @click="isEditingKyc = true"
-                class="px-4 py-2 rounded-full border border-theme-border hover:border-forest/40 bg-stone-50 dark:bg-stone-900 text-xs font-bold text-theme-primary flex items-center gap-1.5 cursor-pointer transition shadow-2xs shrink-0 self-start sm:self-auto"
-              >
-                <IconEdit :size="13" />
-                <span>Perbarui / Unggah Dokumen Baru</span>
-              </button>
+              <div class="flex flex-wrap items-center gap-2 shrink-0 self-start sm:self-auto">
+                <button
+                  type="button"
+                  @click="isEditingKyc = true"
+                  class="px-4 py-2 rounded-full border border-theme-border hover:border-forest/40 bg-stone-50 dark:bg-stone-900 text-xs font-bold text-theme-primary flex items-center gap-1.5 cursor-pointer transition shadow-2xs"
+                >
+                  <IconEdit :size="13" />
+                  <span>Perbarui Dokumen</span>
+                </button>
+              </div>
             </div>
 
             <!-- Verified Document Details Grid -->
@@ -772,7 +805,145 @@ function handleAddAddressSubmit() {
             </div>
           </div>
 
-          <!-- State B: Unverified OR Editing Form State -->
+          <!-- State B: Pending Administrator Review State (Verifikasi Sedang Diproses oleh Administrator) -->
+          <div v-else-if="currentUser.kycStatus === 'PENDING_REVIEW' && !isEditingKyc" class="bg-theme-card rounded-3xl border border-amber-500/30 dark:border-amber-500/30 p-6 sm:p-8 shadow-card space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-theme-border pb-5">
+              <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 shadow-sm relative">
+                  <IconClock :size="28" class="animate-pulse" />
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400">
+                      Status Pengajuan Dokumen
+                    </span>
+                    <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300 text-[10px] font-black border border-amber-500/30 flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+                      <span>Sedang Diproses Administrator</span>
+                    </span>
+                  </div>
+                  <h3 class="font-extrabold text-base sm:text-xl text-theme-primary mt-0.5">
+                    Verifikasi Dokumen Sedang Ditinjau oleh Administrator
+                  </h3>
+                  <p class="text-xs sm:text-sm text-stone-600 dark:text-stone-300 mt-1 font-medium leading-relaxed">
+                    Dokumen KYC Anda telah kami terima dan sedang dalam proses validasi manual oleh tim verifikasi administrator e-punyasewa.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Action buttons in pending state -->
+              <div class="flex flex-wrap items-center gap-2 shrink-0 self-start sm:self-auto">
+                <button
+                  type="button"
+                  @click="isEditingKyc = true"
+                  class="px-4 py-2 rounded-full border border-theme-border hover:border-forest/40 bg-stone-50 dark:bg-stone-900 text-xs font-bold text-theme-primary flex items-center gap-1.5 cursor-pointer transition shadow-2xs"
+                >
+                  <IconEdit :size="13" />
+                  <span>Unggah Ulang / Ubah Data</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 3-Step Visual Progress Tracker -->
+            <div class="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-amber-500/5 via-stone-50 to-emerald-500/5 dark:from-amber-950/20 dark:via-stone-900/40 dark:to-emerald-950/20 border border-theme-border space-y-4">
+              <span class="text-[11px] font-black uppercase tracking-wider text-theme-primary block">
+                Tahapan Proses Verifikasi Identitas:
+              </span>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Step 1 -->
+                <div class="flex items-start gap-3 p-3.5 rounded-xl bg-white/80 dark:bg-stone-800/80 border border-emerald-500/30 shadow-2xs">
+                  <div class="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 mt-0.5">
+                    <IconCheck :size="14" class="stroke-[3]" />
+                  </div>
+                  <div class="space-y-0.5">
+                    <h5 class="text-xs font-bold text-theme-primary">1. Dokumen Terkirim</h5>
+                    <p class="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">Berkas berhasil diunggah</p>
+                  </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="flex items-start gap-3 p-3.5 rounded-xl bg-amber-500/10 dark:bg-amber-950/40 border border-amber-500/40 shadow-2xs relative overflow-hidden">
+                  <div class="w-7 h-7 rounded-full bg-amber-500 text-stone-950 flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs animate-pulse">
+                    <IconClock :size="14" />
+                  </div>
+                  <div class="space-y-0.5">
+                    <h5 class="text-xs font-bold text-amber-800 dark:text-amber-300">2. Review Administrator</h5>
+                    <p class="text-[11px] text-amber-700 dark:text-amber-400 font-medium">Validasi NIK & Kesesuaian Foto</p>
+                  </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="flex items-start gap-3 p-3.5 rounded-xl bg-white/40 dark:bg-stone-900/40 border border-theme-border opacity-70">
+                  <div class="w-7 h-7 rounded-full bg-stone-200 dark:bg-stone-800 text-stone-500 flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">
+                    3
+                  </div>
+                  <div class="space-y-0.5">
+                    <h5 class="text-xs font-bold text-stone-500 dark:text-stone-400">3. Fasilitas Bebas Deposit</h5>
+                    <p class="text-[11px] text-stone-400">Status Verified Gold Aktif</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Submitted KYC Information Box -->
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 p-5 rounded-2xl bg-stone-50 dark:bg-stone-900/80 border border-theme-border text-xs">
+              <div class="space-y-1">
+                <span class="text-stone-400 dark:text-stone-400 font-bold block text-[10px] uppercase">Jenis Dokumen</span>
+                <p class="font-extrabold text-theme-primary text-sm">{{ currentUser.idType || 'e-KTP Nasional' }}</p>
+              </div>
+              <div class="space-y-1">
+                <span class="text-stone-400 dark:text-stone-400 font-bold block text-[10px] uppercase">Nomor Identitas (NIK)</span>
+                <p class="font-mono font-black text-theme-primary text-sm">{{ currentUser.idNumber || '3174************' }}</p>
+              </div>
+              <div class="space-y-1">
+                <span class="text-stone-400 dark:text-stone-400 font-bold block text-[10px] uppercase">Nama Pemilik Dokumen</span>
+                <p class="font-bold text-theme-primary text-sm">{{ currentUser.fullName }}</p>
+              </div>
+              <div class="space-y-1">
+                <span class="text-stone-400 dark:text-stone-400 font-bold block text-[10px] uppercase">Estimasi Waktu Proses</span>
+                <p class="font-bold text-amber-700 dark:text-amber-300 text-sm">15 - 30 Menit</p>
+              </div>
+            </div>
+
+            <!-- Fast-Track Assistance & Demo Controls Bar -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-amber-500/5 dark:bg-amber-950/20 border border-amber-500/20 text-xs">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-300 flex items-center justify-center shrink-0">
+                  <IconShieldCheck :size="16" />
+                </div>
+                <div>
+                  <p class="font-bold text-theme-primary text-xs">Butuh sewa mendesak hari ini?</p>
+                  <p class="text-[11px] text-stone-600 dark:text-stone-300">Hubungi tim verifikasi WhatsApp kami untuk meminta persetujuan prioritas (*Fast-Track Approval*).</p>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-2">
+                <a
+                  :href="`https://wa.me/6281234567890?text=${encodeURIComponent('Halo Tim Admin e-punyasewa, mohon bantu verifikasi dokumen KYC akun saya atas nama ' + currentUser.fullName + ' (NIK: ' + (currentUser.idNumber || '') + ')')}`"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 transition shadow-xs cursor-pointer"
+                >
+                  <span>Chat WhatsApp Admin</span>
+                  <span>→</span>
+                </a>
+
+                <!-- Quick Simulator for instant approval in demo -->
+                <button
+                  type="button"
+                  @click="handleSimulateAdminApprove"
+                  class="px-4 py-2 rounded-full bg-forest/10 hover:bg-forest/20 text-forest dark:text-forest-glow border border-forest/30 font-bold text-xs cursor-pointer transition"
+                  title="Simulasikan persetujuan instan dari admin"
+                >
+                  <span class="mr-1">⚡</span>
+                  <span>Setujui KYC (Demo)</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- State C: Unverified OR Editing Form State -->
           <div v-else class="bg-theme-card rounded-3xl border border-theme-border p-6 sm:p-8 shadow-card space-y-6">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-theme-border pb-5">
               <div>
@@ -788,13 +959,13 @@ function handleAddAddressSubmit() {
               </div>
 
               <button
-                v-if="currentUser.isKycVerified"
+                v-if="currentUser.isKycVerified || currentUser.kycStatus === 'PENDING_REVIEW'"
                 type="button"
                 @click="isEditingKyc = false"
                 class="px-4 py-2 rounded-full border border-theme-border hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-bold text-stone-600 dark:text-stone-300 self-start sm:self-auto cursor-pointer transition flex items-center gap-1"
               >
                 <IconClose :size="12" />
-                <span>Batal Perbarui</span>
+                <span>Batal</span>
               </button>
             </div>
 
@@ -909,7 +1080,7 @@ function handleAddAddressSubmit() {
                   </BaseButton>
 
                   <button
-                    v-if="currentUser.isKycVerified"
+                    v-if="currentUser.isKycVerified || currentUser.kycStatus === 'PENDING_REVIEW'"
                     type="button"
                     @click="isEditingKyc = false"
                     class="px-5 py-2.5 rounded-full border border-theme-border hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-bold text-stone-600 dark:text-stone-300 cursor-pointer"

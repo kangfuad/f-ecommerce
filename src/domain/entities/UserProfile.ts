@@ -17,7 +17,7 @@ export interface SavedAddress {
   isDefault: boolean
 }
 
-export type KycStatus = 'UNVERIFIED' | 'PENDING_REVIEW' | 'VERIFIED'
+export type KycStatus = 'UNVERIFIED' | 'PENDING_REVIEW' | 'VERIFIED' | 'REJECTED'
 export type MemberTier = 'STARTER' | 'VERIFIED_GOLD' | 'PRO_STUDIO'
 
 export interface UserProfileProps {
@@ -193,6 +193,18 @@ export class UserProfile {
     }
   }
 
+  public get isKycPending(): boolean {
+    return this.kycStatus === 'PENDING_REVIEW'
+  }
+
+  public get isKycRejected(): boolean {
+    return this.kycStatus === 'REJECTED'
+  }
+
+  public get isKycUnverified(): boolean {
+    return !this.kycStatus || this.kycStatus === 'UNVERIFIED'
+  }
+
   public get kycBadge(): { label: string; classes: string } {
     if (this.isKycVerified || this.kycStatus === 'VERIFIED') {
       return {
@@ -202,8 +214,14 @@ export class UserProfile {
     }
     if (this.kycStatus === 'PENDING_REVIEW') {
       return {
-        label: 'Sedang Ditinjau',
+        label: 'Sedang Ditinjau Admin',
         classes: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30',
+      }
+    }
+    if (this.kycStatus === 'REJECTED') {
+      return {
+        label: 'Perlu Perbaikan Dokumen',
+        classes: 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30',
       }
     }
     return {
