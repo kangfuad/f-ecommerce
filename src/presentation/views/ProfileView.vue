@@ -18,6 +18,8 @@ import {
   IconBoxPackage,
 } from '@/presentation/components/icons'
 
+import { MemberTierService, type MemberTierDto } from '@/infrastructure/services/api/MemberTierService'
+
 const router = useRouter()
 const {
   currentUser,
@@ -33,6 +35,11 @@ const { showToast } = useToast()
 
 // Active Tab
 const activeTab = ref<'account' | 'kyc' | 'addresses'>('account')
+
+// Member Tiers Dynamic Data
+const memberTiers = ref<MemberTierDto[]>([])
+const tiersDisclaimer = ref<string>('')
+const isLoadingTiers = ref(false)
 
 // Edit Profile Form State
 const isEditProfileModalOpen = ref(false)
@@ -64,7 +71,24 @@ watch(
   }
 )
 
+async function loadTiersData() {
+  isLoadingTiers.value = true
+  try {
+    const res = await MemberTierService.getMemberTiers()
+    if (res.status === 'success' && res.data) {
+      memberTiers.value = res.data.data
+      tiersDisclaimer.value = res.data.disclaimer
+    }
+  } catch {
+    // fallback if needed
+  } finally {
+    isLoadingTiers.value = false
+  }
+}
+
 onMounted(() => {
+  loadTiersData()
+
   if (!isLoggedIn.value) {
     openLoginModal()
     router.replace('/')
@@ -285,64 +309,223 @@ function handleAddAddressSubmit() {
         </div>
 
         <!-- TAB 1: Member Tier & Account Overview -->
-        <div v-if="activeTab === 'account'" class="space-y-6 animate-fade-up">
-          <!-- Member Tier Card -->
+        <div v-if="activeTab === 'account'" class="space-y-8 animate-fade-up">
+          
+          <!-- Active Member Tier Hero Card -->
           <div class="bg-gradient-to-br from-stone-900 via-stone-950 to-[#14261B] text-white rounded-3xl p-6 sm:p-8 border border-stone-800 shadow-xl space-y-6">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
-              <div class="space-y-1">
-                <span class="text-[10px] font-extrabold uppercase tracking-widest text-emerald-400">
-                  Tingkatan Keanggotaan
-                </span>
+              <div class="space-y-1.5">
                 <div class="flex items-center gap-2">
-                  <h2 class="font-display text-2xl sm:text-3xl font-black text-white">
-                    {{ currentUser.tierLabel }}
-                  </h2>
-                  <span v-if="currentUser.isKycVerified" class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-extrabold border border-emerald-400/30">
-                    VIP Member
+                  <span class="text-[10px] font-black uppercase tracking-widest text-emerald-400">
+                    Tingkatan Keanggotaan Aktif
+                  </span>
+                  <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-black border border-emerald-400/30">
+                    Akun Terverifikasi
                   </span>
                 </div>
+                <h2 class="font-display text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight">
+                  {{ currentUser.tierLabel }}
+                </h2>
+                <p class="text-xs sm:text-sm text-emerald-300/90 font-medium">
+                  Fasilitas Bebas Deposit 100% (Rp 0) aktif pada akun Anda.
+                </p>
               </div>
-              <div class="text-left sm:text-right">
-                <p class="text-xs text-stone-400">Total Transaksi Selesai</p>
-                <p class="text-xl font-black text-emerald-400">{{ currentUser.rentalCount }} Periode Rental</p>
+
+              <div class="text-left sm:text-right p-4 rounded-2xl bg-white/5 border border-white/10 shrink-0">
+                <p class="text-xs text-stone-400 font-medium">Riwayat Transaksi</p>
+                <p class="text-xl sm:text-2xl font-black text-emerald-400 mt-0.5">{{ currentUser.rentalCount }} Kali Sewa</p>
+                <p class="text-[10px] text-stone-400 mt-0.5">Catatan Pengembalian: 100% Tepat Waktu</p>
               </div>
             </div>
 
-            <!-- Perks Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs">
-              <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-1.5">
-                <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-bold">
-                  Rp 0
+            <!-- Active Perks Grid (Large & High Contrast) -->
+            <div class="space-y-2">
+              <h3 class="text-xs font-black uppercase tracking-wider text-stone-400">
+                Keuntungan Eksklusif Tingkat Anda Saat Ini:
+              </h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/10 space-y-2 hover:bg-white/10 transition">
+                  <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-black text-xs shadow-sm">
+                    Rp 0
+                  </div>
+                  <h4 class="font-extrabold text-sm sm:text-base text-white">Bebas Deposit 100%</h4>
+                  <p class="text-xs sm:text-sm text-stone-300 font-normal leading-relaxed">
+                    Sewa kamera sinema dan drone premium tanpa perlu menahan dana deposit sepeser pun.
+                  </p>
                 </div>
-                <h4 class="font-bold text-white">Bebas Deposit Jaminan</h4>
-                <p class="text-[11px] text-stone-400">Sewa kamera sinema dan drone tanpa beban dana deposit tertahan.</p>
-              </div>
 
-              <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-1.5">
-                <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-bold">
-                  <IconCheck :size="18" />
+                <div class="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/10 space-y-2 hover:bg-white/10 transition">
+                  <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center shadow-sm">
+                    <IconCheck :size="20" />
+                  </div>
+                  <h4 class="font-extrabold text-sm sm:text-base text-white">Prioritas QC & Sterilisasi</h4>
+                  <p class="text-xs sm:text-sm text-stone-300 font-normal leading-relaxed">
+                    Unit diperiksa dan disiapkan lebih awal oleh teknisi senior sebelum jadwal syuting Anda.
+                  </p>
                 </div>
-                <h4 class="font-bold text-white">Prioritas QC & Packing</h4>
-                <p class="text-[11px] text-stone-400">Unit disterilkan dan disiapkan lebih awal oleh tim teknisi senior.</p>
-              </div>
 
-              <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-1.5">
-                <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-bold">
-                  <IconDeliveryTruck :size="18" />
+                <div class="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/10 space-y-2 hover:bg-white/10 transition">
+                  <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center shadow-sm">
+                    <IconDeliveryTruck :size="20" />
+                  </div>
+                  <h4 class="font-extrabold text-sm sm:text-base text-white">Kurir Terdedikasi</h4>
+                  <p class="text-xs sm:text-sm text-stone-300 font-normal leading-relaxed">
+                    Pengantaran langsung ke lokasi studio/rumah dalam hardcase anti-guncangan bersertifikasi.
+                  </p>
                 </div>
-                <h4 class="font-bold text-white">Kurir Khusus Terdedikasi</h4>
-                <p class="text-[11px] text-stone-400">Pengiriman langsung ke lokasi syuting atau rumah tepat waktu.</p>
-              </div>
 
-              <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-1.5">
-                <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-bold">
-                  <IconStar :size="18" />
+                <div class="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/10 space-y-2 hover:bg-white/10 transition">
+                  <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center shadow-sm">
+                    <IconStar :size="20" />
+                  </div>
+                  <h4 class="font-extrabold text-sm sm:text-base text-white">Support CS WhatsApp VIP</h4>
+                  <p class="text-xs sm:text-sm text-stone-300 font-normal leading-relaxed">
+                    Respon konsultasi teknis cepat dan kemudahan proses perpanjangan masa sewa alat.
+                  </p>
                 </div>
-                <h4 class="font-bold text-white">Support CS WhatsApp VIP</h4>
-                <p class="text-[11px] text-stone-400">Layanan konsultasi teknis unit dan perpanjangan sewa kilat.</p>
               </div>
             </div>
           </div>
+
+          <!-- Section 2: All Member Tiers Guide & Comparison (Fetched dynamically from JSON) -->
+          <div class="space-y-4">
+            <div>
+              <span class="text-[11px] font-black uppercase tracking-widest text-forest dark:text-forest-glow">
+                Panduan Lengkap Tingkatan Member
+              </span>
+              <h2 class="font-display text-xl sm:text-2xl font-black text-theme-primary mt-0.5">
+                Kualifikasi & Perbandingan Keuntungan
+              </h2>
+              <p class="text-xs sm:text-sm text-stone-500 mt-1 max-w-2xl leading-relaxed">
+                Pelajari syarat kualifikasi, ketentuan dana deposit, dan cara meningkatkan level akun Anda untuk mendapatkan fasilitas rental terbaik.
+              </p>
+            </div>
+
+            <!-- 3 Columns Tiers Comparison Cards -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+              <div
+                v-for="tier in memberTiers"
+                :key="tier.id"
+                :class="[
+                  'bg-theme-card rounded-3xl border p-6 flex flex-col justify-between transition-all duration-200 shadow-sm relative',
+                  currentUser.memberTier === tier.id || (currentUser.isKycVerified && tier.id === 'VERIFIED_GOLD')
+                    ? 'border-forest dark:border-emerald-500/60 ring-2 ring-forest/20'
+                    : 'border-theme-border hover:border-forest/40'
+                ]"
+              >
+                <!-- Active Indicator Banner -->
+                <div
+                  v-if="currentUser.memberTier === tier.id || (currentUser.isKycVerified && tier.id === 'VERIFIED_GOLD')"
+                  class="absolute -top-3 left-6 bg-forest text-white text-[10px] font-black px-3 py-0.5 rounded-full shadow-sm"
+                >
+                  ✓ Tingkat Akun Anda Saat Ini
+                </div>
+
+                <div class="space-y-4 pt-1">
+                  <!-- Tier Header -->
+                  <div class="space-y-1">
+                    <div class="flex items-center justify-between">
+                      <span
+                        :class="[
+                          'text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider border',
+                          tier.badgeTheme === 'emerald' && 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30',
+                          tier.badgeTheme === 'purple' && 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30',
+                          tier.badgeTheme === 'stone' && 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 border-theme-border'
+                        ]"
+                      >
+                        {{ tier.badge }}
+                      </span>
+                      <span v-if="tier.isPopular" class="text-[10px] font-black text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                        ★ Populer
+                      </span>
+                    </div>
+
+                    <h3 class="font-display font-black text-lg sm:text-xl text-theme-primary pt-1">
+                      {{ tier.name }}
+                    </h3>
+                    <p class="text-xs text-stone-500 leading-relaxed font-medium">
+                      {{ tier.tagline }}
+                    </p>
+                  </div>
+
+                  <!-- Qualification Box -->
+                  <div class="p-3.5 rounded-2xl bg-stone-50 dark:bg-stone-900 border border-theme-border space-y-1 text-xs">
+                    <span class="text-[10px] font-black uppercase text-stone-400 block tracking-wider">
+                      Syarat & Kualifikasi:
+                    </span>
+                    <p class="text-xs text-theme-primary font-semibold leading-relaxed">
+                      {{ tier.qualification }}
+                    </p>
+                  </div>
+
+                  <!-- Deposit Status Badge -->
+                  <div class="p-3 rounded-2xl bg-forest/5 dark:bg-forest/10 border border-forest/20 flex items-center justify-between text-xs">
+                    <span class="text-stone-500 dark:text-stone-400 font-medium">Fasilitas Deposit:</span>
+                    <strong class="text-forest dark:text-forest-glow font-black">{{ tier.depositRequirement }}</strong>
+                  </div>
+
+                  <!-- Perks List -->
+                  <div class="space-y-3 pt-2">
+                    <span class="text-[11px] font-black uppercase tracking-wider text-theme-primary block">
+                      Fasilitas & Keuntungan:
+                    </span>
+                    <div class="space-y-2.5">
+                      <div
+                        v-for="(perk, idx) in tier.perks"
+                        :key="idx"
+                        class="flex items-start gap-2.5 text-xs text-theme-primary leading-relaxed"
+                      >
+                        <IconCheck :size="15" class="text-forest dark:text-forest-glow shrink-0 mt-0.5" />
+                        <div>
+                          <strong class="font-bold block text-theme-primary">{{ perk.title }}</strong>
+                          <span class="text-stone-500 dark:text-stone-400 font-normal">{{ perk.desc }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Footer / How to Upgrade Action -->
+                <div class="pt-5 mt-5 border-t border-theme-border space-y-2.5">
+                  <div class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">
+                    <strong class="text-theme-primary block font-bold mb-0.5">Cara Naik Tingkat:</strong>
+                    {{ tier.howToUpgrade }}
+                  </div>
+
+                  <button
+                    v-if="tier.id === 'STARTER' && !currentUser.isKycVerified"
+                    @click="activeTab = 'kyc'"
+                    class="w-full py-2.5 bg-forest text-white rounded-full text-xs font-black shadow-sm cursor-pointer hover:bg-forest/90 transition text-center"
+                  >
+                    Verifikasi KYC Sekarang →
+                  </button>
+                  <div
+                    v-else-if="currentUser.memberTier === tier.id || (currentUser.isKycVerified && tier.id === 'VERIFIED_GOLD')"
+                    class="w-full py-2 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 rounded-full text-xs font-black text-center border border-emerald-500/20"
+                  >
+                    Tingkat Aktif Anda
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 3: Disclaimer & Regulasi Transparansi -->
+          <div class="bg-theme-card rounded-3xl border border-theme-border p-5 sm:p-6 shadow-xs flex items-start gap-4">
+            <div class="w-10 h-10 rounded-2xl bg-forest/10 dark:bg-forest/20 text-forest dark:text-forest-glow flex items-center justify-center shrink-0 mt-0.5">
+              <IconShieldCheck :size="20" />
+            </div>
+            <div class="space-y-1 text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-relaxed">
+              <h4 class="font-extrabold text-theme-primary text-xs sm:text-sm">
+                Disclaimer & Kebijakan Keanggotaan e-punyasewa
+              </h4>
+              <p class="font-normal text-stone-500 dark:text-stone-400 text-xs sm:text-sm leading-relaxed">
+                {{ tiersDisclaimer || 'Ketentuan dan fasilitas tingkatan keanggotaan dapat disesuaikan sewaktu-waktu oleh manajemen e-punyasewa demi menjaga keamanan aset serta kenyamanan seluruh pelanggan. Fasilitas Bebas Deposit berlaku selama akun memiliki riwayat pemakaian yang baik, tepat waktu, dan mematuhi seluruh syarat ketentuan rental yang berlaku.' }}
+              </p>
+            </div>
+          </div>
+
         </div>
 
         <!-- TAB 2: KYC Identity Verification -->
