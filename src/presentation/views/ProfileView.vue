@@ -17,6 +17,7 @@ import {
   IconStar,
   IconBoxPackage,
   IconEdit,
+  IconClock,
 } from '@/presentation/components/icons'
 
 import { MemberTierService, type MemberTierDto } from '@/infrastructure/services/api/MemberTierService'
