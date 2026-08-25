@@ -56,10 +56,17 @@ const selectedProductForModal = shallowRef<Product | null>(null)
 
 function openProductModal(product: Product) {
   selectedProductForModal.value = product
+  const query = { ...route.query, produk: product.id }
+  router.replace({ query }).catch(() => {})
 }
 
 function closeProductModal() {
   selectedProductForModal.value = null
+  const query = { ...route.query }
+  delete query.produk
+  delete query.item
+  delete query.product
+  router.replace({ query }).catch(() => {})
 }
 
 async function handleQuickAddToCart(product: Product, startDate?: string, endDate?: string) {
@@ -264,6 +271,21 @@ function parseUrlQuery() {
       minRating.value = r
     }
   }
+
+  // 8. Product Modal Deep Link
+  const targetProduct = (q.produk || q.item || q.product) as string | undefined
+  if (targetProduct && allProducts.value.length > 0) {
+    const found = allProducts.value.find(
+      (p) =>
+        p.id === targetProduct ||
+        p.name.toLowerCase().replace(/\s+/g, '-').includes(targetProduct.toLowerCase())
+    )
+    if (found && selectedProductForModal.value?.id !== found.id) {
+      selectedProductForModal.value = found
+    }
+  } else if (!targetProduct && selectedProductForModal.value) {
+    selectedProductForModal.value = null
+  }
 }
 
 // Pagination States & Logic
@@ -346,6 +368,13 @@ watch(
     parseUrlQuery()
   },
   { deep: true }
+)
+
+watch(
+  allProducts,
+  () => {
+    parseUrlQuery()
+  }
 )
 
 onMounted(() => {

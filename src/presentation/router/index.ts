@@ -6,6 +6,7 @@ import OrderSuccessView from '../views/OrderSuccessView.vue'
 import MyOrdersView from '../views/MyOrdersView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import HelpCenterView from '../views/HelpCenterView.vue'
+import NotFoundView from '../views/NotFoundView.vue'
 
 const routes = [
   {
@@ -17,6 +18,10 @@ const routes = [
     path: '/katalog',
     name: 'catalog',
     component: CatalogView,
+  },
+  {
+    path: '/produk/:slug',
+    redirect: (to: any) => ({ path: '/katalog', query: { produk: to.params.slug } }),
   },
   {
     path: '/checkout',
@@ -71,7 +76,8 @@ const routes = [
   },
   {
     path: '/:pathMatch(.*)*',
-    redirect: '/',
+    name: 'not-found',
+    component: NotFoundView,
   },
 ]
 

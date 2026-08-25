@@ -10,6 +10,8 @@ import OrderTimelineModal from '@/presentation/components/orders/OrderTimelineMo
 import ExtendRentalModal from '@/presentation/components/orders/ExtendRentalModal.vue'
 import QuickPaymentModal from '@/presentation/components/orders/QuickPaymentModal.vue'
 import CancelOrderModal from '@/presentation/components/orders/CancelOrderModal.vue'
+import OrderReviewModal from '@/presentation/components/orders/OrderReviewModal.vue'
+import InvoicePrintModal from '@/presentation/components/orders/InvoicePrintModal.vue'
 import type { OrderDto } from '@/infrastructure/services/api/OrderService'
 import {
   IconDeliveryTruck,
@@ -20,12 +22,18 @@ import {
   IconArrowRight,
   IconSearch,
   IconChevronDown,
+  IconChevronLeft,
+  IconChevronRight,
   IconQrcode,
   IconClose,
+  IconStar,
 } from '@/presentation/components/icons'
 
 const router = useRouter()
 const { currentUser, isLoggedIn, openLoginModal } = useAuth()
+
+const activeReviewOrder = ref<OrderDto | null>(null)
+const activeInvoiceOrder = ref<OrderDto | null>(null)
 const {
   filteredOrders,
   isLoading,
@@ -425,6 +433,17 @@ function getStatusBadge(order: OrderDto) {
                 <span>Lacak Status</span>
               </button>
 
+              <!-- Review & Rating Button (for completed orders) -->
+              <button
+                v-if="order.lifecycleStatus === 'COMPLETED'"
+                type="button"
+                @click="activeReviewOrder = order"
+                class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-amber-500/15 hover:bg-amber-500/25 text-amber-800 dark:text-amber-300 border border-amber-500/30 text-xs font-bold transition cursor-pointer"
+              >
+                <IconStar :size="13" class="fill-current text-amber-500" />
+                <span>Beri Ulasan</span>
+              </button>
+
               <!-- Extend Rental Button (for active rental) -->
               <button
                 v-if="order.lifecycleStatus === 'ACTIVE_RENTAL'"
@@ -445,14 +464,17 @@ function getStatusBadge(order: OrderDto) {
                 <span>Batalkan Pesanan</span>
               </button>
 
-              <!-- Digital Invoice Link -->
-              <router-link
-                :to="`/order-success/${order.id}`"
+              <!-- Digital Invoice Print Action -->
+              <button
+                type="button"
+                @click="activeInvoiceOrder = order"
                 class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-[#244E33] hover:bg-[#1B3B26] dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-stone-950 text-xs font-black shadow-sm transition cursor-pointer"
               >
-                <span>Faktur Invoice</span>
-                <IconArrowRight :size="12" />
-              </router-link>
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span>Cetak Invoice</span>
+              </button>
             </div>
           </div>
         </div>
@@ -484,7 +506,7 @@ function getStatusBadge(order: OrderDto) {
               ]"
               aria-label="Halaman Sebelumnya"
             >
-              <span>←</span>
+              <IconChevronLeft :size="14" />
               <span class="hidden sm:inline">Sebelumnya</span>
             </button>
 
@@ -518,7 +540,7 @@ function getStatusBadge(order: OrderDto) {
               aria-label="Halaman Selanjutnya"
             >
               <span class="hidden sm:inline">Selanjutnya</span>
-              <span>→</span>
+              <IconChevronRight :size="14" />
             </button>
           </div>
 
@@ -561,6 +583,16 @@ function getStatusBadge(order: OrderDto) {
       :order="activeExtendOrder"
       @close="closeExtend"
       @confirm-extension="confirmExtendRental"
+    />
+
+    <OrderReviewModal
+      :order="activeReviewOrder"
+      @close="activeReviewOrder = null"
+    />
+
+    <InvoicePrintModal
+      :order="activeInvoiceOrder"
+      @close="activeInvoiceOrder = null"
     />
 
     <AppFooter />

@@ -6,6 +6,7 @@ import { useCart } from '@/presentation/composables/useCart'
 import { useAuth } from '@/presentation/composables/useAuth'
 import { useBodyScrollLock } from '@/presentation/composables/useBodyScrollLock'
 import { useImageLightbox } from '@/presentation/composables/useImageLightbox'
+import { useToast } from '@/presentation/composables/useToast'
 import DateRangePicker from '../rental/DateRangePicker.vue'
 import RentalPriceBreakdown from '../rental/RentalPriceBreakdown.vue'
 import BaseButton from '../common/BaseButton.vue'
@@ -34,6 +35,25 @@ const activeImageIndex = ref(0)
 const { addToCart, isLoading: isAddingToCart } = useCart()
 const { isLoggedIn, openLoginModal } = useAuth()
 const { openLightbox } = useImageLightbox()
+const { showToast } = useToast()
+
+function copyProductLink() {
+  if (!props.product) return
+  const url = `${window.location.origin}/katalog?produk=${props.product.id}`
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(() => {
+      showToast({
+        type: 'success',
+        title: 'Tautan Disalin',
+        message: 'Link produk siap dibagikan ke WhatsApp atau media sosial.',
+      })
+    }).catch(() => {
+      showToast({ type: 'info', title: 'Tautan Produk', message: url })
+    })
+  } else {
+    showToast({ type: 'info', title: 'Tautan Produk', message: url })
+  }
+}
 
 // Lock background page scroll when modal is open
 useBodyScrollLock(() => !!props.product)
@@ -139,15 +159,29 @@ async function handleAddToCart() {
 
     <!-- Modal Card Container -->
     <div class="relative bg-theme-card rounded-2xl sm:rounded-3xl max-w-4xl w-full max-h-[92vh] sm:max-h-[90vh] my-auto overflow-y-auto custom-scrollbar shadow-2xl border border-theme-border z-10 animate-fade-up text-theme-primary">
-      <!-- Close Button -->
-      <button
-        @click="emit('close')"
-        class="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-stone-100/90 dark:bg-stone-800/90 hover:bg-stone-200 dark:hover:bg-stone-700 border border-theme-border shadow-md flex items-center justify-center text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white transition-colors cursor-pointer"
-        aria-label="Tutup Dialog"
-        title="Tutup (Esc)"
-      >
-        <IconClose :size="15" />
-      </button>
+      <!-- Action Buttons Top-Right -->
+      <div class="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 flex items-center gap-2">
+        <button
+          type="button"
+          @click="copyProductLink"
+          class="h-8 sm:h-9 px-2.5 sm:px-3 rounded-full bg-stone-100/90 dark:bg-stone-800/90 hover:bg-stone-200 dark:hover:bg-stone-700 border border-theme-border shadow-md flex items-center justify-center gap-1.5 text-xs font-bold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white transition-colors cursor-pointer"
+          title="Salin tautan produk untuk dibagikan"
+        >
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+          </svg>
+          <span class="hidden sm:inline">Bagikan</span>
+        </button>
+
+        <button
+          @click="emit('close')"
+          class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-stone-100/90 dark:bg-stone-800/90 hover:bg-stone-200 dark:hover:bg-stone-700 border border-theme-border shadow-md flex items-center justify-center text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white transition-colors cursor-pointer"
+          aria-label="Tutup Dialog"
+          title="Tutup (Esc)"
+        >
+          <IconClose :size="15" />
+        </button>
+      </div>
 
       <div class="grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6 md:gap-8 p-4 sm:p-6 md:p-8 min-w-0">
         <!-- Left: Image Gallery & Included Items -->
