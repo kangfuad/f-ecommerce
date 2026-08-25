@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { usePwa } from '@/presentation/composables/usePwa'
-import { IconClose, IconDownload, IconCheck } from '@/presentation/components/icons'
+import { IconClose, IconDownload, IconCheck, IconArrowRight } from '@/presentation/components/icons'
 
 const {
   isInstallable,
   isInstalled,
+  isStandalone,
   isIos,
   isIosSafari,
   showIosGuide,
@@ -12,6 +14,8 @@ const {
   installApp,
   dismissInstallPrompt,
 } = usePwa()
+
+const showOpenInAppBanner = ref(true)
 
 async function handleInstallClick() {
   await installApp()
@@ -137,6 +141,53 @@ async function handleInstallClick() {
             class="py-2.5 px-3 rounded-full border border-theme-border hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300 text-xs font-bold transition cursor-pointer"
           >
             Nanti Saja
+          </button>
+        </div>
+      </div>
+    </div>
+  </Transition>
+
+  <!-- Floating Smart "Buka di Aplikasi" Bar for Users Who Installed PWA but Access via Browser -->
+  <Transition
+    enter-active-class="transition duration-300 ease-out transform"
+    enter-from-class="-translate-y-full opacity-0"
+    enter-to-class="translate-y-0 opacity-100"
+    leave-active-class="transition duration-200 ease-in transform"
+    leave-from-class="translate-y-0 opacity-100"
+    leave-to-class="-translate-y-full opacity-0"
+  >
+    <div
+      v-if="isInstalled && !isStandalone && showOpenInAppBanner"
+      class="fixed top-3 left-3 right-3 sm:left-auto sm:right-6 sm:max-w-sm z-50 animate-fade-in"
+    >
+      <div
+        class="bg-[#244E33] dark:bg-stone-900 text-white border border-emerald-500/40 rounded-2xl p-2.5 sm:p-3 shadow-2xl flex items-center justify-between gap-3"
+      >
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-8 h-8 rounded-xl bg-white/10 p-0.5 shrink-0 flex items-center justify-center">
+            <img src="/pwa-192x192.png" alt="App Icon" class="w-full h-full object-contain rounded-lg" />
+          </div>
+          <div class="min-w-0">
+            <p class="font-bold text-xs truncate">e-punyasewa App Terpasang</p>
+            <p class="text-[10px] text-stone-300 dark:text-stone-400 truncate">Buka di aplikasi untuk akses instan</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1.5 shrink-0">
+          <a
+            :href="'/'"
+            class="px-3 py-1.5 rounded-full bg-emerald-400 hover:bg-emerald-300 text-stone-950 text-xs font-black transition cursor-pointer shadow-xs inline-flex items-center gap-1"
+          >
+            <span>Buka App</span>
+            <IconArrowRight :size="11" />
+          </a>
+          <button
+            type="button"
+            @click="showOpenInAppBanner = false"
+            class="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 text-stone-300 hover:text-white flex items-center justify-center transition cursor-pointer"
+            title="Tutup"
+          >
+            <IconClose :size="10" />
           </button>
         </div>
       </div>

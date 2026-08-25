@@ -6,6 +6,7 @@ const DISMISS_COOLDOWN_DAYS = 7
 
 const isInstallable = ref(false)
 const isInstalled = ref(false)
+const isStandalone = ref(false)
 const isIos = ref(false)
 const isIosSafari = ref(false)
 const showIosGuide = ref(false)
@@ -17,12 +18,13 @@ let isInitialized = false
 export function usePwa() {
   function checkDisplayMode() {
     if (typeof window === 'undefined') return
-    const isStandalone =
+    const standalone =
       window.matchMedia('(display-mode: standalone)').matches ||
       (window.navigator as any).standalone === true ||
       document.referrer.includes('android-app://')
 
-    if (isStandalone) {
+    isStandalone.value = standalone
+    if (standalone) {
       isInstalled.value = true
       try {
         localStorage.setItem(PWA_INSTALLED_KEY, 'true')
@@ -158,6 +160,7 @@ export function usePwa() {
   return {
     isInstallable,
     isInstalled,
+    isStandalone,
     isIos,
     isIosSafari,
     showIosGuide,

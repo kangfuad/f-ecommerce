@@ -221,6 +221,17 @@ function syncFiltersToUrl() {
     query.rating = minRating.value.toString()
   }
 
+  // Preserve Product Modal Query Parameter
+  if (selectedProductForModal.value) {
+    query.produk = selectedProductForModal.value.id
+  } else if (route.query.produk && typeof route.query.produk === 'string') {
+    query.produk = route.query.produk
+  } else if (route.query.item && typeof route.query.item === 'string') {
+    query.produk = route.query.item
+  } else if (route.query.product && typeof route.query.product === 'string') {
+    query.produk = route.query.product
+  }
+
   if (JSON.stringify(query) !== JSON.stringify(route.query)) {
     router.replace({ query }).catch(() => {})
   }
@@ -288,16 +299,20 @@ function parseUrlQuery() {
     }
   }
 
-  // 8. Product Modal Deep Link
+  // 8. Product Modal Deep Link (Auto opens modal when link has ?produk=... or /produk/:id)
   const targetProduct = (q.produk || q.item || q.product) as string | undefined
-  if (targetProduct && allProducts.value.length > 0) {
-    const found = allProducts.value.find(
-      (p) =>
-        p.id === targetProduct ||
-        p.name.toLowerCase().replace(/\s+/g, '-').includes(targetProduct.toLowerCase())
-    )
-    if (found && selectedProductForModal.value?.id !== found.id) {
-      selectedProductForModal.value = found
+  if (targetProduct) {
+    if (allProducts.value && allProducts.value.length > 0) {
+      const cleanTarget = targetProduct.toLowerCase().trim()
+      const found = allProducts.value.find(
+        (p) =>
+          p.id.toLowerCase() === cleanTarget ||
+          p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').includes(cleanTarget) ||
+          cleanTarget.includes(p.id.toLowerCase())
+      )
+      if (found) {
+        selectedProductForModal.value = found
+      }
     }
   } else if (!targetProduct && selectedProductForModal.value) {
     selectedProductForModal.value = null
@@ -390,13 +405,15 @@ watch(
   allProducts,
   () => {
     parseUrlQuery()
-  }
+  },
+  { immediate: true, deep: true }
 )
 
-onMounted(() => {
+onMounted(async () => {
   initTheme()
   parseUrlQuery()
-  fetchProducts()
+  await fetchProducts()
+  parseUrlQuery()
   loadCart()
 })
 </script>

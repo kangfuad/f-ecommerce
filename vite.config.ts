@@ -12,15 +12,20 @@ export default defineConfig({
       injectRegister: 'auto',
       includeAssets: ['favicon.ico', 'favicon.svg', 'apple-touch-icon.png', 'icons.svg', 'data/*.json'],
       manifest: {
+        id: '/',
         name: 'e-punyasewa | Sewa Kamera & Drone Cinema',
         short_name: 'e-punyasewa',
         description: 'Platform Rental Kamera Bioskop, Drone Cinema, Lensa & Lighting Studio Premium di Indonesia.',
         theme_color: '#14261B',
         background_color: '#0c140f',
         display: 'standalone',
+        display_override: ['window-controls-overlay', 'standalone', 'minimal-ui'],
         orientation: 'portrait-primary',
         scope: '/',
         start_url: '/',
+        launch_handler: {
+          client_mode: ['focus-existing', 'auto'],
+        },
         categories: ['shopping', 'entertainment', 'photography', 'business'],
         icons: [
           {
