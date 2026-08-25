@@ -164,6 +164,14 @@ onMounted(() => {
 })
 
 function openKycForm() {
+  if (currentUser.value?.kycStatus === 'PENDING_REVIEW') {
+    showToast({
+      type: 'warning',
+      title: 'Pengajuan Sedang Diproses',
+      message: 'Dokumen Anda sedang dalam peninjauan administrator dan terkunci sementara untuk mencegah duplikasi data.',
+    })
+    return
+  }
   clearKycPhoto()
   if (currentUser.value) {
     kycFullName.value = currentUser.value.fullName
@@ -264,6 +272,14 @@ function handleFileUpload(event: Event) {
 }
 
 async function handleKycSubmit() {
+  if (currentUser.value?.kycStatus === 'PENDING_REVIEW') {
+    showToast({
+      type: 'warning',
+      title: 'Tidak Dapat Mengirim Ulang',
+      message: 'Dokumen identitas Anda saat ini sedang dalam proses verifikasi oleh administrator.',
+    })
+    return
+  }
   if (!kycIdNumber.value.trim() || kycIdNumber.value.trim().length < 6) {
     showToast({ type: 'warning', title: 'Data Tidak Valid', message: 'Masukkan nomor identitas yang valid.' })
     return
@@ -855,16 +871,15 @@ function handleAddAddressSubmit() {
                 </div>
               </div>
 
-              <!-- Action buttons in pending state -->
+              <!-- Status indicator in pending state (Locked to prevent duplicate data submission) -->
               <div class="flex flex-wrap items-center gap-2 shrink-0 self-start sm:self-auto">
-                <button
-                  type="button"
-                  @click="openKycForm"
-                  class="px-4 py-2 rounded-full border border-theme-border hover:border-forest/40 bg-stone-50 dark:bg-stone-900 text-xs font-bold text-theme-primary flex items-center gap-1.5 cursor-pointer transition shadow-2xs"
+                <div
+                  class="px-4 py-2 rounded-full border border-amber-500/30 bg-amber-500/10 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-xs font-bold flex items-center gap-1.5 shadow-2xs select-none"
+                  title="Dokumen sedang dalam tahap validasi administrator dan terkunci sementara untuk mencegah duplikasi data."
                 >
-                  <IconEdit :size="13" />
-                  <span>Unggah Ulang / Ubah Data</span>
-                </button>
+                  <IconShieldCheck :size="13" class="shrink-0" />
+                  <span>Dokumen Terkunci Selama Peninjauan</span>
+                </div>
               </div>
             </div>
 
