@@ -51,7 +51,8 @@ async function handleInstallClick() {
                 </span>
               </div>
               <p class="text-[11px] text-stone-600 dark:text-stone-300 leading-tight mt-0.5">
-                {{ isIos ? 'Install di iPhone / iPad untuk akses sewa lebih cepat' : 'Akses cepat, hemat kuota & buka tanpa internet.' }}
+                <span v-if="isIos">Install di iPhone / iPad untuk akses sewa instan & offline.</span>
+                <span v-else>Install aplikasi untuk akses sewa instan, hemat kuota & offline.</span>
               </p>
             </div>
           </div>
@@ -68,17 +69,17 @@ async function handleInstallClick() {
 
         <!-- 3 Feature Bullets (Non-iOS or collapsed) -->
         <div v-if="!showIosGuide" class="grid grid-cols-3 gap-2 text-[10px] text-stone-600 dark:text-stone-300 border-y border-theme-border py-2">
-          <div class="flex items-center gap-1">
+          <div class="flex items-center gap-1 truncate">
             <IconCheck :size="11" class="text-emerald-600 dark:text-emerald-400 shrink-0" />
-            <span>Tanpa App Store</span>
+            <span class="truncate">{{ isIos ? 'Tanpa App Store' : 'Tanpa Play Store' }}</span>
           </div>
-          <div class="flex items-center gap-1">
+          <div class="flex items-center gap-1 truncate">
             <IconCheck :size="11" class="text-emerald-600 dark:text-emerald-400 shrink-0" />
-            <span>Ukuran < 1 MB</span>
+            <span class="truncate">Ukuran < 1 MB</span>
           </div>
-          <div class="flex items-center gap-1">
+          <div class="flex items-center gap-1 truncate">
             <IconCheck :size="11" class="text-emerald-600 dark:text-emerald-400 shrink-0" />
-            <span>Bebas Iklan</span>
+            <span class="truncate">Bebas Iklan</span>
           </div>
         </div>
 
