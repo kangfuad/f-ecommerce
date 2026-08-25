@@ -41,7 +41,7 @@ const { cartToast, dismissToast: dismissCartToast, openCart } = useCart()
             ]"
           >
             <span v-if="activeToast.type === 'warning'">!</span>
-            <span v-else-if="activeToast.type === 'error'">✕</span>
+            <IconClose v-else-if="activeToast.type === 'error'" :size="14" />
             <IconCheck v-else :size="14" class="stroke-[3]" />
           </div>
 

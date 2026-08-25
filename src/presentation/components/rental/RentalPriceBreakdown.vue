@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { RentalBooking } from '@/domain/entities/RentalBooking'
+import { IconCheck } from '@/presentation/components/icons'
 
 interface Props {
   booking: RentalBooking
@@ -60,7 +61,10 @@ const emit = defineEmits<{
       <div class="flex items-start justify-between gap-2 pt-2 min-w-0">
         <div class="min-w-0">
           <span class="font-semibold text-theme-primary block break-words">Deposit Jaminan Sewa</span>
-          <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium block break-words">✓ 100% Dikembalikan setelah unit kembali</span>
+          <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
+            <IconCheck :size="10" class="stroke-[3]" />
+            <span>100% Dikembalikan setelah unit kembali</span>
+          </span>
         </div>
         <span class="font-bold text-theme-primary shrink-0 text-right">{{ booking.refundableDeposit.format() }}</span>
       </div>

@@ -224,8 +224,9 @@ async function handleConfirm() {
             </button>
           </div>
         </div>
-        <p class="text-[11px] text-stone-500">
-          ✓ Tidak ada biaya deposit jaminan (Status member KYC terverifikasi).
+        <p class="text-[11px] text-stone-500 flex items-center gap-1.5 pt-1">
+          <IconCheck :size="12" class="text-emerald-500 stroke-[3] shrink-0" />
+          <span>Tidak ada biaya deposit jaminan (Status member KYC terverifikasi).</span>
         </p>
       </div>
 

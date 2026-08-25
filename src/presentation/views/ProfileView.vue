@@ -16,6 +16,7 @@ import {
   IconDeliveryTruck,
   IconStar,
   IconBoxPackage,
+  IconEdit,
 } from '@/presentation/components/icons'
 
 import { MemberTierService, type MemberTierDto } from '@/infrastructure/services/api/MemberTierService'
@@ -313,12 +314,18 @@ function handleAddAddressSubmit() {
 
               <!-- Contacts & Location Details -->
               <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-stone-500 font-medium">
-                <span class="flex items-center gap-1 text-theme-primary">
-                  <span>✉️</span> {{ currentUser.email }}
+                <span class="flex items-center gap-1.5 text-theme-primary">
+                  <svg class="w-3.5 h-3.5 text-forest dark:text-forest-glow shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  <span>{{ currentUser.email }}</span>
                 </span>
                 <span class="text-stone-300 dark:text-stone-700">•</span>
-                <span class="flex items-center gap-1 text-theme-primary">
-                  <span>📱</span> {{ currentUser.phone }}
+                <span class="flex items-center gap-1.5 text-theme-primary">
+                  <svg class="w-3.5 h-3.5 text-forest dark:text-forest-glow shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                  <span>{{ currentUser.phone }}</span>
                 </span>
                 <span v-if="currentUser.address || currentUser.city" class="text-stone-300 dark:text-stone-700">•</span>
                 <span v-if="currentUser.address || currentUser.city" class="flex items-center gap-1 text-stone-600 dark:text-stone-300">
@@ -348,9 +355,10 @@ function handleAddAddressSubmit() {
           <div class="flex flex-wrap items-center gap-2.5 w-full md:w-auto shrink-0">
             <button
               @click="openEditProfile"
-              class="flex-1 md:flex-none px-5 py-2.5 rounded-full border border-theme-border hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-bold transition cursor-pointer text-center shadow-xs"
+              class="flex-1 md:flex-none px-5 py-2.5 rounded-full border border-theme-border hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-bold transition cursor-pointer text-center shadow-xs flex items-center justify-center gap-1.5"
             >
-              Ubah Data Akun
+              <IconEdit :size="13" />
+              <span>Ubah Data Akun</span>
             </button>
             <router-link
               to="/pesanan-saya"
@@ -512,9 +520,10 @@ function handleAddAddressSubmit() {
                 <!-- Active Indicator Banner -->
                 <div
                   v-if="currentUser.memberTier === tier.id || (currentUser.isKycVerified && tier.id === 'VERIFIED_GOLD')"
-                  class="absolute -top-3 left-6 bg-forest text-white text-[10px] font-black px-3 py-0.5 rounded-full shadow-sm"
+                  class="absolute -top-3 left-6 bg-forest text-white text-[10px] font-black px-3 py-0.5 rounded-full shadow-sm flex items-center gap-1"
                 >
-                  ✓ Tingkat Akun Anda Saat Ini
+                  <IconCheck :size="10" class="stroke-[3]" />
+                  <span>Tingkat Akun Anda Saat Ini</span>
                 </div>
 
                 <div class="space-y-4 pt-1">
@@ -531,8 +540,9 @@ function handleAddAddressSubmit() {
                       >
                         {{ tier.badge }}
                       </span>
-                      <span v-if="tier.isPopular" class="text-[10px] font-black text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
-                        ★ Populer
+                      <span v-if="tier.isPopular" class="text-[10px] font-black text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20 flex items-center gap-1">
+                        <IconStar :size="10" class="fill-current" />
+                        <span>Populer</span>
                       </span>
                     </div>
 
@@ -639,8 +649,9 @@ function handleAddAddressSubmit() {
                     <span class="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
                       Status Akun Resmi
                     </span>
-                    <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[10px] font-black border border-emerald-500/30">
-                      ✓ Terverifikasi (Verified Gold)
+                    <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[10px] font-black border border-emerald-500/30 flex items-center gap-1">
+                      <IconShieldCheck :size="11" />
+                      <span>Terverifikasi (Verified Gold)</span>
                     </span>
                   </div>
                   <h3 class="font-extrabold text-base sm:text-xl text-theme-primary mt-0.5">
@@ -658,7 +669,7 @@ function handleAddAddressSubmit() {
                 @click="isEditingKyc = true"
                 class="px-4 py-2 rounded-full border border-theme-border hover:border-forest/40 bg-stone-50 dark:bg-stone-900 text-xs font-bold text-theme-primary flex items-center gap-1.5 cursor-pointer transition shadow-2xs shrink-0 self-start sm:self-auto"
               >
-                <span>✏️</span>
+                <IconEdit :size="13" />
                 <span>Perbarui / Unggah Dokumen Baru</span>
               </button>
             </div>
@@ -682,20 +693,23 @@ function handleAddAddressSubmit() {
             <!-- 3 Key KYC Benefits Highlights -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1">
               <div class="p-3.5 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 text-xs space-y-1">
-                <p class="font-extrabold text-emerald-700 dark:text-emerald-300 flex items-center gap-1">
-                  <span>✓</span> Bebas Deposit Rp 0
+                <p class="font-extrabold text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5">
+                  <IconCheck :size="11" class="stroke-[3] shrink-0" />
+                  <span>Bebas Deposit Rp 0</span>
                 </p>
                 <p class="text-[11px] text-stone-500 leading-relaxed">Penyewaan langsung tanpa menahan dana jaminan uang tunai.</p>
               </div>
               <div class="p-3.5 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 text-xs space-y-1">
-                <p class="font-extrabold text-emerald-700 dark:text-emerald-300 flex items-center gap-1">
-                  <span>✓</span> Fast Track Pick Up
+                <p class="font-extrabold text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5">
+                  <IconCheck :size="11" class="stroke-[3] shrink-0" />
+                  <span>Fast Track Pick Up</span>
                 </p>
                 <p class="text-[11px] text-stone-500 leading-relaxed">Serah terima unit di Hub Rental tanpa verifikasi manual ulang.</p>
               </div>
               <div class="p-3.5 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 text-xs space-y-1">
-                <p class="font-extrabold text-emerald-700 dark:text-emerald-300 flex items-center gap-1">
-                  <span>✓</span> Akses Cinema Gear
+                <p class="font-extrabold text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5">
+                  <IconCheck :size="11" class="stroke-[3] shrink-0" />
+                  <span>Akses Cinema Gear</span>
                 </p>
                 <p class="text-[11px] text-stone-500 leading-relaxed">Izin sewa kamera bioskop & lensa anamorphic kelas profesional.</p>
               </div>
@@ -721,9 +735,10 @@ function handleAddAddressSubmit() {
                 v-if="currentUser.isKycVerified"
                 type="button"
                 @click="isEditingKyc = false"
-                class="px-4 py-2 rounded-full border border-theme-border hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-bold text-stone-600 dark:text-stone-300 self-start sm:self-auto cursor-pointer transition"
+                class="px-4 py-2 rounded-full border border-theme-border hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-bold text-stone-600 dark:text-stone-300 self-start sm:self-auto cursor-pointer transition flex items-center gap-1"
               >
-                ✕ Batal Perbarui
+                <IconClose :size="12" />
+                <span>Batal Perbarui</span>
               </button>
             </div>
 
@@ -992,8 +1007,9 @@ function handleAddAddressSubmit() {
               <div class="space-y-1.5">
                 <div class="flex items-center justify-between">
                   <label class="font-bold block text-theme-primary">Alamat Email Terdaftar</label>
-                  <span class="text-[9px] font-black text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                    ✓ Terhubung
+                  <span class="text-[9px] font-black text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 flex items-center gap-1">
+                    <IconCheck :size="10" class="stroke-[3]" />
+                    <span>Terhubung</span>
                   </span>
                 </div>
                 <input

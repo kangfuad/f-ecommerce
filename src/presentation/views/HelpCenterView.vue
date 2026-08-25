@@ -12,6 +12,7 @@ import {
   IconCalendarDate,
   IconChevronDown,
   IconStar,
+  IconSearch,
 } from '@/presentation/components/icons'
 
 const {
@@ -53,7 +54,7 @@ const {
               placeholder="Cari pertanyaan (contoh: deposit, perpanjangan, asuransi)..."
               class="w-full bg-theme-card border border-theme-border rounded-full pl-5 pr-12 py-3 text-xs font-medium text-theme-primary shadow-md focus:outline-none focus:ring-2 focus:ring-forest"
             />
-            <span class="absolute right-4 text-stone-400 text-xs font-bold">🔍</span>
+            <IconSearch :size="16" class="absolute right-4 text-stone-400 pointer-events-none" />
           </div>
         </div>
       </div>
@@ -174,8 +175,9 @@ const {
                 <span class="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-forest/10 dark:bg-forest/20 text-forest dark:text-forest-glow border border-forest/20">
                   {{ faq.categoryLabel }}
                 </span>
-                <span v-if="faq.isPopular" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
-                  ★ Populer
+                <span v-if="faq.isPopular" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 flex items-center gap-1">
+                  <IconStar :size="10" class="fill-current" />
+                  <span>Populer</span>
                 </span>
               </div>
               <h3 class="font-display font-extrabold text-sm sm:text-base md:text-lg text-theme-primary leading-snug tracking-tight">

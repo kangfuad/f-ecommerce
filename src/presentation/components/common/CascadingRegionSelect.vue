@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
+import { IconLocation } from '@/presentation/components/icons'
 import SearchableSelect, { type SelectOption } from '@/presentation/components/common/SearchableSelect.vue'
 import {
   RegionService,
@@ -299,7 +300,10 @@ onMounted(() => {
       v-if="selectedProvinceId"
       class="p-3 rounded-xl bg-forest/5 dark:bg-forest/10 border border-forest/20 text-xs flex items-center gap-2 text-theme-primary flex-wrap animate-fade-up"
     >
-      <span class="font-bold text-forest dark:text-forest-glow">📍 Wilayah Terpilih:</span>
+      <div class="flex items-center gap-1.5 font-bold text-forest dark:text-forest-glow shrink-0">
+        <IconLocation :size="14" />
+        <span>Wilayah Terpilih:</span>
+      </div>
       <span v-if="currentVillage" class="font-semibold">Kel. {{ toTitleCase(currentVillage.name) }},</span>
       <span v-if="currentDistrict" class="font-semibold">Kec. {{ toTitleCase(currentDistrict.name) }},</span>
       <span v-if="currentRegency" class="font-semibold">{{ toTitleCase(currentRegency.name) }},</span>

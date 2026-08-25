@@ -122,12 +122,12 @@ export class UserProfile {
     switch (this.memberTier) {
       case 'VERIFIED_GOLD':
         return {
-          label: '★ Verified Gold',
+          label: 'Verified Gold',
           classes: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 font-black',
         }
       case 'PRO_STUDIO':
         return {
-          label: '★ Mitra Studio Pro',
+          label: 'Mitra Studio Pro',
           classes: 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30 font-black',
         }
       default:

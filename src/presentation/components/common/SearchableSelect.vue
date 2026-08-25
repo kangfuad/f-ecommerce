@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
-import { IconChevronDown, IconCheck, IconLocation, IconClose } from '@/presentation/components/icons'
+import { IconChevronDown, IconCheck, IconLocation, IconClose, IconSearch } from '@/presentation/components/icons'
 
 export interface SelectOption {
   value: string
@@ -136,6 +136,7 @@ onUnmounted(() => {
     >
       <!-- Search Input inside Popover -->
       <div class="relative flex items-center shrink-0">
+        <IconSearch :size="13" class="absolute left-2.5 text-stone-400 pointer-events-none" />
         <input
           ref="searchInputRef"
           v-model="searchQuery"
@@ -144,14 +145,13 @@ onUnmounted(() => {
           @keydown.esc="isOpen = false"
           class="w-full bg-stone-100 dark:bg-stone-800/90 border border-theme-border rounded-xl pl-8 pr-8 py-2 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
         />
-        <span class="absolute left-2.5 text-stone-400 text-xs">🔍</span>
         <button
           v-if="searchQuery"
           type="button"
           @click="searchQuery = ''; searchInputRef?.focus()"
-          class="absolute right-2.5 text-stone-400 hover:text-theme-primary text-xs cursor-pointer"
+          class="absolute right-2.5 text-stone-400 hover:text-theme-primary p-0.5 rounded-full hover:bg-stone-200 dark:hover:bg-stone-700 transition cursor-pointer"
         >
-          ✕
+          <IconClose :size="12" />
         </button>
       </div>
 

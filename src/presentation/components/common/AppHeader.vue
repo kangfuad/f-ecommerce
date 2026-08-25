@@ -315,8 +315,9 @@ onUnmounted(() => {
                 {{ currentUser.initials }}
               </span>
               <span class="text-theme-primary truncate max-w-[90px]">{{ currentUser.fullName }}</span>
-              <span class="hidden md:inline-block text-[9px] bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.2 rounded-full font-black border border-emerald-500/30">
-                ✓ Verified
+              <span class="hidden md:inline-flex items-center gap-1 text-[9px] bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded-full font-black border border-emerald-500/30">
+                <IconCheck :size="9" class="stroke-[3]" />
+                <span>Verified</span>
               </span>
               <IconChevronDown :size="12" :class="['transition-transform duration-200', userMenuOpen && 'rotate-180']" />
             </button>
@@ -420,7 +421,10 @@ onUnmounted(() => {
               </span>
               <div>
                 <p class="font-bold text-xs text-theme-primary">{{ currentUser.fullName }}</p>
-                <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">✓ Bebas Deposit Member</span>
+                <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
+                  <IconCheck :size="10" class="stroke-[3]" />
+                  <span>Bebas Deposit Member</span>
+                </span>
               </div>
             </div>
             <button @click="logout" class="text-xs font-bold text-red-500 hover:underline cursor-pointer">Keluar</button>

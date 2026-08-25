@@ -166,7 +166,7 @@ function handleDateSelected(startDate: string, endDate: string) {
           >
             <IconCheck v-if="isAdded" :size="14" class="animate-bounce" />
             <IconCartBag v-else :size="14" />
-            <span>{{ isAdded ? '✓ Masuk' : '+ Keranjang' }}</span>
+            <span>{{ isAdded ? 'Tersimpan' : 'Sewa Cepat' }}</span>
           </button>
 
           <!-- Quick Date Popover -->

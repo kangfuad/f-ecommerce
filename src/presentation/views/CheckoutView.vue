@@ -716,10 +716,11 @@ function copyText(text: string, fieldId: string) {
                   </div>
                   <button
                     @click="copyText(currentOrder.vaNumber!, 'va')"
-                    class="inline-flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-full bg-forest text-white hover:bg-forest-hover transition cursor-pointer"
+                    class="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-forest text-white hover:bg-forest-hover transition cursor-pointer"
                   >
-                    <IconCopy :size="13" />
-                    <span>{{ copiedField === 'va' ? 'Tersalin ✓' : 'Salin' }}</span>
+                    <IconCheck v-if="copiedField === 'va'" :size="13" class="stroke-[3]" />
+                    <IconCopy v-else :size="13" />
+                    <span>{{ copiedField === 'va' ? 'Tersalin' : 'Salin' }}</span>
                   </button>
                 </div>
 
@@ -733,10 +734,11 @@ function copyText(text: string, fieldId: string) {
                   </div>
                   <button
                     @click="copyText(String(currentOrder.pricing.grandTotal), 'nominal')"
-                    class="inline-flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 text-theme-primary hover:bg-stone-300 transition cursor-pointer"
+                    class="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 text-theme-primary hover:bg-stone-300 transition cursor-pointer"
                   >
-                    <IconCopy :size="13" />
-                    <span>{{ copiedField === 'nominal' ? 'Tersalin ✓' : 'Salin Nominal' }}</span>
+                    <IconCheck v-if="copiedField === 'nominal'" :size="13" class="stroke-[3]" />
+                    <IconCopy v-else :size="13" />
+                    <span>{{ copiedField === 'nominal' ? 'Tersalin' : 'Salin Nominal' }}</span>
                   </button>
                 </div>
               </div>
