@@ -1,10 +1,19 @@
 <script setup lang="ts">
 import { usePwa } from '@/presentation/composables/usePwa'
-import { IconShieldCheck, IconClose, IconDownload, IconCheck } from '@/presentation/components/icons'
+import { IconClose, IconDownload, IconCheck } from '@/presentation/components/icons'
 
-const { isInstallable, isInstalled, isInstallBannerDismissed, installApp, dismissInstallPrompt } = usePwa()
+const {
+  isInstallable,
+  isInstalled,
+  isIos,
+  isIosSafari,
+  showIosGuide,
+  isInstallBannerDismissed,
+  installApp,
+  dismissInstallPrompt,
+} = usePwa()
 
-async function handleInstall() {
+async function handleInstallClick() {
   await installApp()
 }
 </script>
@@ -42,7 +51,7 @@ async function handleInstall() {
                 </span>
               </div>
               <p class="text-[11px] text-stone-600 dark:text-stone-300 leading-tight mt-0.5">
-                Akses cepat, hemat kuota & buka tanpa internet.
+                {{ isIos ? 'Install di iPhone / iPad untuk akses sewa lebih cepat' : 'Akses cepat, hemat kuota & buka tanpa internet.' }}
               </p>
             </div>
           </div>
@@ -57,11 +66,11 @@ async function handleInstall() {
           </button>
         </div>
 
-        <!-- 3 Feature Bullets -->
-        <div class="grid grid-cols-3 gap-2 text-[10px] text-stone-600 dark:text-stone-300 border-y border-theme-border py-2">
+        <!-- 3 Feature Bullets (Non-iOS or collapsed) -->
+        <div v-if="!showIosGuide" class="grid grid-cols-3 gap-2 text-[10px] text-stone-600 dark:text-stone-300 border-y border-theme-border py-2">
           <div class="flex items-center gap-1">
             <IconCheck :size="11" class="text-emerald-600 dark:text-emerald-400 shrink-0" />
-            <span>Tanpa Playstore</span>
+            <span>Tanpa App Store</span>
           </div>
           <div class="flex items-center gap-1">
             <IconCheck :size="11" class="text-emerald-600 dark:text-emerald-400 shrink-0" />
@@ -73,15 +82,52 @@ async function handleInstall() {
           </div>
         </div>
 
+        <!-- Special iOS Safari Step-by-Step Instruction Card -->
+        <div
+          v-if="showIosGuide"
+          class="p-3.5 rounded-2xl bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-500/25 space-y-2.5 text-xs animate-fade-in"
+        >
+          <p class="font-bold text-theme-primary text-[11px] flex items-center gap-1.5">
+            <span>Petunjuk Install di Safari iOS:</span>
+          </p>
+          
+          <div class="space-y-2 text-[11px] text-stone-700 dark:text-stone-300 font-medium">
+            <div class="flex items-center gap-2.5">
+              <span class="w-5 h-5 rounded-full bg-[#244E33] text-white flex items-center justify-center text-[10px] font-black shrink-0">1</span>
+              <span>
+                Ketuk tombol <strong>Bagikan / Share</strong>
+                <svg class="inline-block w-4 h-4 ml-1 text-emerald-600 dark:text-emerald-400 align-text-bottom" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+                di bilah bawah Safari.
+              </span>
+            </div>
+
+            <div class="flex items-center gap-2.5">
+              <span class="w-5 h-5 rounded-full bg-[#244E33] text-white flex items-center justify-center text-[10px] font-black shrink-0">2</span>
+              <span>
+                Gulir ke bawah dan pilih <strong>"Tambah ke Layar Utama" (Add to Home Screen)</strong>.
+              </span>
+            </div>
+
+            <div class="flex items-center gap-2.5">
+              <span class="w-5 h-5 rounded-full bg-[#244E33] text-white flex items-center justify-center text-[10px] font-black shrink-0">3</span>
+              <span>
+                Ketuk <strong>"Tambah" (Add)</strong> di pojok kanan atas layar Anda.
+              </span>
+            </div>
+          </div>
+        </div>
+
         <!-- Action Buttons -->
         <div class="flex items-center gap-2 pt-0.5">
           <button
             type="button"
-            @click="handleInstall"
+            @click="handleInstallClick"
             class="flex-1 py-2.5 px-4 rounded-full bg-[#244E33] hover:bg-[#1B3B26] dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-stone-950 text-xs font-black transition cursor-pointer shadow-sm flex items-center justify-center gap-1.5"
           >
             <IconDownload :size="14" />
-            <span>Install Sekarang</span>
+            <span>{{ isIos ? (showIosGuide ? 'Tutup Petunjuk' : 'Cara Install di iOS') : 'Install Sekarang' }}</span>
           </button>
 
           <button

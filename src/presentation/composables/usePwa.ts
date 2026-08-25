@@ -6,6 +6,9 @@ const DISMISS_COOLDOWN_DAYS = 7
 
 const isInstallable = ref(false)
 const isInstalled = ref(false)
+const isIos = ref(false)
+const isIosSafari = ref(false)
+const showIosGuide = ref(false)
 const isOffline = ref(typeof navigator !== 'undefined' ? !navigator.onLine : false)
 const isInstallBannerDismissed = ref(false)
 const deferredPrompt = ref<any>(null)
@@ -33,6 +36,27 @@ export function usePwa() {
     }
   }
 
+  function detectIos() {
+    if (typeof window === 'undefined') return
+    const ua = window.navigator.userAgent.toLowerCase()
+    const isIosDevice =
+      /iphone|ipad|ipod/.test(ua) ||
+      (window.navigator.platform === 'MacIntel' && window.navigator.maxTouchPoints > 1)
+    const isSafari = /safari/.test(ua) && !/chrome|crios|fxios|edgios|opios/.test(ua)
+
+    isIos.value = isIosDevice
+    isIosSafari.value = isIosDevice && isSafari
+
+    // On iOS Safari, beforeinstallprompt is not supported by Apple, so we activate installable status directly
+    if (isIosDevice && !isInstalled.value && !checkDismissedState()) {
+      setTimeout(() => {
+        if (!isInstalled.value && !checkDismissedState()) {
+          isInstallable.value = true
+        }
+      }, 3500)
+    }
+  }
+
   function checkDismissedState(): boolean {
     try {
       if (typeof localStorage !== 'undefined') {
@@ -53,6 +77,7 @@ export function usePwa() {
     isInitialized = true
 
     checkDisplayMode()
+    detectIos()
 
     // Check if user previously dismissed the prompt (7-day cooldown)
     if (checkDismissedState()) {
@@ -94,6 +119,11 @@ export function usePwa() {
   }
 
   async function installApp(): Promise<boolean> {
+    if (isIosSafari.value || isIos.value) {
+      showIosGuide.value = !showIosGuide.value
+      return true
+    }
+
     if (!deferredPrompt.value) return false
 
     try {
@@ -117,6 +147,7 @@ export function usePwa() {
   function dismissInstallPrompt() {
     isInstallBannerDismissed.value = true
     isInstallable.value = false
+    showIosGuide.value = false
     try {
       // Set 7-day cooldown in localStorage so user is not repeatedly prompted
       const cooldownMs = DISMISS_COOLDOWN_DAYS * 24 * 60 * 60 * 1000
@@ -127,6 +158,9 @@ export function usePwa() {
   return {
     isInstallable,
     isInstalled,
+    isIos,
+    isIosSafari,
+    showIosGuide,
     isOffline,
     isInstallBannerDismissed,
     initPwa,
