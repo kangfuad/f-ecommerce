@@ -4,9 +4,21 @@ import type { ApiResponse } from './ApiResponse'
 export interface AuthUserDto {
   id: string
   fullName: string
+  displayName?: string
   email: string
   phone: string
+  emergencyContactName?: string
+  emergencyPhone?: string
+  emergencyRelation?: string
+  profession?: string
+  companyOrStudio?: string
+  socialMediaInstagram?: string
+  city?: string
+  bio?: string
   isKycVerified: boolean
+  kycStatus?: 'UNVERIFIED' | 'PENDING_REVIEW' | 'VERIFIED'
+  idType?: 'KTP' | 'SIM' | 'PASPOR'
+  idNumber?: string
   initials: string
   membershipTier?: 'SILVER' | 'GOLD' | 'PLATINUM'
   avatarUrl?: string

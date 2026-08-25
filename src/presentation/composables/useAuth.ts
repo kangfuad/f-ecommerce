@@ -101,9 +101,21 @@ export function useAuth() {
         const demoUser = new UserProfile({
           id: user.id,
           fullName: user.fullName,
+          displayName: user.displayName || user.fullName,
           email: user.email,
           phone: user.phone,
+          emergencyContactName: user.emergencyContactName,
+          emergencyPhone: user.emergencyPhone,
+          emergencyRelation: user.emergencyRelation,
+          profession: user.profession,
+          companyOrStudio: user.companyOrStudio,
+          socialMediaInstagram: user.socialMediaInstagram,
+          city: user.city,
+          bio: user.bio,
           isKycVerified: true,
+          kycStatus: 'VERIFIED',
+          idType: 'KTP',
+          idNumber: user.idNumber,
           memberTier: 'VERIFIED_GOLD',
           rentalCount: 5,
           joinedAt: new Date('2026-01-15'),
@@ -242,13 +254,35 @@ export function useAuth() {
     }
   }
 
-  function updateProfile(data: { fullName?: string; phone?: string; email?: string }) {
+  function updateProfile(data: {
+    fullName?: string
+    displayName?: string
+    phone?: string
+    email?: string
+    emergencyContactName?: string
+    emergencyPhone?: string
+    emergencyRelation?: string
+    profession?: string
+    companyOrStudio?: string
+    socialMediaInstagram?: string
+    city?: string
+    bio?: string
+  }) {
     if (!currentUser.value) return
     const updated = new UserProfile({
       id: currentUser.value.id,
       fullName: data.fullName ?? currentUser.value.fullName,
+      displayName: data.displayName ?? currentUser.value.displayName,
       email: data.email ?? currentUser.value.email,
       phone: data.phone ?? currentUser.value.phone,
+      emergencyContactName: data.emergencyContactName ?? currentUser.value.emergencyContactName,
+      emergencyPhone: data.emergencyPhone ?? currentUser.value.emergencyPhone,
+      emergencyRelation: data.emergencyRelation ?? currentUser.value.emergencyRelation,
+      profession: data.profession ?? currentUser.value.profession,
+      companyOrStudio: data.companyOrStudio ?? currentUser.value.companyOrStudio,
+      socialMediaInstagram: data.socialMediaInstagram ?? currentUser.value.socialMediaInstagram,
+      city: data.city ?? currentUser.value.city,
+      bio: data.bio ?? currentUser.value.bio,
       avatarUrl: currentUser.value.avatarUrl,
       isKycVerified: currentUser.value.isKycVerified,
       kycStatus: currentUser.value.kycStatus,

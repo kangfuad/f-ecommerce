@@ -44,7 +44,17 @@ const isLoadingTiers = ref(false)
 // Edit Profile Form State
 const isEditProfileModalOpen = ref(false)
 const editFullName = ref('')
+const editDisplayName = ref('')
+const editEmail = ref('')
 const editPhone = ref('')
+const editEmergencyContactName = ref('')
+const editEmergencyPhone = ref('')
+const editEmergencyRelation = ref('Pasangan')
+const editProfession = ref('')
+const editCompanyOrStudio = ref('')
+const editSocialMediaInstagram = ref('')
+const editCity = ref('Jakarta Selatan')
+const editBio = ref('')
 
 // KYC Form State
 const kycIdType = ref<'KTP' | 'SIM' | 'PASPOR'>('KTP')
@@ -97,7 +107,18 @@ onMounted(() => {
 
   if (currentUser.value) {
     editFullName.value = currentUser.value.fullName
+    editDisplayName.value = currentUser.value.displayName || currentUser.value.fullName
+    editEmail.value = currentUser.value.email
     editPhone.value = currentUser.value.phone
+    editEmergencyContactName.value = currentUser.value.emergencyContactName || ''
+    editEmergencyPhone.value = currentUser.value.emergencyPhone || ''
+    editEmergencyRelation.value = currentUser.value.emergencyRelation || 'Pasangan'
+    editProfession.value = currentUser.value.profession || ''
+    editCompanyOrStudio.value = currentUser.value.companyOrStudio || ''
+    editSocialMediaInstagram.value = currentUser.value.socialMediaInstagram || ''
+    editCity.value = currentUser.value.city || 'Jakarta Selatan'
+    editBio.value = currentUser.value.bio || ''
+
     kycFullName.value = currentUser.value.fullName
     if (currentUser.value.idNumber) {
       kycIdNumber.value = currentUser.value.idNumber
@@ -111,21 +132,46 @@ onMounted(() => {
 function openEditProfile() {
   if (!currentUser.value) return
   editFullName.value = currentUser.value.fullName
+  editDisplayName.value = currentUser.value.displayName || currentUser.value.fullName
+  editEmail.value = currentUser.value.email
   editPhone.value = currentUser.value.phone
+  editEmergencyContactName.value = currentUser.value.emergencyContactName || ''
+  editEmergencyPhone.value = currentUser.value.emergencyPhone || ''
+  editEmergencyRelation.value = currentUser.value.emergencyRelation || 'Pasangan'
+  editProfession.value = currentUser.value.profession || ''
+  editCompanyOrStudio.value = currentUser.value.companyOrStudio || ''
+  editSocialMediaInstagram.value = currentUser.value.socialMediaInstagram || ''
+  editCity.value = currentUser.value.city || 'Jakarta Selatan'
+  editBio.value = currentUser.value.bio || ''
   isEditProfileModalOpen.value = true
 }
 
 function handleSaveProfile() {
-  if (!editFullName.value.trim()) {
-    showToast({ type: 'warning', title: 'Data Belum Lengkap', message: 'Nama lengkap wajib diisi.' })
+  if (!editFullName.value.trim() || !editPhone.value.trim()) {
+    showToast({ type: 'warning', title: 'Data Belum Lengkap', message: 'Nama lengkap dan nomor WhatsApp wajib diisi.' })
     return
   }
+
   updateProfile({
     fullName: editFullName.value.trim(),
+    displayName: editDisplayName.value.trim() || editFullName.value.trim(),
     phone: editPhone.value.trim(),
+    emergencyContactName: editEmergencyContactName.value.trim(),
+    emergencyPhone: editEmergencyPhone.value.trim(),
+    emergencyRelation: editEmergencyRelation.value,
+    profession: editProfession.value.trim(),
+    companyOrStudio: editCompanyOrStudio.value.trim(),
+    socialMediaInstagram: editSocialMediaInstagram.value.trim(),
+    city: editCity.value,
+    bio: editBio.value.trim(),
   })
+
   isEditProfileModalOpen.value = false
-  showToast({ type: 'success', title: 'Profil Diperbarui', message: 'Informasi akun Anda berhasil disimpan.' })
+  showToast({
+    type: 'success',
+    title: 'Profil Lengkap Diperbarui',
+    message: 'Data identitas, kontak darurat, dan profil profesi Anda berhasil disimpan.',
+  })
 }
 
 function handleFileUpload(event: Event) {
@@ -224,11 +270,11 @@ function handleAddAddressSubmit() {
         
         <!-- Profile Header Banner -->
         <div class="bg-theme-card rounded-3xl border border-theme-border p-6 sm:p-8 shadow-card flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden">
-          <div class="flex items-center gap-4 sm:gap-5">
-            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-forest dark:bg-emerald-600 text-white flex items-center justify-center font-display text-2xl sm:text-3xl font-black shadow-md border-2 border-white/20 shrink-0">
+          <div class="flex items-start sm:items-center gap-4 sm:gap-5">
+            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-forest dark:bg-emerald-600 text-white flex items-center justify-center font-display text-2xl sm:text-3xl font-black shadow-md border-2 border-white/20 shrink-0 mt-1 sm:mt-0">
               {{ currentUser.initials }}
             </div>
-            <div class="min-w-0 space-y-1">
+            <div class="min-w-0 space-y-1.5">
               <div class="flex flex-wrap items-center gap-2">
                 <h1 class="font-display text-xl sm:text-2xl font-black text-theme-primary truncate">
                   {{ currentUser.fullName }}
@@ -242,23 +288,40 @@ function handleAddAddressSubmit() {
                   {{ currentUser.tierBadge.label }}
                 </span>
               </div>
-              <p class="text-xs text-stone-500 truncate">{{ currentUser.email }} • {{ currentUser.phone }}</p>
-              <p class="text-[11px] text-stone-400">
+
+              <!-- Professional & Studio Tag -->
+              <p v-if="currentUser.profession" class="text-xs font-bold text-forest dark:text-forest-glow">
+                {{ currentUser.profession }}
+                <span v-if="currentUser.companyOrStudio" class="text-stone-400 font-normal"> • {{ currentUser.companyOrStudio }}</span>
+              </p>
+
+              <!-- Contacts & Location -->
+              <p class="text-xs text-stone-500 truncate">
+                {{ currentUser.email }} • {{ currentUser.phone }} • {{ currentUser.city || 'Jabodetabek' }}
+                <span v-if="currentUser.socialMediaInstagram" class="font-semibold text-stone-700 dark:text-stone-300"> • {{ currentUser.socialMediaInstagram }}</span>
+              </p>
+
+              <!-- Bio quote if present -->
+              <p v-if="currentUser.bio" class="text-[11px] text-stone-600 dark:text-stone-300 italic max-w-xl line-clamp-1">
+                "{{ currentUser.bio }}"
+              </p>
+
+              <p class="text-[11px] text-stone-400 pt-0.5">
                 Bergabung sejak: <span class="font-semibold text-theme-primary">{{ formatDateToIndonesian(currentUser.joinedAt) }}</span>
               </p>
             </div>
           </div>
 
-          <div class="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+          <div class="flex flex-wrap items-center gap-2.5 w-full md:w-auto shrink-0">
             <button
               @click="openEditProfile"
-              class="flex-1 md:flex-none px-4 py-2 rounded-full border border-theme-border hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-bold transition cursor-pointer text-center"
+              class="flex-1 md:flex-none px-5 py-2.5 rounded-full border border-theme-border hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-bold transition cursor-pointer text-center shadow-xs"
             >
               Ubah Data Akun
             </button>
             <router-link
               to="/pesanan-saya"
-              class="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-[#244E33] hover:bg-[#1B3B26] dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-stone-950 text-xs font-black shadow-sm transition"
+              class="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-full bg-[#244E33] hover:bg-[#1B3B26] dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-stone-950 text-xs font-black shadow-sm transition"
             >
               <IconDeliveryTruck :size="14" />
               <span>Riwayat Sewa</span>
@@ -751,51 +814,206 @@ function handleAddAddressSubmit() {
       </div>
     </main>
 
-    <!-- Modal 1: Edit Profile -->
+    <!-- Modal 1: Edit Profile (Full Realistic Rental Customer Profile) -->
     <div v-if="isEditProfileModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div @click="isEditProfileModalOpen = false" class="fixed inset-0 bg-black/70 backdrop-blur-xs"></div>
-      <div class="relative bg-theme-card rounded-3xl max-w-md w-full p-6 shadow-2xl border border-theme-border z-10 animate-fade-up text-theme-primary space-y-4">
-        <div class="flex items-center justify-between border-b border-theme-border pb-3">
-          <h3 class="font-display font-extrabold text-base">Ubah Informasi Akun</h3>
-          <button @click="isEditProfileModalOpen = false" class="w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center cursor-pointer">
+      <div class="relative bg-theme-card rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-theme-border z-10 animate-fade-up text-theme-primary space-y-6 max-h-[90vh] overflow-y-auto custom-scrollbar">
+        
+        <div class="flex items-center justify-between border-b border-theme-border pb-4">
+          <div>
+            <span class="text-[10px] font-black uppercase tracking-wider text-forest dark:text-forest-glow">
+              Pengaturan Akun Penyewa
+            </span>
+            <h3 class="font-display font-black text-lg sm:text-xl text-theme-primary">
+              Ubah Data Akun & Profil Kreatif
+            </h3>
+          </div>
+          <button @click="isEditProfileModalOpen = false" class="w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center cursor-pointer hover:bg-stone-200">
             <IconClose :size="14" />
           </button>
         </div>
 
-        <form @submit.prevent="handleSaveProfile" class="space-y-4 text-xs">
-          <div class="space-y-1">
-            <label class="font-bold block text-theme-primary">Nama Lengkap</label>
-            <input
-              v-model="editFullName"
-              type="text"
-              class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
-              required
-            />
+        <form @submit.prevent="handleSaveProfile" class="space-y-6 text-xs">
+          
+          <!-- SECTION 1: Identitas Pribadi & Kontak Utama -->
+          <div class="space-y-3">
+            <h4 class="font-black text-xs uppercase tracking-wider text-stone-500 dark:text-stone-400 flex items-center gap-1.5 border-b border-theme-border pb-1.5">
+              <span>1. Identitas Pribadi & Kontak Utama</span>
+            </h4>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <div class="space-y-1">
+                <label class="font-bold block text-theme-primary">Nama Lengkap Sesuai KTP <span class="text-rose-500">*</span></label>
+                <input
+                  v-model="editFullName"
+                  type="text"
+                  placeholder="Nama lengkap resmi"
+                  class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
+                  required
+                />
+              </div>
+
+              <div class="space-y-1">
+                <label class="font-bold block text-theme-primary">Nama Panggilan / Alias</label>
+                <input
+                  v-model="editDisplayName"
+                  type="text"
+                  placeholder="Contoh: Fuad"
+                  class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
+                />
+              </div>
+
+              <div class="space-y-1">
+                <label class="font-bold block text-theme-primary">Nomor WhatsApp Utama <span class="text-rose-500">*</span></label>
+                <input
+                  v-model="editPhone"
+                  type="tel"
+                  placeholder="0812xxxxxxxx"
+                  class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
+                  required
+                />
+                <span class="text-[10px] text-stone-400">Digunakan untuk koordinasi serah terima unit & kurir.</span>
+              </div>
+
+              <div class="space-y-1">
+                <label class="font-bold block text-theme-primary">Alamat Email Terdaftar</label>
+                <input
+                  v-model="editEmail"
+                  type="email"
+                  disabled
+                  class="w-full bg-stone-100 dark:bg-stone-800 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-stone-500 cursor-not-allowed"
+                />
+                <span class="text-[10px] text-stone-400">Email akun digunakan untuk pengiriman faktur & invoice.</span>
+              </div>
+            </div>
           </div>
 
-          <div class="space-y-1">
-            <label class="font-bold block text-theme-primary">Nomor WhatsApp</label>
-            <input
-              v-model="editPhone"
-              type="tel"
-              class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
-              required
-            />
+          <!-- SECTION 2: Kontak Darurat / Kerabat -->
+          <div class="space-y-3">
+            <h4 class="font-black text-xs uppercase tracking-wider text-stone-500 dark:text-stone-400 flex items-center gap-1.5 border-b border-theme-border pb-1.5">
+              <span>2. Kontak Darurat Kerabat / Studio</span>
+            </h4>
+            <p class="text-[11px] text-stone-500">
+              Diperlukan untuk koordinasi darurat keamanan unit sewa bernilai tinggi jika nomor utama tidak dapat dihubungi.
+            </p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+              <div class="space-y-1">
+                <label class="font-bold block text-theme-primary">Nama Kontak Darurat</label>
+                <input
+                  v-model="editEmergencyContactName"
+                  type="text"
+                  placeholder="Nama kerabat / rekan"
+                  class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
+                />
+              </div>
+
+              <div class="space-y-1">
+                <label class="font-bold block text-theme-primary">No. Telepon Darurat</label>
+                <input
+                  v-model="editEmergencyPhone"
+                  type="tel"
+                  placeholder="0812xxxxxxxx"
+                  class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
+                />
+              </div>
+
+              <div class="space-y-1">
+                <label class="font-bold block text-theme-primary">Hubungan Kerabat</label>
+                <select
+                  v-model="editEmergencyRelation"
+                  class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest cursor-pointer"
+                >
+                  <option value="Pasangan">Pasangan (Suami/Istri)</option>
+                  <option value="Orang Tua">Orang Tua</option>
+                  <option value="Saudara Kandung">Saudara Kandung</option>
+                  <option value="Rekan Kerja / Studio">Rekan Kerja / Studio</option>
+                </select>
+              </div>
+            </div>
           </div>
 
-          <div class="pt-2 flex justify-end gap-2">
+          <!-- SECTION 3: Profil Profesi & Media Sosial Kreatif -->
+          <div class="space-y-3">
+            <h4 class="font-black text-xs uppercase tracking-wider text-stone-500 dark:text-stone-400 flex items-center gap-1.5 border-b border-theme-border pb-1.5">
+              <span>3. Profil Profesi & Portofolio Kreatif</span>
+            </h4>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <div class="space-y-1">
+                <label class="font-bold block text-theme-primary">Profesi / Spesialisasi</label>
+                <input
+                  v-model="editProfession"
+                  type="text"
+                  placeholder="Contoh: Commercial Filmmaker / Fotografer"
+                  class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
+                />
+              </div>
+
+              <div class="space-y-1">
+                <label class="font-bold block text-theme-primary">Nama Studio / Production House</label>
+                <input
+                  v-model="editCompanyOrStudio"
+                  type="text"
+                  placeholder="Contoh: Auri Visual Studio"
+                  class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
+                />
+              </div>
+
+              <div class="space-y-1">
+                <label class="font-bold block text-theme-primary">Akun Instagram / Portofolio</label>
+                <input
+                  v-model="editSocialMediaInstagram"
+                  type="text"
+                  placeholder="Contoh: @aurifuad"
+                  class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
+                />
+              </div>
+
+              <div class="space-y-1">
+                <label class="font-bold block text-theme-primary">Kota Domisili Utama</label>
+                <select
+                  v-model="editCity"
+                  class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest cursor-pointer"
+                >
+                  <option value="Jakarta Selatan">Jakarta Selatan</option>
+                  <option value="Jakarta Pusat">Jakarta Pusat</option>
+                  <option value="Jakarta Barat">Jakarta Barat</option>
+                  <option value="Jakarta Timur">Jakarta Timur</option>
+                  <option value="Jakarta Utara">Jakarta Utara</option>
+                  <option value="Tangerang Selatan">Tangerang Selatan</option>
+                  <option value="Bandung">Bandung</option>
+                  <option value="Surabaya">Surabaya</option>
+                  <option value="Bali">Bali (Denpasar/Kuta)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="space-y-1 pt-1">
+              <label class="font-bold block text-theme-primary">Bio / Catatan Profil Singkat</label>
+              <textarea
+                v-model="editBio"
+                rows="2"
+                placeholder="Deskripsi singkat profesi atau kebutuhan perlengkapan produksi Anda..."
+                class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl p-3 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="pt-4 border-t border-theme-border flex items-center justify-end gap-3">
             <button
               type="button"
               @click="isEditProfileModalOpen = false"
-              class="px-4 py-2 rounded-full border border-theme-border font-bold hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer"
+              class="px-5 py-2.5 rounded-full border border-theme-border font-bold hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer text-xs transition"
             >
               Batal
             </button>
             <button
               type="submit"
-              class="px-5 py-2 rounded-full bg-forest text-white font-bold cursor-pointer shadow-sm"
+              class="px-6 py-2.5 rounded-full bg-forest hover:bg-forest/90 text-white font-black cursor-pointer shadow-md text-xs transition"
             >
-              Simpan Perubahan
+              Simpan Profil Lengkap
             </button>
           </div>
         </form>

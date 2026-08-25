@@ -15,8 +15,17 @@ export type MemberTier = 'STARTER' | 'VERIFIED_GOLD' | 'PRO_STUDIO'
 export interface UserProfileProps {
   id: string
   fullName: string
+  displayName?: string
   email: string
   phone: string
+  emergencyContactName?: string
+  emergencyPhone?: string
+  emergencyRelation?: string
+  profession?: string
+  companyOrStudio?: string
+  socialMediaInstagram?: string
+  city?: string
+  bio?: string
   avatarUrl?: string
   isKycVerified: boolean
   kycStatus?: KycStatus
@@ -33,8 +42,17 @@ export interface UserProfileProps {
 export class UserProfile {
   public readonly id: string
   public readonly fullName: string
+  public readonly displayName?: string
   public readonly email: string
   public readonly phone: string
+  public readonly emergencyContactName?: string
+  public readonly emergencyPhone?: string
+  public readonly emergencyRelation?: string
+  public readonly profession?: string
+  public readonly companyOrStudio?: string
+  public readonly socialMediaInstagram?: string
+  public readonly city?: string
+  public readonly bio?: string
   public readonly avatarUrl?: string
   public readonly isKycVerified: boolean
   public readonly kycStatus: KycStatus
@@ -50,8 +68,17 @@ export class UserProfile {
   constructor(props: UserProfileProps) {
     this.id = props.id
     this.fullName = props.fullName
+    this.displayName = props.displayName
     this.email = props.email
     this.phone = props.phone
+    this.emergencyContactName = props.emergencyContactName
+    this.emergencyPhone = props.emergencyPhone
+    this.emergencyRelation = props.emergencyRelation
+    this.profession = props.profession
+    this.companyOrStudio = props.companyOrStudio
+    this.socialMediaInstagram = props.socialMediaInstagram
+    this.city = props.city
+    this.bio = props.bio
     this.avatarUrl = props.avatarUrl
     this.isKycVerified = props.isKycVerified
     this.kycStatus = props.kycStatus || (props.isKycVerified ? 'VERIFIED' : 'UNVERIFIED')
@@ -66,11 +93,12 @@ export class UserProfile {
   }
 
   public get initials(): string {
-    const parts = this.fullName.trim().split(' ')
+    const name = this.displayName || this.fullName
+    const parts = name.trim().split(' ')
     if (parts.length >= 2) {
       return (parts[0][0] + parts[1][0]).toUpperCase()
     }
-    return this.fullName.slice(0, 2).toUpperCase()
+    return name.slice(0, 2).toUpperCase()
   }
 
   public get tierLabel(): string {
