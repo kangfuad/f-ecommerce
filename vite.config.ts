@@ -26,6 +26,12 @@ export default defineConfig({
         launch_handler: {
           client_mode: ['focus-existing', 'auto'],
         },
+        protocol_handlers: [
+          {
+            protocol: 'web+epunyasewa',
+            url: '/katalog?produk=%s',
+          },
+        ],
         categories: ['shopping', 'business', 'lifestyle', 'entertainment'],
         icons: [
           {

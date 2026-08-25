@@ -20,6 +20,31 @@ const showOpenInAppBanner = ref(true)
 async function handleInstallClick() {
   await installApp()
 }
+
+function handleOpenInApp() {
+  if (typeof window === 'undefined') return
+
+  const currentPath = window.location.pathname + window.location.search + window.location.hash
+  const host = window.location.host
+  const fullUrl = window.location.href
+
+  // 1. On Android: Launch WebAPK directly via Android Intent
+  const isAndroid = /android/i.test(navigator.userAgent)
+  if (isAndroid) {
+    const intentUrl = `intent://${host}${currentPath}#Intent;scheme=https;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(fullUrl)};end`
+    window.location.href = intentUrl
+    return
+  }
+
+  // 2. On iOS: Apple Safari isolates web tabs from home screen clips
+  if (isIos.value || isIosSafari.value) {
+    showIosGuide.value = true
+    return
+  }
+
+  // 3. Desktop Chrome / Edge: window.open triggers PWA Launch Handler
+  window.open(fullUrl, '_blank', 'noopener')
+}
 </script>
 
 <template>
@@ -174,13 +199,14 @@ async function handleInstallClick() {
         </div>
 
         <div class="flex items-center gap-1.5 shrink-0">
-          <a
-            :href="'/'"
-            class="px-3 py-1.5 rounded-full bg-emerald-400 hover:bg-emerald-300 text-stone-950 text-xs font-black transition cursor-pointer shadow-xs inline-flex items-center gap-1"
+          <button
+            type="button"
+            @click="handleOpenInApp"
+            class="px-3.5 py-1.5 rounded-full bg-emerald-400 hover:bg-emerald-300 text-stone-950 text-xs font-black transition cursor-pointer shadow-xs inline-flex items-center gap-1"
           >
-            <span>Buka App</span>
+            <span>Buka di App</span>
             <IconArrowRight :size="11" />
-          </a>
+          </button>
           <button
             type="button"
             @click="showOpenInAppBanner = false"
