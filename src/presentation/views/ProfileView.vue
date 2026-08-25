@@ -742,123 +742,163 @@ function handleAddAddressSubmit() {
               </button>
             </div>
 
-            <form @submit.prevent="handleKycSubmit" class="space-y-5">
-              <!-- ID Type Selector -->
-              <div class="space-y-1.5 text-xs">
-                <label class="font-bold text-theme-primary block">1. Pilih Jenis Dokumen Identitas</label>
-                <div class="grid grid-cols-3 gap-2.5 max-w-md">
-                  <button
-                    type="button"
-                    v-for="type in (['KTP', 'SIM', 'PASPOR'] as const)"
-                    :key="type"
-                    @click="kycIdType = type"
-                    :class="[
-                      'py-2.5 px-3 rounded-xl border text-xs font-bold transition cursor-pointer text-center',
-                      kycIdType === type
-                        ? 'bg-forest text-white border-forest shadow-xs'
-                        : 'border-theme-border bg-stone-50 dark:bg-stone-900 text-stone-600 dark:text-stone-300'
-                    ]"
-                  >
-                    {{ type === 'KTP' ? 'e-KTP' : type === 'SIM' ? 'SIM Asli' : 'Paspor RI' }}
-                  </button>
+            <!-- 2-Column Balanced Grid: Form on Left, Guidelines & Security on Right -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              
+              <!-- Form Column (7 cols) -->
+              <form @submit.prevent="handleKycSubmit" class="lg:col-span-7 space-y-5">
+                <!-- 1. ID Type Selector -->
+                <div class="space-y-1.5 text-xs">
+                  <label class="font-bold text-theme-primary block">1. Pilih Jenis Dokumen Identitas</label>
+                  <div class="grid grid-cols-3 gap-2.5">
+                    <button
+                      type="button"
+                      v-for="type in (['KTP', 'SIM', 'PASPOR'] as const)"
+                      :key="type"
+                      @click="kycIdType = type"
+                      :class="[
+                        'py-2.5 px-3 rounded-xl border text-xs font-bold transition cursor-pointer text-center',
+                        kycIdType === type
+                          ? 'bg-forest text-white border-forest shadow-xs'
+                          : 'border-theme-border bg-stone-50 dark:bg-stone-900 text-stone-600 dark:text-stone-300 hover:border-forest/40'
+                      ]"
+                    >
+                      {{ type === 'KTP' ? 'e-KTP' : type === 'SIM' ? 'SIM Asli' : 'Paspor RI' }}
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
-                <!-- NIK / ID Number -->
+                <!-- 2 & 3. NIK & Nama Lengkap -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div class="space-y-1.5 text-xs">
+                    <label class="font-bold text-theme-primary block">
+                      2. Nomor Identitas (NIK / SIM) <span class="text-rose-500">*</span>
+                    </label>
+                    <input
+                      v-model="kycIdNumber"
+                      type="text"
+                      placeholder="Contoh: 3174012345670001"
+                      class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
+                      required
+                    />
+                  </div>
+
+                  <div class="space-y-1.5 text-xs">
+                    <label class="font-bold text-theme-primary block">
+                      3. Nama Lengkap Sesuai Dokumen <span class="text-rose-500">*</span>
+                    </label>
+                    <input
+                      v-model="kycFullName"
+                      type="text"
+                      placeholder="Nama lengkap sesuai KTP"
+                      class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <!-- 4. Upload Dropzone -->
                 <div class="space-y-1.5 text-xs">
                   <label class="font-bold text-theme-primary block">
-                    2. Nomor Identitas (NIK / No. SIM / Paspor) <span class="text-rose-500">*</span>
+                    4. Unggah Foto Fisik Dokumen Asli <span class="text-rose-500">*</span>
                   </label>
-                  <input
-                    v-model="kycIdNumber"
-                    type="text"
-                    placeholder="Contoh: 3174012345670001"
-                    class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
-                    required
-                  />
-                </div>
+                  <div class="border-2 border-dashed border-theme-border rounded-3xl p-6 sm:p-8 text-center bg-stone-50 dark:bg-stone-900/50 hover:bg-stone-100/50 dark:hover:bg-stone-900 transition">
+                    
+                    <div v-if="kycPhotoPreview" class="space-y-3">
+                      <img :src="kycPhotoPreview" alt="Preview Dokumen" class="max-h-52 mx-auto rounded-2xl object-contain border border-theme-border shadow-md" />
+                      <div class="flex items-center justify-center gap-2">
+                        <label class="inline-block px-4 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 text-xs font-bold text-theme-primary hover:bg-stone-300 dark:hover:bg-stone-700 cursor-pointer transition">
+                          Ganti Foto Dokumen
+                          <input type="file" accept="image/*" @change="handleFileUpload" class="hidden" />
+                        </label>
+                        <button
+                          type="button"
+                          @click="kycPhotoPreview = null"
+                          class="px-3 py-1.5 rounded-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-bold cursor-pointer transition"
+                        >
+                          Hapus
+                        </button>
+                      </div>
+                    </div>
 
-                <!-- Nama Sesuai Identitas -->
-                <div class="space-y-1.5 text-xs">
-                  <label class="font-bold text-theme-primary block">
-                    3. Nama Lengkap Sesuai Dokumen <span class="text-rose-500">*</span>
-                  </label>
-                  <input
-                    v-model="kycFullName"
-                    type="text"
-                    placeholder="Nama lengkap sesuai KTP"
-                    class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
-                    required
-                  />
-                </div>
-              </div>
-
-              <!-- Upload Dropzone -->
-              <div class="space-y-1.5 text-xs">
-                <label class="font-bold text-theme-primary block">
-                  4. Unggah Foto Fisik Dokumen Asli <span class="text-rose-500">*</span>
-                </label>
-                <div class="border-2 border-dashed border-theme-border rounded-3xl p-6 sm:p-8 text-center bg-stone-50 dark:bg-stone-900/50 hover:bg-stone-100/50 dark:hover:bg-stone-900 transition max-w-2xl">
-                  
-                  <div v-if="kycPhotoPreview" class="space-y-3">
-                    <img :src="kycPhotoPreview" alt="Preview Dokumen" class="max-h-52 mx-auto rounded-2xl object-contain border border-theme-border shadow-md" />
-                    <div class="flex items-center justify-center gap-2">
-                      <label class="inline-block px-4 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 text-xs font-bold text-theme-primary hover:bg-stone-300 dark:hover:bg-stone-700 cursor-pointer transition">
-                        Ganti Foto Dokumen
+                    <div v-else class="space-y-3">
+                      <div class="w-12 h-12 rounded-2xl bg-forest/10 text-forest dark:text-forest-glow flex items-center justify-center mx-auto">
+                        <IconShieldCheck :size="24" />
+                      </div>
+                      <div>
+                        <p class="font-bold text-theme-primary text-xs">Klik tombol di bawah untuk memilih foto identitas</p>
+                        <p class="text-[11px] text-stone-500 mt-0.5">Pastikan 4 sudut e-KTP/SIM terlihat jelas, tidak buram, dan pencahayaan terang</p>
+                      </div>
+                      <label class="inline-block px-6 py-2.5 rounded-full bg-[#244E33] hover:bg-[#1B3B26] text-white text-xs font-bold cursor-pointer shadow-sm transition">
+                        Pilih Berkas Foto Dokumen
                         <input type="file" accept="image/*" @change="handleFileUpload" class="hidden" />
                       </label>
-                      <button
-                        type="button"
-                        @click="kycPhotoPreview = null"
-                        class="px-3 py-1.5 rounded-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-bold cursor-pointer transition"
-                      >
-                        Hapus
-                      </button>
+                      <p class="text-[10px] text-stone-400">Format yang didukung: JPG, PNG, WEBP (Maksimal 5 MB)</p>
                     </div>
+
+                  </div>
+                </div>
+
+                <!-- Submit Action Button -->
+                <div class="pt-3 border-t border-theme-border flex items-center gap-3">
+                  <BaseButton
+                    type="submit"
+                    :loading="isSubmittingKyc"
+                    variant="primary"
+                    size="md"
+                    class="w-full sm:w-auto font-black cursor-pointer shadow-md"
+                  >
+                    <IconShieldCheck :size="16" />
+                    <span>Kirim Dokumen & Verifikasi KYC</span>
+                  </BaseButton>
+
+                  <button
+                    v-if="currentUser.isKycVerified"
+                    type="button"
+                    @click="isEditingKyc = false"
+                    class="px-5 py-2.5 rounded-full border border-theme-border hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-bold text-stone-600 dark:text-stone-300 cursor-pointer"
+                  >
+                    Batal
+                  </button>
+                </div>
+              </form>
+
+              <!-- Right Column: Guidelines & Security Card (5 cols) -->
+              <div class="lg:col-span-5 space-y-4">
+                <div class="p-5 sm:p-6 rounded-3xl bg-stone-50 dark:bg-stone-900/80 border border-theme-border space-y-4">
+                  <div class="flex items-center gap-2 text-forest dark:text-forest-glow">
+                    <IconShieldCheck :size="18" />
+                    <h4 class="font-black text-xs uppercase tracking-wider">Panduan Foto Dokumen Valid</h4>
                   </div>
 
-                  <div v-else class="space-y-3">
-                    <div class="w-12 h-12 rounded-2xl bg-forest/10 text-forest dark:text-forest-glow flex items-center justify-center mx-auto">
-                      <IconShieldCheck :size="24" />
-                    </div>
-                    <div>
-                      <p class="font-bold text-theme-primary text-xs">Klik tombol di bawah untuk memilih foto identitas</p>
-                      <p class="text-[11px] text-stone-500 mt-0.5">Pastikan 4 sudut e-KTP/SIM terlihat jelas, tidak buram, dan pencahayaan terang</p>
-                    </div>
-                    <label class="inline-block px-6 py-2.5 rounded-full bg-[#244E33] hover:bg-[#1B3B26] text-white text-xs font-bold cursor-pointer shadow-sm transition">
-                      Pilih Berkas Foto Dokumen
-                      <input type="file" accept="image/*" @change="handleFileUpload" class="hidden" />
-                    </label>
-                    <p class="text-[10px] text-stone-400">Format yang didukung: JPG, PNG, WEBP (Maksimal 5 MB)</p>
-                  </div>
+                  <ul class="space-y-3 text-xs text-stone-600 dark:text-stone-300">
+                    <li class="flex items-start gap-2.5">
+                      <IconCheck :size="14" class="text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5 stroke-[3]" />
+                      <span class="leading-relaxed">Pastikan seluruh <strong>4 sudut fisik kartu</strong> terlihat utuh dalam frame foto.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                      <IconCheck :size="14" class="text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5 stroke-[3]" />
+                      <span class="leading-relaxed">Semua teks seperti <strong>NIK, Nama, dan Alamat</strong> dapat dibaca jelas tanpa blur.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                      <IconCheck :size="14" class="text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5 stroke-[3]" />
+                      <span class="leading-relaxed">Gunakan pencahayaan cukup dan hindari pantulan cahaya flash yang menutupi data.</span>
+                    </li>
+                  </ul>
+                </div>
 
+                <div class="p-5 sm:p-6 rounded-3xl bg-emerald-500/5 border border-emerald-500/20 space-y-2 text-xs">
+                  <p class="font-extrabold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
+                    <IconShieldCheck :size="15" />
+                    <span>Jaminan Keamanan & Privasi Data</span>
+                  </p>
+                  <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">
+                    Dokumen Anda disimpan dengan enkripsi berstandar perbankan dan hanya digunakan untuk validasi keamanan aset sewa peralatan oleh tim verifikasi resmi e-punyasewa.
+                  </p>
                 </div>
               </div>
 
-              <!-- Submit Action Button -->
-              <div class="pt-3 border-t border-theme-border flex items-center gap-3">
-                <BaseButton
-                  type="submit"
-                  :loading="isSubmittingKyc"
-                  variant="primary"
-                  size="md"
-                  class="w-full sm:w-auto font-black cursor-pointer shadow-md"
-                >
-                  <IconShieldCheck :size="16" />
-                  <span>Kirim Dokumen & Verifikasi KYC</span>
-                </BaseButton>
-
-                <button
-                  v-if="currentUser.isKycVerified"
-                  type="button"
-                  @click="isEditingKyc = false"
-                  class="px-5 py-2.5 rounded-full border border-theme-border hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-bold text-stone-600 dark:text-stone-300 cursor-pointer"
-                >
-                  Batal
-                </button>
-              </div>
-            </form>
+            </div>
           </div>
         </div>
 
