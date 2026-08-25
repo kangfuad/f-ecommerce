@@ -10,6 +10,7 @@ import { useToast } from '@/presentation/composables/useToast'
 import DateRangePicker from '../rental/DateRangePicker.vue'
 import RentalPriceBreakdown from '../rental/RentalPriceBreakdown.vue'
 import BaseButton from '../common/BaseButton.vue'
+import { formatRupiah } from '@/core/utils/currency'
 import { ItemConditionLabel } from '@/domain/enums/ItemCondition'
 import {
   IconClose,
@@ -37,15 +38,32 @@ const { isLoggedIn, openLoginModal } = useAuth()
 const { openLightbox } = useImageLightbox()
 const { showToast } = useToast()
 
-function copyProductLink() {
+async function copyProductLink() {
   if (!props.product) return
   const url = `${window.location.origin}/katalog?produk=${props.product.id}`
+  const shareData = {
+    title: `${props.product.name} — e-punyasewa`,
+    text: `Sewa ${props.product.name} (${formatRupiah(props.product.dailyRate.amount)}/hari) di e-punyasewa. Bebas Deposit Rp 0 & Garansi QC 100%!`,
+    url,
+  }
+
+  // 1. Native Web Share API (Mobile WhatsApp, Instagram, Telegram, Twitter/X)
+  if (typeof navigator !== 'undefined' && navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+    try {
+      await navigator.share(shareData)
+      return
+    } catch {
+      // User cancelled share dialog, continue
+    }
+  }
+
+  // 2. Fallback to Clipboard Copy
   if (navigator.clipboard) {
     navigator.clipboard.writeText(url).then(() => {
       showToast({
         type: 'success',
-        title: 'Tautan Disalin',
-        message: 'Link produk siap dibagikan ke WhatsApp atau media sosial.',
+        title: 'Tautan Produk Disalin!',
+        message: 'Link produk berhasil disalin dan siap dibagikan.',
       })
     }).catch(() => {
       showToast({ type: 'info', title: 'Tautan Produk', message: url })

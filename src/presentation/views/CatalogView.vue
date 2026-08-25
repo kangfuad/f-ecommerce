@@ -7,6 +7,7 @@ import { Product } from '@/domain/entities/Product'
 import { useProducts } from '@/presentation/composables/useProducts'
 import { useCart } from '@/presentation/composables/useCart'
 import { useTheme } from '@/presentation/composables/useTheme'
+import { useMetaTags } from '@/presentation/composables/useMetaTags'
 import AppHeader from '../components/common/AppHeader.vue'
 import AppFooter from '../components/common/AppFooter.vue'
 import ProductCard from '../components/catalog/ProductCard.vue'
@@ -27,6 +28,7 @@ import {
 
 const route = useRoute()
 const router = useRouter()
+const { updateMetaTags, resetMetaTags } = useMetaTags()
 
 const {
   products: allProducts,
@@ -53,6 +55,20 @@ const minRating = ref<number>(0)
 
 // Modal State
 const selectedProductForModal = shallowRef<Product | null>(null)
+
+watch(selectedProductForModal, (product) => {
+  if (product) {
+    updateMetaTags({
+      title: `${product.name} (Sewa Rp ${product.dailyRate.amount.toLocaleString('id-ID')}/hari)`,
+      description: `${product.name} — ${product.description.slice(0, 140)}... Bebas deposit Rp 0 member KYC di e-punyasewa.`,
+      image: product.images?.[0] || product.primaryImage,
+      url: `/katalog?produk=${product.id}`,
+      type: 'product',
+    })
+  } else {
+    resetMetaTags()
+  }
+})
 
 function openProductModal(product: Product) {
   selectedProductForModal.value = product
