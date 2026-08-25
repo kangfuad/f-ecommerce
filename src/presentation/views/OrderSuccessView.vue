@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useCheckout } from '@/presentation/composables/useCheckout'
+import { useAuth } from '@/presentation/composables/useAuth'
 import { formatRupiah } from '@/core/utils/currency'
 import { formatDateToIndonesian } from '@/core/utils/date'
 import AppHeader from '@/presentation/components/common/AppHeader.vue'
@@ -18,10 +19,24 @@ import {
 const route = useRoute()
 const router = useRouter()
 const { loadOrderFromStorage, currentOrder } = useCheckout()
+const { isLoggedIn } = useAuth()
 
 const isDownloading = ref(false)
 
+watch(
+  isLoggedIn,
+  (loggedIn) => {
+    if (!loggedIn) {
+      router.replace('/')
+    }
+  }
+)
+
 onMounted(() => {
+  if (!isLoggedIn.value) {
+    router.replace('/')
+    return
+  }
   const orderId = route.params.orderId as string
   const order = loadOrderFromStorage(orderId)
   if (!order) {

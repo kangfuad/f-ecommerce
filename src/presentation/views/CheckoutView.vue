@@ -73,6 +73,15 @@ watch(
   { immediate: true }
 )
 
+watch(
+  isLoggedIn,
+  (loggedIn) => {
+    if (!loggedIn) {
+      router.replace('/')
+    }
+  }
+)
+
 // Validation & completion states for auto-checklists
 const isCustomerInfoComplete = computed(() => {
   return fullName.value.trim().length >= 2 && email.value.includes('@') && phone.value.trim().length >= 3

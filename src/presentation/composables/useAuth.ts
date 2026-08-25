@@ -223,10 +223,18 @@ export function useAuth() {
     localStorage.removeItem(AUTH_STORAGE_KEY)
     localStorage.removeItem(AUTH_TOKEN_KEY)
 
-    // If current route requires authentication (e.g. /pesanan-saya), redirect immediately
+    // If current route is user-specific or transactional, redirect to home immediately
     try {
-      if (typeof window !== 'undefined' && window.location.pathname.includes('pesanan-saya')) {
-        window.location.href = '/'
+      if (typeof window !== 'undefined') {
+        const path = window.location.pathname
+        if (
+          path.includes('pesanan-saya') ||
+          path.includes('order-success') ||
+          path.includes('checkout') ||
+          path.includes('pembayaran')
+        ) {
+          window.location.href = '/'
+        }
       }
     } catch {
       // ignore
