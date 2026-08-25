@@ -7,7 +7,15 @@
       "category": "PROSEDUR",
       "categoryLabel": "Alur & Prosedur Rental",
       "question": "Bagaimana alur dan prosedur menyewa unit di e-punyasewa?",
-      "answer": "Alur sewa sangat mudah dan serba digital: 1) Pilih unit kamera, drone, atau perlengkapan outdoor di katalog. 2) Tentukan tanggal mulai dan selesai masa sewa. 3) Pilih metode serah terima (Diantar Kurir ke Alamat atau Ambil Sendiri di Hub Titik Temu). 4) Selesaikan pembayaran online (QRIS/Transfer Virtual Account). 5) Unit melewati inspeksi QC & sterilisasi sebelum diserahkan kepada Anda.",
+      "answer": "Proses penyewaan unit dirancang serba cepat, transparan, dan sepenuhnya digital melalui 5 tahapan praktis:",
+      "steps": [
+        "Pilih unit kamera, lensa, drone, atau outdoor gear yang Anda butuhkan di katalog.",
+        "Tentukan tanggal mulai dan tanggal selesai sewa sesuai jadwal produksi Anda.",
+        "Pilih metode penyerahan: Diantar Kurir Terdedikasi ke Alamat atau Ambil Sendiri di Hub.",
+        "Lakukan pembayaran aman secara instan melalui QRIS atau Transfer Virtual Account.",
+        "Unit melewati inspeksi QC & sterilisasi sebelum diserahkan tepat waktu kepada Anda."
+      ],
+      "tip": "Unit sudah termasuk kelengkapan siap pakai (baterai cadangan, charger, strap, dan hardcase pelindung).",
       "isPopular": true,
       "order": 1
     },
@@ -16,7 +24,13 @@
       "category": "PROSEDUR",
       "categoryLabel": "Alur & Prosedur Rental",
       "question": "Apakah saya bisa memperpanjang durasi sewa saat unit sedang digunakan?",
-      "answer": "Tentu bisa! Selama unit belum dipesan oleh penyewa lain pada hari berikutnya, Anda dapat mengajukan perpanjangan masa sewa langsung dari dashboard 'Riwayat Pesanan' akun Anda atau menghubungi Customer Care WhatsApp kami sebelum batas waktu sewa berakhir.",
+      "answer": "Tentu bisa! Kami memahami kebutuhan jadwal syuting dan produksi yang sering kali fleksibel di lapangan.",
+      "keyPoints": [
+        "Pengajuan perpanjangan dapat dilakukan langsung melalui menu Riwayat Pesanan akun Anda.",
+        "Pastikan mengajukan perpanjangan maksimal 6 jam sebelum periode sewa awal berakhir.",
+        "Perpanjangan akan langsung disetujui selama unit belum dibooking oleh penyewa lain pada hari berikutnya."
+      ],
+      "tip": "Diskon tarif sewa harian yang lebih hemat otomatis berlaku untuk durasi sewa yang diperpanjang.",
       "isPopular": true,
       "order": 2
     },
@@ -25,7 +39,12 @@
       "category": "PROSEDUR",
       "categoryLabel": "Alur & Prosedur Rental",
       "question": "Apa saja syarat utama untuk menyewa unit di e-punyasewa?",
-      "answer": "Penyewa wajib memiliki akun terdaftar, nomor WhatsApp aktif untuk koordinasi serah terima, dan alamat penyerahan yang valid. Untuk menikmati fasilitas Bebas Deposit (Rp 0), penyewa wajib melengkapi verifikasi identitas (e-KTP/SIM) di menu Profil Akun.",
+      "answer": "Persyaratan sewa sangat sederhana untuk memastikan keamanan dan kenyamanan bersama:",
+      "keyPoints": [
+        "Akun member terdaftar dengan email dan nomor WhatsApp aktif.",
+        "Alamat penyerahan unit yang jelas (rumah, kantor, studio, atau lokasi syuting).",
+        "Untuk mendapatkan fasilitas Bebas Deposit (Rp 0), cukup lengkapi verifikasi e-KTP / SIM 1x di menu Profil."
+      ],
       "isPopular": false,
       "order": 3
     },
@@ -34,7 +53,13 @@
       "category": "DEPOSIT",
       "categoryLabel": "Kebijakan Deposit & Refund",
       "question": "Berapa besaran deposit jaminan dan kapan dana deposit dikembalikan?",
-      "answer": "Besaran deposit jaminan dihitung proporsional berdasarkan nilai perangkat. Dana deposit bersifat 100% REFUNDABLE (dikembalikan penuh tanpa potongan) dan otomatis ditransfer kembali ke rekening Anda maksimal 1x24 jam setelah unit selesai diinspeksi oleh tim QC saat pengembalian.",
+      "answer": "Dana deposit jaminan dihitung proporsional sesuai kategori nilai perangkat dan bersifat 100% REFUNDABLE (dijamin kembali penuh tanpa potongan).",
+      "keyPoints": [
+        "Dana deposit otomatis dikembalikan maksimal 1x24 jam setelah unit dikembalikan dan lolos pengecekan QC.",
+        "Pengembalian dana ditransfer langsung ke rekening bank atau dompet digital yang Anda daftarkan saat checkout.",
+        "Bukti transfer pengembalian dana deposit akan otomatis dikirimkan ke WhatsApp Anda."
+      ],
+      "tip": "Ingin sewa tanpa deposit sama sekali? Cukup verifikasi e-KTP Anda di halaman Profil untuk mengaktifkan status Verified Gold.",
       "isPopular": true,
       "order": 4
     },
@@ -43,7 +68,13 @@
       "category": "DEPOSIT",
       "categoryLabel": "Kebijakan Deposit & Refund",
       "question": "Bagaimana cara mendapatkan fasilitas Bebas Deposit (Rp 0)?",
-      "answer": "Anda cukup melakukan verifikasi identitas (e-KTP atau SIM) pada menu Profil Akun Anda. Setelah data terverifikasi (Verified Gold), seluruh pesanan sewa Anda di e-punyasewa otomatis BEBAS DEPOSIT (Rp 0) tanpa perlu menahan dana jaminan.",
+      "answer": "Seluruh member e-punyasewa berhak menikmati fasilitas Bebas Deposit Rp 0 dengan langkah berikut:",
+      "steps": [
+        "Buka menu Profil Akun Anda di pojok kanan atas.",
+        "Pilih tab Verifikasi Identitas (KYC).",
+        "Unggah foto e-KTP atau SIM yang masih berlaku beserta nomor NIK Anda.",
+        "Setelah status akun menjadi Verified Gold, seluruh transaksi sewa otomatis bebas deposit Rp 0 permanen."
+      ],
       "isPopular": true,
       "order": 5
     },
@@ -52,7 +83,13 @@
       "category": "ASURANSI",
       "categoryLabel": "Asuransi & Proteksi Unit",
       "question": "Apa saja perlindungan yang dicakup oleh opsi Asuransi Proteksi Unit?",
-      "answer": "Asuransi opsional melindungi penyewa dari risiko biaya perbaikan akibat goresan halus kosmetik wajar, debu/kelembapan operasional standar, serta kendala fungsi teknis non-kesengajaan selama masa sewa berlangsung.",
+      "answer": "Opsi Asuransi Proteksi Unit memberikan ketenangan pikiran selama proses produksi Anda dengan cakupan perlindungan:",
+      "keyPoints": [
+        "Bebas biaya perbaikan atas goresan halus kosmetik wajar pada bodi kamera/lensa.",
+        "Perlindungan atas debu sensor atau kelembapan udara standar di lokasi luar ruangan.",
+        "Penanganan kendala teknis fungsi perangkat tanpa biaya tambahan (non-kesengajaan)."
+      ],
+      "tip": "Asuransi tidak mencakup kehilangan unit, pencurian, atau kerusakan parah akibat kecerobohan ekstrem (misal jatuh ke air asin tanpa housing).",
       "isPopular": false,
       "order": 6
     },
@@ -61,7 +98,12 @@
       "category": "ASURANSI",
       "categoryLabel": "Asuransi & Proteksi Unit",
       "question": "Bagaimana prosedur jika unit mengalami kendala teknis saat digunakan di lapangan?",
-      "answer": "Segera hubungi tim teknis kami via WhatsApp CS darurat. Kami akan memberikan panduan troubleshooting jarak jauh atau mengirimkan unit pengganti (*backup unit*) jika unit mengalami kendala sistem internal tanpa kesalahan operasional pengguna.",
+      "answer": "Jika terjadi kendala teknis pada perangkat, tim support kami siap membantu dengan respon cepat:",
+      "steps": [
+        "Segera hubungi tim teknis kami melalui tombol WhatsApp CS Darurat.",
+        "Teknisi kami akan memandu panduan pemecahan masalah (troubleshooting) secara instan.",
+        "Jika perangkat mengalami kendala sistem internal, kami akan mengirimkan unit pengganti (backup unit) ke lokasi Anda secepatnya."
+      ],
       "isPopular": false,
       "order": 7
     },
@@ -70,7 +112,14 @@
       "category": "PENGANTARAN",
       "categoryLabel": "Pengantaran Kurir & Titik Hub",
       "question": "Wilayah mana saja yang dijangkau oleh layanan pengiriman kurir e-punyasewa?",
-      "answer": "Layanan kurir instan dan sameday kami saat ini mencakup seluruh area Jabodetabek (Jakarta, Bogor, Depok, Tangerang, Bekasi), Bandung, Surabaya, dan Bali. Unit dikirim dalam hardcase pelindung bersertifikasi anti-guncangan.",
+      "answer": "Layanan kurir instan dan sameday kami saat ini beroperasi di kota-kota kreatif utama:",
+      "keyPoints": [
+        "Jabodetabek (Jakarta Pusat, Selatan, Barat, Timur, Utara, Tangerang, Tangsel, Bekasi, Depok, Bogor).",
+        "Bandung Raya (Kota Bandung, Cimahi, dan sekitarnya).",
+        "Surabaya Raya & Sidoarjo.",
+        "Bali (Denpasar, Kuta, Seminyak, Canggu, Sanur)."
+      ],
+      "tip": "Seluruh pengiriman menggunakan hardcase kedap air dan anti-guncangan untuk menjamin keamanan unit hingga sampai di tangan Anda.",
       "isPopular": true,
       "order": 8
     },
@@ -79,7 +128,12 @@
       "category": "PENGANTARAN",
       "categoryLabel": "Pengantaran Kurir & Titik Hub",
       "question": "Berapa jam sebelum jadwal sewa saya bisa mengambil unit di Hub?",
-      "answer": "Untuk metode Ambil di Hub Titik Temu, unit dapat diambil mulai H-1 pukul 19.00 WIB (tanpa biaya tambahan) atau sesuai jadwal jam mulai sewa pada hari-H di hub yang Anda pilih.",
+      "answer": "Kami memberikan fleksibilitas pengambilan unit di Hub Titik Temu penyerahan:",
+      "keyPoints": [
+        "Pengambilan unit dapat dilakukan mulai H-1 pukul 19.00 WIB tanpa dikenakan biaya sewa tambahan.",
+        "Unit dapat diperiksa langsung bersama staf hub kami untuk uji fungsi sensor, fokus, dan baterai.",
+        "Lokasi hub strategis dengan area parkir luas dan fasilitas charging gratis."
+      ],
       "isPopular": false,
       "order": 9
     }

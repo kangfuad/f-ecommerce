@@ -163,29 +163,85 @@ const {
           v-else
           v-for="faq in filteredFaqs"
           :key="faq.id"
-          class="bg-theme-card rounded-2xl border border-theme-border overflow-hidden transition shadow-xs"
+          class="bg-theme-card rounded-3xl border border-theme-border overflow-hidden transition-all duration-200 shadow-sm hover:border-forest/40"
         >
           <button
             @click="toggleFaq(faq.id)"
-            class="w-full p-4 sm:p-5 text-left font-bold text-xs sm:text-sm text-theme-primary flex items-center justify-between gap-4 cursor-pointer hover:bg-stone-50/50 dark:hover:bg-stone-800/40 transition"
+            class="w-full p-5 sm:p-6 text-left flex items-center justify-between gap-4 cursor-pointer hover:bg-stone-50/60 dark:hover:bg-stone-800/40 transition group"
           >
-            <div class="space-y-0.5 min-w-0">
-              <span class="text-[10px] font-extrabold uppercase text-forest dark:text-forest-glow tracking-wider block">
-                {{ faq.categoryLabel }}
-              </span>
-              <span class="block text-theme-primary font-bold">{{ faq.question }}</span>
+            <div class="space-y-2 min-w-0 pr-2">
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-forest/10 dark:bg-forest/20 text-forest dark:text-forest-glow border border-forest/20">
+                  {{ faq.categoryLabel }}
+                </span>
+                <span v-if="faq.isPopular" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+                  ★ Populer
+                </span>
+              </div>
+              <h3 class="font-display font-extrabold text-sm sm:text-base md:text-lg text-theme-primary leading-snug tracking-tight">
+                {{ faq.question }}
+              </h3>
             </div>
-            <IconChevronDown
-              :size="16"
-              :class="['text-stone-400 transition-transform duration-200 shrink-0', openFaqIds.includes(faq.id) && 'rotate-180 text-forest']"
-            />
+            
+            <div
+              :class="[
+                'w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-theme-border flex items-center justify-center shrink-0 transition-all duration-300',
+                openFaqIds.includes(faq.id)
+                  ? 'bg-forest text-white border-forest rotate-180 shadow-sm'
+                  : 'bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 group-hover:border-forest/40 group-hover:text-forest'
+              ]"
+            >
+              <IconChevronDown :size="16" />
+            </div>
           </button>
 
+          <!-- Expanded Answer Section -->
           <div
             v-if="openFaqIds.includes(faq.id)"
-            class="px-4 sm:px-5 pb-5 pt-1 text-xs text-stone-600 dark:text-stone-400 leading-relaxed border-t border-theme-border/60 bg-stone-50/30 dark:bg-stone-900/30 animate-fade-in"
+            class="px-5 sm:px-8 py-6 sm:py-7 border-t border-theme-border/70 bg-stone-50/70 dark:bg-stone-900/60 space-y-4 animate-fade-in text-theme-primary"
           >
-            {{ faq.answer }}
+            <!-- Main Answer Text -->
+            <p class="text-xs sm:text-sm md:text-[15px] leading-relaxed text-stone-700 dark:text-stone-300 font-normal">
+              {{ faq.answer }}
+            </p>
+
+            <!-- Step by Step List (If available) -->
+            <div v-if="faq.steps && faq.steps.length > 0" class="space-y-2.5 pt-1">
+              <div
+                v-for="(step, idx) in faq.steps"
+                :key="idx"
+                class="flex items-start gap-3 text-xs sm:text-sm leading-relaxed text-stone-700 dark:text-stone-300"
+              >
+                <span class="w-6 h-6 rounded-full bg-forest text-white flex items-center justify-center text-[11px] font-black shrink-0 mt-0.5 shadow-xs">
+                  {{ idx + 1 }}
+                </span>
+                <span class="pt-0.5">{{ step }}</span>
+              </div>
+            </div>
+
+            <!-- Key Points Bullet List (If available) -->
+            <div v-if="faq.keyPoints && faq.keyPoints.length > 0" class="space-y-2 pt-1">
+              <div
+                v-for="(point, idx) in faq.keyPoints"
+                :key="idx"
+                class="flex items-start gap-2.5 text-xs sm:text-sm leading-relaxed text-stone-700 dark:text-stone-300"
+              >
+                <IconCheck :size="16" class="text-forest dark:text-forest-glow shrink-0 mt-0.5" />
+                <span>{{ point }}</span>
+              </div>
+            </div>
+
+            <!-- Helpful Callout Tip Box (If available) -->
+            <div
+              v-if="faq.tip"
+              class="mt-3 p-4 rounded-2xl bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-500/20 text-xs sm:text-sm text-emerald-900 dark:text-emerald-300 flex items-start gap-2.5"
+            >
+              <IconShieldCheck :size="18" class="text-forest dark:text-forest-glow shrink-0 mt-0.5" />
+              <div class="leading-relaxed font-medium">
+                <strong class="font-extrabold block text-forest dark:text-emerald-300 mb-0.5">Catatan Penting:</strong>
+                {{ faq.tip }}
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -7,6 +7,9 @@ export interface FaqDto {
   categoryLabel: string
   question: string
   answer: string
+  steps?: string[]
+  keyPoints?: string[]
+  tip?: string
   isPopular?: boolean
   order?: number
 }
