@@ -740,10 +740,10 @@ function copyText(text: string, fieldId: string) {
                   :loading="isSubmitting"
                   variant="primary"
                   size="lg"
-                  class="w-full"
+                  class="w-full text-xs sm:text-sm font-black"
                 >
-                  <IconCheck :size="18" />
-                  <span>Simulasikan Pembayaran Berhasil (Instant Webhook)</span>
+                  <IconCheck :size="16" class="shrink-0" />
+                  <span>Konfirmasi Pembayaran Selesai</span>
                 </BaseButton>
 
                 <button

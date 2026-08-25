@@ -155,14 +155,14 @@ function handleProceedToCheckout() {
           </div>
         </div>
 
-        <!-- Proceed Button -->
         <BaseButton
           @click="handleProceedToCheckout"
           variant="primary"
           size="lg"
-          class="w-full cursor-pointer shadow-md"
+          class="w-full cursor-pointer shadow-md text-xs sm:text-sm font-black"
         >
-          Lanjut ke Pembayaran ({{ grandTotal.format() }})
+          <span>Lanjut ke Pembayaran</span>
+          <span class="truncate">({{ grandTotal.format() }})</span>
         </BaseButton>
 
         <div class="flex items-center justify-center gap-1.5 text-[10px] text-theme-muted">
