@@ -394,14 +394,29 @@ function handleAddAddressSubmit() {
       <div v-else class="space-y-6">
         
         <!-- Profile Header Banner -->
-        <div class="bg-theme-card rounded-3xl border border-theme-border p-6 sm:p-8 shadow-card flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden">
-          <div class="flex items-start sm:items-center gap-4 sm:gap-5">
-            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-forest dark:bg-emerald-600 text-white flex items-center justify-center font-display text-2xl sm:text-3xl font-black shadow-md border-2 border-white/20 shrink-0 mt-1 sm:mt-0">
-              {{ currentUser.initials }}
+        <div class="bg-theme-card rounded-3xl border border-theme-border p-4 sm:p-6 md:p-8 shadow-card flex flex-col md:flex-row items-stretch md:items-center justify-between gap-5 relative overflow-hidden">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5 min-w-0 flex-1">
+            <!-- Avatar -->
+            <div class="flex items-center gap-3.5 sm:block shrink-0">
+              <div class="w-14 h-14 sm:w-20 sm:h-20 rounded-2xl bg-forest dark:bg-emerald-600 text-white flex items-center justify-center font-display text-xl sm:text-3xl font-black shadow-md border-2 border-white/20 shrink-0">
+                {{ currentUser.initials }}
+              </div>
+              <!-- Mobile only title beside avatar -->
+              <div class="sm:hidden min-w-0">
+                <h1 class="font-display text-lg font-black text-theme-primary truncate leading-tight">
+                  {{ currentUser.fullName }}
+                </h1>
+                <p v-if="currentUser.profession" class="text-xs font-bold text-forest dark:text-forest-glow truncate">
+                  {{ currentUser.profession }}
+                </p>
+              </div>
             </div>
-            <div class="min-w-0 space-y-2">
-              <div class="flex flex-wrap items-center gap-2">
-                <h1 class="font-display text-xl sm:text-2xl font-black text-theme-primary truncate">
+
+            <!-- Profile Info Body -->
+            <div class="min-w-0 flex-1 space-y-2 w-full">
+              <!-- Desktop Name + Badges -->
+              <div class="hidden sm:flex flex-wrap items-center gap-2">
+                <h1 class="font-display text-xl sm:text-2xl font-black text-theme-primary">
                   {{ currentUser.fullName }}
                 </h1>
                 <span
@@ -422,77 +437,98 @@ function handleAddAddressSubmit() {
                 </span>
               </div>
 
-              <!-- Professional & Studio Tag -->
-              <p v-if="currentUser.profession" class="text-xs font-bold text-forest dark:text-forest-glow flex items-center gap-1.5 flex-wrap">
+              <!-- Mobile Badges Row -->
+              <div class="flex sm:hidden flex-wrap items-center gap-1.5">
+                <span
+                  :class="[
+                    'text-[10px] font-black px-2.5 py-0.5 rounded-full border shrink-0',
+                    currentUser.tierBadge.classes
+                  ]"
+                >
+                  {{ currentUser.tierBadge.label }}
+                </span>
+                <span
+                  :class="[
+                    'text-[10px] font-black px-2.5 py-0.5 rounded-full border shrink-0',
+                    currentUser.kycBadge.classes
+                  ]"
+                >
+                  {{ currentUser.kycBadge.label }}
+                </span>
+              </div>
+
+              <!-- Professional & Studio Tag (Desktop) -->
+              <p v-if="currentUser.profession" class="hidden sm:flex text-xs font-bold text-forest dark:text-forest-glow items-center gap-1.5 flex-wrap">
                 <span>{{ currentUser.profession }}</span>
                 <span v-if="currentUser.companyOrStudio" class="text-stone-400 font-normal"> • {{ currentUser.companyOrStudio }}</span>
                 <span v-if="currentUser.socialMediaInstagram" class="text-stone-500 font-semibold"> ({{ currentUser.socialMediaInstagram }})</span>
               </p>
 
-              <!-- Contacts & Location Details -->
-              <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-stone-500 font-medium">
-                <span class="flex items-center gap-1.5 text-theme-primary">
+              <!-- Contacts & Location Details (Stacked cleanly on mobile, inline on desktop) -->
+              <div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-x-3 gap-y-1.5 text-xs text-stone-500 font-medium">
+                <div class="flex items-center gap-1.5 text-theme-primary min-w-0">
                   <svg class="w-3.5 h-3.5 text-forest dark:text-forest-glow shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
-                  <span>{{ currentUser.email }}</span>
-                </span>
-                <span class="text-stone-300 dark:text-stone-700">•</span>
-                <span class="flex items-center gap-1.5 text-theme-primary">
+                  <span class="truncate">{{ currentUser.email }}</span>
+                </div>
+                <span class="hidden sm:inline text-stone-300 dark:text-stone-700">•</span>
+                <div class="flex items-center gap-1.5 text-theme-primary">
                   <svg class="w-3.5 h-3.5 text-forest dark:text-forest-glow shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                   </svg>
                   <span>{{ currentUser.phone }}</span>
-                </span>
-                <span v-if="currentUser.address || currentUser.city" class="text-stone-300 dark:text-stone-700">•</span>
-                <span v-if="currentUser.address || currentUser.city" class="flex items-center gap-1 text-stone-600 dark:text-stone-300">
+                </div>
+                <span v-if="currentUser.address || currentUser.city" class="hidden sm:inline text-stone-300 dark:text-stone-700">•</span>
+                <div v-if="currentUser.address || currentUser.city" class="flex items-center gap-1 text-stone-600 dark:text-stone-300 min-w-0">
                   <IconLocation :size="12" class="text-forest dark:text-forest-glow shrink-0" />
-                  <span class="truncate max-w-xs">{{ currentUser.address ? `${currentUser.address}, ${currentUser.city || ''}` : currentUser.city }}</span>
-                </span>
+                  <span class="truncate">{{ currentUser.address ? `${currentUser.address}, ${currentUser.city || ''}` : currentUser.city }}</span>
+                </div>
               </div>
 
               <!-- Emergency Contact Info -->
-              <div v-if="currentUser.emergencyContactName" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-300 text-[11px] font-medium">
-                <span class="font-bold">Kontak Darurat:</span>
+              <div v-if="currentUser.emergencyContactName" class="flex flex-wrap items-center gap-1.5 p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-300 text-[11px] font-medium leading-normal">
+                <span class="font-bold shrink-0">Kontak Darurat:</span>
                 <span>{{ currentUser.emergencyContactName }} ({{ currentUser.emergencyRelation || 'Kerabat' }})</span>
-                <span v-if="currentUser.emergencyPhone">• {{ currentUser.emergencyPhone }}</span>
+                <span v-if="currentUser.emergencyPhone" class="shrink-0">• {{ currentUser.emergencyPhone }}</span>
               </div>
 
               <!-- Bio quote if present -->
-              <p v-if="currentUser.bio" class="text-[11px] text-stone-600 dark:text-stone-300 italic max-w-xl line-clamp-1">
+              <p v-if="currentUser.bio" class="text-[11px] text-stone-600 dark:text-stone-300 italic max-w-xl line-clamp-2">
                 "{{ currentUser.bio }}"
               </p>
 
-              <p class="text-[11px] text-stone-500 dark:text-stone-300 font-medium pt-0.5">
+              <p class="text-[11px] text-stone-500 dark:text-stone-400 font-medium pt-0.5">
                 Bergabung sejak: <span class="font-bold text-theme-primary">{{ formatDateToIndonesian(currentUser.joinedAt) }}</span>
               </p>
             </div>
           </div>
 
-          <div class="flex flex-wrap items-center gap-2.5 w-full md:w-auto shrink-0">
+          <!-- Buttons Row -->
+          <div class="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center gap-2.5 w-full md:w-auto shrink-0 pt-1 sm:pt-0">
             <button
               @click="openEditProfile"
-              class="flex-1 md:flex-none px-5 py-2.5 rounded-full border border-theme-border hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-bold transition cursor-pointer text-center shadow-xs flex items-center justify-center gap-1.5"
+              class="h-10 px-3 sm:px-5 rounded-full border border-theme-border hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-bold transition cursor-pointer text-center shadow-xs flex items-center justify-center gap-1.5"
             >
-              <IconEdit :size="13" />
-              <span>Ubah Data Akun</span>
+              <IconEdit :size="13" class="shrink-0" />
+              <span class="truncate">Ubah Profil</span>
             </button>
             <router-link
               to="/pesanan-saya"
-              class="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-full bg-[#244E33] hover:bg-[#1B3B26] dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-stone-950 text-xs font-black shadow-sm transition"
+              class="h-10 px-3 sm:px-5 rounded-full bg-[#244E33] hover:bg-[#1B3B26] dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-stone-950 text-xs font-black shadow-sm transition flex items-center justify-center gap-1.5 text-center"
             >
-              <IconDeliveryTruck :size="14" />
-              <span>Riwayat Sewa</span>
+              <IconDeliveryTruck :size="14" class="shrink-0" />
+              <span class="truncate">Riwayat Sewa</span>
             </router-link>
           </div>
         </div>
 
         <!-- Navigation Tabs -->
-        <div class="flex items-center gap-2 border-b border-theme-border pb-3 overflow-x-auto custom-scrollbar">
+        <div class="-mx-4 px-4 sm:mx-0 sm:px-0 flex items-center gap-2 border-b border-theme-border pb-3 overflow-x-auto custom-scrollbar">
           <button
             @click="activeTab = 'account'"
             :class="[
-              'px-4 py-2 rounded-full text-xs font-bold transition cursor-pointer border shrink-0',
+              'px-4 py-2 rounded-full text-xs font-bold transition cursor-pointer border shrink-0 whitespace-nowrap',
               activeTab === 'account'
                 ? 'bg-forest text-white border-forest shadow-sm'
                 : 'border-theme-border bg-theme-card text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
@@ -504,7 +540,7 @@ function handleAddAddressSubmit() {
           <button
             @click="activeTab = 'kyc'"
             :class="[
-              'px-4 py-2 rounded-full text-xs font-bold transition cursor-pointer border shrink-0 flex items-center gap-1.5',
+              'px-4 py-2 rounded-full text-xs font-bold transition cursor-pointer border shrink-0 flex items-center gap-1.5 whitespace-nowrap',
               activeTab === 'kyc'
                 ? 'bg-forest text-white border-forest shadow-sm'
                 : 'border-theme-border bg-theme-card text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
@@ -519,7 +555,7 @@ function handleAddAddressSubmit() {
           <button
             @click="activeTab = 'addresses'"
             :class="[
-              'px-4 py-2 rounded-full text-xs font-bold transition cursor-pointer border shrink-0 flex items-center gap-1.5',
+              'px-4 py-2 rounded-full text-xs font-bold transition cursor-pointer border shrink-0 flex items-center gap-1.5 whitespace-nowrap',
               activeTab === 'addresses'
                 ? 'bg-forest text-white border-forest shadow-sm'
                 : 'border-theme-border bg-theme-card text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
@@ -534,10 +570,10 @@ function handleAddAddressSubmit() {
         <div v-if="activeTab === 'account'" class="space-y-8 animate-fade-up">
           
           <!-- Active Member Tier Hero Card (Dynamic Light & Dark Theme) -->
-          <div class="bg-gradient-to-br from-emerald-50/90 via-white to-stone-100/90 dark:from-stone-900 dark:via-stone-950 dark:to-[#14261B] text-theme-primary dark:text-white rounded-3xl p-6 sm:p-8 border border-emerald-500/20 dark:border-stone-800 shadow-xl space-y-6 transition-all duration-300">
+          <div class="bg-gradient-to-br from-emerald-50/90 via-white to-stone-100/90 dark:from-stone-900 dark:via-stone-950 dark:to-[#14261B] text-theme-primary dark:text-white rounded-3xl p-4 sm:p-6 md:p-8 border border-emerald-500/20 dark:border-stone-800 shadow-xl space-y-6 transition-all duration-300">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-theme-border dark:border-white/10 pb-5">
               <div class="space-y-1.5">
-                <div class="flex items-center gap-2">
+                <div class="flex flex-wrap items-center gap-2">
                   <span class="text-[10px] font-black uppercase tracking-widest text-forest dark:text-emerald-400">
                     Tingkatan Keanggotaan Aktif
                   </span>
@@ -548,12 +584,12 @@ function handleAddAddressSubmit() {
                 <h2 class="font-display text-2xl sm:text-3xl md:text-4xl font-black text-theme-primary dark:text-white tracking-tight">
                   {{ currentUser.tierLabel }}
                 </h2>
-                <p class="text-xs sm:text-sm text-forest dark:text-emerald-300 font-bold">
+                <p class="text-xs sm:text-sm text-forest dark:text-emerald-300 font-bold leading-relaxed">
                   Fasilitas Bebas Deposit 100% (Rp 0) aktif pada akun Anda.
                 </p>
               </div>
 
-              <div class="text-left sm:text-right p-4 rounded-2xl bg-white/80 dark:bg-white/5 border border-emerald-500/20 dark:border-white/10 shrink-0 shadow-xs">
+              <div class="p-3.5 sm:p-4 rounded-2xl bg-white/80 dark:bg-white/5 border border-emerald-500/20 dark:border-white/10 shrink-0 shadow-xs">
                 <p class="text-xs text-stone-600 dark:text-stone-300 font-medium">Riwayat Transaksi</p>
                 <p class="text-xl sm:text-2xl font-black text-forest dark:text-emerald-400 mt-0.5">{{ currentUser.rentalCount }} Kali Sewa</p>
                 <p class="text-[10px] text-stone-500 dark:text-stone-300 mt-0.5 font-medium">Catatan Pengembalian: 100% Tepat Waktu</p>
