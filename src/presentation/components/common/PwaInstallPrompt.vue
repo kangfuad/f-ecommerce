@@ -16,6 +16,7 @@ const {
 } = usePwa()
 
 const showOpenInAppBanner = ref(true)
+const showIosOpenGuide = ref(false)
 
 async function handleInstallClick() {
   await installApp()
@@ -36,9 +37,10 @@ function handleOpenInApp() {
     return
   }
 
-  // 2. On iOS: Apple Safari isolates web tabs from home screen clips
+  // 2. On iOS: Apple does NOT allow launching PWA from Safari programmatically.
+  //    Show an inline guide telling user to tap the app icon on Home Screen.
   if (isIos.value || isIosSafari.value) {
-    showIosGuide.value = true
+    showIosOpenGuide.value = true
     return
   }
 
@@ -186,36 +188,71 @@ function handleOpenInApp() {
       class="fixed top-3 left-3 right-3 sm:left-auto sm:right-6 sm:max-w-sm z-50 animate-fade-in"
     >
       <div
-        class="bg-[#244E33] dark:bg-stone-900 text-white border border-emerald-500/40 rounded-2xl p-2.5 sm:p-3 shadow-2xl flex items-center justify-between gap-3"
+        class="bg-[#244E33] dark:bg-stone-900 text-white border border-emerald-500/40 rounded-2xl shadow-2xl overflow-hidden"
       >
-        <div class="flex items-center gap-2.5 min-w-0">
-          <div class="w-8 h-8 rounded-xl bg-white/10 p-0.5 shrink-0 flex items-center justify-center">
-            <img src="/pwa-192x192.png" alt="App Icon" class="w-full h-full object-contain rounded-lg" />
+        <!-- Main Banner Row -->
+        <div class="p-2.5 sm:p-3 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div class="w-8 h-8 rounded-xl bg-white/10 p-0.5 shrink-0 flex items-center justify-center">
+              <img src="/pwa-192x192.png" alt="App Icon" class="w-full h-full object-contain rounded-lg" />
+            </div>
+            <div class="min-w-0">
+              <p class="font-bold text-xs truncate">e-punyasewa App Terpasang</p>
+              <p class="text-[10px] text-stone-300 dark:text-stone-400 truncate">
+                {{ showIosOpenGuide ? 'Buka dari Layar Utama iPhone Anda' : 'Buka di aplikasi untuk akses instan' }}
+              </p>
+            </div>
           </div>
-          <div class="min-w-0">
-            <p class="font-bold text-xs truncate">e-punyasewa App Terpasang</p>
-            <p class="text-[10px] text-stone-300 dark:text-stone-400 truncate">Buka di aplikasi untuk akses instan</p>
+
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button
+              v-if="!showIosOpenGuide"
+              type="button"
+              @click="handleOpenInApp"
+              class="px-3.5 py-1.5 rounded-full bg-emerald-400 hover:bg-emerald-300 text-stone-950 text-xs font-black transition cursor-pointer shadow-xs inline-flex items-center gap-1"
+            >
+              <span>Buka di App</span>
+              <IconArrowRight :size="11" />
+            </button>
+            <button
+              type="button"
+              @click="showOpenInAppBanner = false; showIosOpenGuide = false"
+              class="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 text-stone-300 hover:text-white flex items-center justify-center transition cursor-pointer"
+              title="Tutup"
+            >
+              <IconClose :size="10" />
+            </button>
           </div>
         </div>
 
-        <div class="flex items-center gap-1.5 shrink-0">
-          <button
-            type="button"
-            @click="handleOpenInApp"
-            class="px-3.5 py-1.5 rounded-full bg-emerald-400 hover:bg-emerald-300 text-stone-950 text-xs font-black transition cursor-pointer shadow-xs inline-flex items-center gap-1"
+        <!-- iOS Expanded Inline Guide (shown after tapping "Buka di App" on iOS) -->
+        <Transition
+          enter-active-class="transition-all duration-300 ease-out"
+          enter-from-class="max-h-0 opacity-0"
+          enter-to-class="max-h-60 opacity-100"
+        >
+          <div
+            v-if="showIosOpenGuide"
+            class="border-t border-emerald-500/30 bg-emerald-950/60 px-3 pb-3 pt-2.5 space-y-2"
           >
-            <span>Buka di App</span>
-            <IconArrowRight :size="11" />
-          </button>
-          <button
-            type="button"
-            @click="showOpenInAppBanner = false"
-            class="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 text-stone-300 hover:text-white flex items-center justify-center transition cursor-pointer"
-            title="Tutup"
-          >
-            <IconClose :size="10" />
-          </button>
-        </div>
+            <div class="flex items-start gap-2.5 text-[11px] text-emerald-100 font-medium">
+              <span class="w-5 h-5 rounded-full bg-emerald-500/30 text-emerald-200 flex items-center justify-center text-[10px] font-black shrink-0 mt-0.5">1</span>
+              <span>Tekan tombol <strong class="text-white">Home</strong> atau geser ke atas untuk keluar dari Safari.</span>
+            </div>
+            <div class="flex items-start gap-2.5 text-[11px] text-emerald-100 font-medium">
+              <span class="w-5 h-5 rounded-full bg-emerald-500/30 text-emerald-200 flex items-center justify-center text-[10px] font-black shrink-0 mt-0.5">2</span>
+              <span>Cari dan ketuk ikon <strong class="text-white">e-punyasewa</strong> di Layar Utama (Home Screen) iPhone Anda.</span>
+            </div>
+            <div class="flex items-start gap-2.5 text-[11px] text-emerald-100 font-medium">
+              <span class="w-5 h-5 rounded-full bg-emerald-500/30 text-emerald-200 flex items-center justify-center text-[10px] font-black shrink-0 mt-0.5">3</span>
+              <span>Aplikasi akan terbuka dalam mode <strong class="text-white">fullscreen</strong> tanpa bilah browser Safari.</span>
+            </div>
+
+            <p class="text-[9px] text-emerald-300/70 text-center pt-1 leading-tight">
+              Apple tidak mengizinkan pembukaan otomatis PWA dari browser Safari secara langsung.
+            </p>
+          </div>
+        </Transition>
       </div>
     </div>
   </Transition>
