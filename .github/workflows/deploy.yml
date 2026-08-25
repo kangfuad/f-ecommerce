@@ -1,0 +1,114 @@
+name: CI/CD Pipeline to VPS
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ========================================================
+  # Job 1: Lint, Typecheck & Build Verification (CI)
+  # ========================================================
+  ci-build-test:
+    name: 🧪 CI Build & Verification
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🏗️ Run Typecheck & Production Build
+        run: npm run build
+
+      - name: 🔍 Verify Build Output Artifacts
+        run: |
+          test -d dist
+          test -f dist/index.html
+          echo "Build artifacts verified successfully!"
+
+  # ========================================================
+  # Job 2: Automated Deployment to VPS via SSH (CD)
+  # ========================================================
+  deploy-vps:
+    name: 🚀 CD Deploy to VPS
+    needs: ci-build-test
+    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🌐 Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script_stop: true
+          script: |
+            echo "=========================================="
+            echo "🚀 Starting Deployment on VPS..."
+            echo "Timestamp: $(date)"
+            echo "=========================================="
+
+            # 1. Target directory configuration (fallback to /var/www/epunyasewa)
+            TARGET_DIR="${{ secrets.VPS_TARGET_DIR || '/var/www/epunyasewa' }}"
+            
+            if [ ! -d "$TARGET_DIR" ]; then
+              echo "⚠️ Target directory $TARGET_DIR does not exist. Creating..."
+              mkdir -p "$TARGET_DIR"
+              git clone https://github.com/${{ github.repository }}.git "$TARGET_DIR"
+            fi
+
+            cd "$TARGET_DIR"
+
+            # 2. Pull latest code from branch
+            echo "📥 Pulling latest changes from branch ${{ github.ref_name }}..."
+            git fetch --all
+            git reset --hard origin/${{ github.ref_name }}
+
+            # 3. Ensure environment variables exist
+            if [ ! -f .env ]; then
+              if [ -f .env.example ]; then
+                echo "⚙️ Creating .env from .env.example..."
+                cp .env.example .env
+              else
+                echo "APP_PORT=8080" > .env
+                echo "NODE_ENV=production" >> .env
+              fi
+            fi
+
+            # 4. Build and run containers via Docker Compose
+            echo "🐳 Building and starting Docker container..."
+            docker compose down --remove-orphans || true
+            docker compose up --build -d
+
+            # 5. Clean up dangling images to keep VPS disk healthy
+            echo "🧹 Cleaning up unused Docker images..."
+            docker image prune -f
+
+            # 6. Verify container health status
+            echo "🔍 Checking container status..."
+            docker ps --filter "name=epunyasewa-web"
+
+            echo "=========================================="
+            echo "✅ Deployment completed successfully!"
+            echo "=========================================="
