@@ -229,6 +229,15 @@ function handleSaveProfile() {
   })
 }
 
+const kycFileInputRef = ref<HTMLInputElement | null>(null)
+
+function clearKycPhoto() {
+  kycPhotoPreview.value = null
+  if (kycFileInputRef.value) {
+    kycFileInputRef.value.value = ''
+  }
+}
+
 function handleFileUpload(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0]
   if (!file) return
@@ -262,7 +271,12 @@ async function handleKycSubmit() {
       idNumber: kycIdNumber.value.trim(),
       idPhotoUrl: kycPhotoPreview.value,
     })
+    
+    // Clear preview, input field, and file input element completely
+    clearKycPhoto()
+    kycIdNumber.value = ''
     isEditingKyc.value = false
+    
     showToast({
       type: 'success',
       title: 'Dokumen Berhasil Dikirim!',
@@ -680,9 +694,10 @@ function handleAddAddressSubmit() {
                   <button
                     v-if="tier.id === 'STARTER' && !currentUser.isKycVerified"
                     @click="activeTab = 'kyc'"
-                    class="w-full py-2.5 bg-forest text-white rounded-full text-xs font-black shadow-sm cursor-pointer hover:bg-forest/90 transition text-center"
+                    class="w-full py-2.5 bg-forest text-white rounded-full text-xs font-black shadow-sm cursor-pointer hover:bg-forest/90 transition text-center flex items-center justify-center gap-1.5"
                   >
-                    Verifikasi KYC Sekarang →
+                    <span>Verifikasi KYC Sekarang</span>
+                    <IconArrowRight :size="13" />
                   </button>
                   <div
                     v-else-if="currentUser.memberTier === tier.id || (currentUser.isKycVerified && tier.id === 'VERIFIED_GOLD')"
@@ -925,17 +940,17 @@ function handleAddAddressSubmit() {
                   class="px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 transition shadow-xs cursor-pointer"
                 >
                   <span>Chat WhatsApp Admin</span>
-                  <span>→</span>
+                  <IconArrowRight :size="12" />
                 </a>
 
                 <!-- Quick Simulator for instant approval in demo -->
                 <button
                   type="button"
                   @click="handleSimulateAdminApprove"
-                  class="px-4 py-2 rounded-full bg-forest/10 hover:bg-forest/20 text-forest dark:text-forest-glow border border-forest/30 font-bold text-xs cursor-pointer transition"
+                  class="px-4 py-2 rounded-full bg-forest/10 hover:bg-forest/20 text-forest dark:text-forest-glow border border-forest/30 font-bold text-xs cursor-pointer transition flex items-center gap-1.5"
                   title="Simulasikan persetujuan instan dari admin"
                 >
-                  <span class="mr-1">⚡</span>
+                  <IconCheck :size="12" class="stroke-[2.5]" />
                   <span>Setujui KYC (Demo)</span>
                 </button>
               </div>
@@ -1036,11 +1051,11 @@ function handleAddAddressSubmit() {
                       <div class="flex items-center justify-center gap-2">
                         <label class="inline-block px-4 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 text-xs font-bold text-theme-primary hover:bg-stone-300 dark:hover:bg-stone-700 cursor-pointer transition">
                           Ganti Foto Dokumen
-                          <input type="file" accept="image/*" @change="handleFileUpload" class="hidden" />
+                          <input type="file" ref="kycFileInputRef" accept="image/*" @change="handleFileUpload" class="hidden" />
                         </label>
                         <button
                           type="button"
-                          @click="kycPhotoPreview = null"
+                          @click="clearKycPhoto"
                           class="px-3 py-1.5 rounded-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-bold cursor-pointer transition"
                         >
                           Hapus
@@ -1058,7 +1073,7 @@ function handleAddAddressSubmit() {
                       </div>
                       <label class="inline-block px-6 py-2.5 rounded-full bg-[#244E33] hover:bg-[#1B3B26] text-white text-xs font-bold cursor-pointer shadow-sm transition">
                         Pilih Berkas Foto Dokumen
-                        <input type="file" accept="image/*" @change="handleFileUpload" class="hidden" />
+                        <input type="file" ref="kycFileInputRef" accept="image/*" @change="handleFileUpload" class="hidden" />
                       </label>
                       <p class="text-[10px] text-stone-400">Format yang didukung: JPG, PNG, WEBP (Maksimal 5 MB)</p>
                     </div>
