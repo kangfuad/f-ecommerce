@@ -45,13 +45,20 @@ import { IconLogo, IconLocation } from '@/presentation/components/icons'
           </ul>
         </div>
 
-        <!-- Col 3: Layanan Pelanggan (4 cols) -->
+        <!-- Col 3: Layanan Pelanggan & Bantuan (4 cols) -->
         <div class="md:col-span-4 space-y-3">
-          <p class="font-bold text-xs uppercase tracking-wider text-stone-200">Layanan & Kontak</p>
-          <div class="space-y-2 text-xs text-stone-400 font-light">
-            <p>WhatsApp: <span class="font-semibold text-stone-200">{{ APP_CONFIG.SUPPORT_PHONE }}</span></p>
+          <p class="font-bold text-xs uppercase tracking-wider text-stone-200">Bantuan & Kontak</p>
+          <ul class="space-y-1.5 text-xs text-stone-400 font-light mb-2">
+            <li>
+              <router-link to="/bantuan" class="hover:text-forest-soft transition font-medium">Pusat Bantuan & FAQ Prosedur</router-link>
+            </li>
+            <li>
+              <router-link to="/profil" class="hover:text-forest-soft transition font-medium">Verifikasi Identitas (Bebas Deposit)</router-link>
+            </li>
+          </ul>
+          <div class="space-y-1 text-xs text-stone-400 font-light pt-1 border-t border-stone-800/80">
+            <p>WhatsApp CS: <span class="font-semibold text-stone-200">{{ APP_CONFIG.SUPPORT_PHONE }}</span></p>
             <p>Email: <span class="font-semibold text-stone-200">{{ APP_CONFIG.SUPPORT_EMAIL }}</span></p>
-            <p>Jam Kerja: <span class="font-semibold text-stone-200">08.00 - 22.00 WIB</span></p>
           </div>
           <div class="pt-1.5">
             <span class="text-[10px] uppercase font-bold tracking-wider text-forest-soft bg-emerald-950/80 border border-emerald-800/40 px-2.5 py-1 rounded-full">

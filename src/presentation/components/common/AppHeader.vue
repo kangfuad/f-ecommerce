@@ -241,12 +241,19 @@ onUnmounted(() => {
             </div>
           </div>
 
-          <!-- Direct Link to /katalog -->
+          <!-- Direct Link to /katalog & /bantuan -->
           <router-link
             to="/katalog"
             class="hidden md:inline-flex items-center gap-1.5 text-xs font-extrabold text-stone-700 dark:text-stone-300 hover:text-forest dark:hover:text-forest-glow transition py-2 px-3.5 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800"
           >
             <span>Semua Unit</span>
+          </router-link>
+
+          <router-link
+            to="/bantuan"
+            class="hidden lg:inline-flex items-center gap-1.5 text-xs font-extrabold text-stone-700 dark:text-stone-300 hover:text-forest dark:hover:text-forest-glow transition py-2 px-3.5 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800"
+          >
+            <span>Bantuan & FAQ</span>
           </router-link>
         </div>
 
@@ -258,11 +265,12 @@ onUnmounted(() => {
             @click="openWishlist"
             class="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-stone-100 dark:bg-stone-800 border border-theme-border flex items-center justify-center text-theme-primary hover:bg-stone-200 dark:hover:bg-stone-700 transition cursor-pointer"
             title="Buka Daftar Barang Favorit"
+            aria-label="Wishlist Favorit"
           >
-            <IconHeartWishlist :size="17" />
+            <IconHeartWishlist :size="17" class="text-theme-primary" />
             <span
               v-if="wishlistIds.length > 0"
-              class="absolute -top-1 -right-1 bg-terracotta text-white text-[10px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center shadow-sm"
+              class="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center shadow-sm"
             >
               {{ wishlistIds.length }}
             </span>
@@ -316,7 +324,7 @@ onUnmounted(() => {
             <!-- Dropdown Menu -->
             <div
               v-if="userMenuOpen"
-              class="absolute right-0 top-full mt-2 w-60 bg-theme-card border border-theme-border rounded-2xl p-2.5 shadow-2xl z-50 animate-fade-up text-xs"
+              class="absolute right-0 top-full mt-2 w-64 bg-theme-card border border-theme-border rounded-2xl p-2.5 shadow-2xl z-50 animate-fade-up text-xs"
             >
               <div class="px-3 py-2 border-b border-theme-border mb-1.5">
                 <p class="font-bold text-theme-primary truncate">{{ currentUser.fullName }}</p>
@@ -329,6 +337,18 @@ onUnmounted(() => {
 
               <div class="py-1 space-y-1">
                 <router-link
+                  to="/profil"
+                  @click="userMenuOpen = false"
+                  class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left font-bold text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition cursor-pointer"
+                >
+                  <div class="flex items-center gap-2">
+                    <IconUser :size="14" class="text-forest dark:text-forest-glow" />
+                    <span>Profil & Verifikasi KYC</span>
+                  </div>
+                  <span class="text-xs text-stone-400">→</span>
+                </router-link>
+
+                <router-link
                   to="/pesanan-saya"
                   @click="userMenuOpen = false"
                   class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left font-bold text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition cursor-pointer"
@@ -340,9 +360,21 @@ onUnmounted(() => {
                   <span class="text-xs text-stone-400">→</span>
                 </router-link>
 
+                <router-link
+                  to="/bantuan"
+                  @click="userMenuOpen = false"
+                  class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left font-bold text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition cursor-pointer"
+                >
+                  <div class="flex items-center gap-2">
+                    <IconShieldCheck :size="14" class="text-forest dark:text-forest-glow" />
+                    <span>Pusat Bantuan & FAQ</span>
+                  </div>
+                  <span class="text-xs text-stone-400">→</span>
+                </router-link>
+
                 <button
                   @click="() => { logout(); userMenuOpen = false; }"
-                  class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50 transition cursor-pointer"
+                  class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50 transition cursor-pointer border-t border-theme-border/60 mt-1 pt-2"
                 >
                   <span>Keluar Akun (Logout)</span>
                   <span class="text-xs">→</span>
@@ -395,6 +427,18 @@ onUnmounted(() => {
           </div>
 
           <router-link
+            to="/profil"
+            @click="mobileMenuOpen = false"
+            class="flex items-center justify-between p-3 rounded-2xl bg-stone-100 dark:bg-stone-800 text-xs font-bold text-theme-primary"
+          >
+            <div class="flex items-center gap-2">
+              <IconUser :size="16" />
+              <span>Profil & Verifikasi KYC</span>
+            </div>
+            <span>→</span>
+          </router-link>
+
+          <router-link
             to="/pesanan-saya"
             @click="mobileMenuOpen = false"
             class="flex items-center justify-between p-3 rounded-2xl bg-forest/10 border border-forest/20 text-xs font-bold text-forest dark:text-forest-glow"
@@ -402,6 +446,18 @@ onUnmounted(() => {
             <div class="flex items-center gap-2">
               <IconDeliveryTruck :size="16" />
               <span>Pesanan & Riwayat Rental</span>
+            </div>
+            <span>→</span>
+          </router-link>
+
+          <router-link
+            to="/bantuan"
+            @click="mobileMenuOpen = false"
+            class="flex items-center justify-between p-3 rounded-2xl bg-stone-100 dark:bg-stone-800 text-xs font-bold text-theme-primary"
+          >
+            <div class="flex items-center gap-2">
+              <IconShieldCheck :size="16" />
+              <span>Pusat Bantuan & FAQ</span>
             </div>
             <span>→</span>
           </router-link>

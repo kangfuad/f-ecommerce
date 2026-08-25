@@ -68,6 +68,14 @@ watch(
       email.value = newUser.email
       phone.value = newUser.phone
       showValidationErrors.value = false
+
+      // Auto-fill default saved address if available and empty
+      if (newUser.savedAddresses && newUser.savedAddresses.length > 0 && !deliveryAddress.value) {
+        const defaultAddr = newUser.savedAddresses.find((a) => a.isDefault) || newUser.savedAddresses[0]
+        if (defaultAddr) {
+          deliveryAddress.value = `${defaultAddr.fullAddress}, ${defaultAddr.city}`
+        }
+      }
     }
   },
   { immediate: true }

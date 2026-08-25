@@ -4,6 +4,8 @@ import CatalogView from '../views/CatalogView.vue'
 import CheckoutView from '../views/CheckoutView.vue'
 import OrderSuccessView from '../views/OrderSuccessView.vue'
 import MyOrdersView from '../views/MyOrdersView.vue'
+import ProfileView from '../views/ProfileView.vue'
+import HelpCenterView from '../views/HelpCenterView.vue'
 
 const routes = [
   {
@@ -43,6 +45,29 @@ const routes = [
   {
     path: '/my-orders',
     redirect: '/pesanan-saya',
+  },
+  {
+    path: '/profil',
+    name: 'profile',
+    component: ProfileView,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/profile',
+    redirect: '/profil',
+  },
+  {
+    path: '/bantuan',
+    name: 'help-center',
+    component: HelpCenterView,
+  },
+  {
+    path: '/faq',
+    redirect: '/bantuan',
+  },
+  {
+    path: '/help',
+    redirect: '/bantuan',
   },
   {
     path: '/:pathMatch(.*)*',

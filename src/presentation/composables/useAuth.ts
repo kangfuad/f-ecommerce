@@ -231,7 +231,8 @@ export function useAuth() {
           path.includes('pesanan-saya') ||
           path.includes('order-success') ||
           path.includes('checkout') ||
-          path.includes('pembayaran')
+          path.includes('pembayaran') ||
+          path.includes('profil')
         ) {
           window.location.href = '/'
         }
@@ -239,6 +240,179 @@ export function useAuth() {
     } catch {
       // ignore
     }
+  }
+
+  function updateProfile(data: { fullName?: string; phone?: string; email?: string }) {
+    if (!currentUser.value) return
+    const updated = new UserProfile({
+      id: currentUser.value.id,
+      fullName: data.fullName ?? currentUser.value.fullName,
+      email: data.email ?? currentUser.value.email,
+      phone: data.phone ?? currentUser.value.phone,
+      avatarUrl: currentUser.value.avatarUrl,
+      isKycVerified: currentUser.value.isKycVerified,
+      kycStatus: currentUser.value.kycStatus,
+      idType: currentUser.value.idType,
+      idNumber: currentUser.value.idNumber,
+      idPhotoUrl: currentUser.value.idPhotoUrl,
+      selfiePhotoUrl: currentUser.value.selfiePhotoUrl,
+      memberTier: currentUser.value.memberTier,
+      rentalCount: currentUser.value.rentalCount,
+      joinedAt: currentUser.value.joinedAt,
+      savedAddresses: currentUser.value.savedAddresses,
+    })
+
+    currentUser.value = updated
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(updated))
+  }
+
+  async function submitKycVerification(data: {
+    idType: 'KTP' | 'SIM' | 'PASPOR'
+    idNumber: string
+    idPhotoUrl: string
+    selfiePhotoUrl?: string
+  }): Promise<void> {
+    if (!currentUser.value) return
+    isLoading.value = true
+
+    try {
+      // Simulate verification processing delay
+      await new Promise((resolve) => setTimeout(resolve, 800))
+
+      const updated = new UserProfile({
+        id: currentUser.value.id,
+        fullName: currentUser.value.fullName,
+        email: currentUser.value.email,
+        phone: currentUser.value.phone,
+        avatarUrl: currentUser.value.avatarUrl,
+        isKycVerified: true,
+        kycStatus: 'VERIFIED',
+        idType: data.idType,
+        idNumber: data.idNumber,
+        idPhotoUrl: data.idPhotoUrl,
+        selfiePhotoUrl: data.selfiePhotoUrl,
+        memberTier: 'VERIFIED_GOLD',
+        rentalCount: currentUser.value.rentalCount,
+        joinedAt: currentUser.value.joinedAt,
+        savedAddresses: currentUser.value.savedAddresses,
+      })
+
+      currentUser.value = updated
+      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(updated))
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  function addSavedAddress(addr: {
+    label: string
+    recipientName: string
+    phone: string
+    fullAddress: string
+    city: string
+    postalCode?: string
+    isDefault?: boolean
+  }) {
+    if (!currentUser.value) return
+    const existing = [...currentUser.value.savedAddresses]
+    const isFirst = existing.length === 0
+    const shouldBeDefault = addr.isDefault || isFirst
+
+    if (shouldBeDefault) {
+      existing.forEach((a) => (a.isDefault = false))
+    }
+
+    const newAddress = {
+      id: `addr_${Date.now()}`,
+      label: addr.label,
+      recipientName: addr.recipientName,
+      phone: addr.phone,
+      fullAddress: addr.fullAddress,
+      city: addr.city,
+      postalCode: addr.postalCode,
+      isDefault: shouldBeDefault,
+    }
+
+    existing.push(newAddress)
+
+    const updated = new UserProfile({
+      id: currentUser.value.id,
+      fullName: currentUser.value.fullName,
+      email: currentUser.value.email,
+      phone: currentUser.value.phone,
+      avatarUrl: currentUser.value.avatarUrl,
+      isKycVerified: currentUser.value.isKycVerified,
+      kycStatus: currentUser.value.kycStatus,
+      idType: currentUser.value.idType,
+      idNumber: currentUser.value.idNumber,
+      idPhotoUrl: currentUser.value.idPhotoUrl,
+      selfiePhotoUrl: currentUser.value.selfiePhotoUrl,
+      memberTier: currentUser.value.memberTier,
+      rentalCount: currentUser.value.rentalCount,
+      joinedAt: currentUser.value.joinedAt,
+      savedAddresses: existing,
+    })
+
+    currentUser.value = updated
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(updated))
+  }
+
+  function deleteSavedAddress(addressId: string) {
+    if (!currentUser.value) return
+    let existing = currentUser.value.savedAddresses.filter((a) => a.id !== addressId)
+    if (existing.length > 0 && !existing.some((a) => a.isDefault)) {
+      existing[0].isDefault = true
+    }
+
+    const updated = new UserProfile({
+      id: currentUser.value.id,
+      fullName: currentUser.value.fullName,
+      email: currentUser.value.email,
+      phone: currentUser.value.phone,
+      avatarUrl: currentUser.value.avatarUrl,
+      isKycVerified: currentUser.value.isKycVerified,
+      kycStatus: currentUser.value.kycStatus,
+      idType: currentUser.value.idType,
+      idNumber: currentUser.value.idNumber,
+      idPhotoUrl: currentUser.value.idPhotoUrl,
+      selfiePhotoUrl: currentUser.value.selfiePhotoUrl,
+      memberTier: currentUser.value.memberTier,
+      rentalCount: currentUser.value.rentalCount,
+      joinedAt: currentUser.value.joinedAt,
+      savedAddresses: existing,
+    })
+
+    currentUser.value = updated
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(updated))
+  }
+
+  function setDefaultAddress(addressId: string) {
+    if (!currentUser.value) return
+    const existing = currentUser.value.savedAddresses.map((a) => ({
+      ...a,
+      isDefault: a.id === addressId,
+    }))
+
+    const updated = new UserProfile({
+      id: currentUser.value.id,
+      fullName: currentUser.value.fullName,
+      email: currentUser.value.email,
+      phone: currentUser.value.phone,
+      avatarUrl: currentUser.value.avatarUrl,
+      isKycVerified: currentUser.value.isKycVerified,
+      kycStatus: currentUser.value.kycStatus,
+      idType: currentUser.value.idType,
+      idNumber: currentUser.value.idNumber,
+      idPhotoUrl: currentUser.value.idPhotoUrl,
+      selfiePhotoUrl: currentUser.value.selfiePhotoUrl,
+      memberTier: currentUser.value.memberTier,
+      rentalCount: currentUser.value.rentalCount,
+      joinedAt: currentUser.value.joinedAt,
+      savedAddresses: existing,
+    })
+
+    currentUser.value = updated
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(updated))
   }
 
   return {
@@ -258,5 +432,10 @@ export function useAuth() {
     loginWithApple,
     register,
     logout,
+    updateProfile,
+    submitKycVerification,
+    addSavedAddress,
+    deleteSavedAddress,
+    setDefaultAddress,
   }
 }
