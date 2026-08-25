@@ -159,11 +159,19 @@ onMounted(() => {
     if (currentUser.value.idNumber) {
       kycIdNumber.value = currentUser.value.idNumber
     }
-    if (currentUser.value.idPhotoUrl) {
-      kycPhotoPreview.value = currentUser.value.idPhotoUrl
-    }
+    // Note: Photo upload dropzone is intentionally kept clean (null) until user selects a file
   }
 })
+
+function openKycForm() {
+  clearKycPhoto()
+  if (currentUser.value) {
+    kycFullName.value = currentUser.value.fullName
+    kycIdNumber.value = currentUser.value.idNumber || ''
+    kycIdType.value = (currentUser.value.idType as any) || 'KTP'
+  }
+  isEditingKyc.value = true
+}
 
 function openEditProfile() {
   if (!currentUser.value) return
@@ -762,7 +770,7 @@ function handleAddAddressSubmit() {
               <div class="flex flex-wrap items-center gap-2 shrink-0 self-start sm:self-auto">
                 <button
                   type="button"
-                  @click="isEditingKyc = true"
+                  @click="openKycForm"
                   class="px-4 py-2 rounded-full border border-theme-border hover:border-forest/40 bg-stone-50 dark:bg-stone-900 text-xs font-bold text-theme-primary flex items-center gap-1.5 cursor-pointer transition shadow-2xs"
                 >
                   <IconEdit :size="13" />
@@ -851,7 +859,7 @@ function handleAddAddressSubmit() {
               <div class="flex flex-wrap items-center gap-2 shrink-0 self-start sm:self-auto">
                 <button
                   type="button"
-                  @click="isEditingKyc = true"
+                  @click="openKycForm"
                   class="px-4 py-2 rounded-full border border-theme-border hover:border-forest/40 bg-stone-50 dark:bg-stone-900 text-xs font-bold text-theme-primary flex items-center gap-1.5 cursor-pointer transition shadow-2xs"
                 >
                   <IconEdit :size="13" />
