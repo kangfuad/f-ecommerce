@@ -346,8 +346,8 @@ function handleAddAddressSubmit() {
                 "{{ currentUser.bio }}"
               </p>
 
-              <p class="text-[11px] text-stone-400 pt-0.5">
-                Bergabung sejak: <span class="font-semibold text-theme-primary">{{ formatDateToIndonesian(currentUser.joinedAt) }}</span>
+              <p class="text-[11px] text-stone-500 dark:text-stone-300 font-medium pt-0.5">
+                Bergabung sejak: <span class="font-bold text-theme-primary">{{ formatDateToIndonesian(currentUser.joinedAt) }}</span>
               </p>
             </div>
           </div>
@@ -430,15 +430,15 @@ function handleAddAddressSubmit() {
                 <h2 class="font-display text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight">
                   {{ currentUser.tierLabel }}
                 </h2>
-                <p class="text-xs sm:text-sm text-emerald-300/90 font-medium">
+                <p class="text-xs sm:text-sm text-emerald-300 font-bold">
                   Fasilitas Bebas Deposit 100% (Rp 0) aktif pada akun Anda.
                 </p>
               </div>
 
               <div class="text-left sm:text-right p-4 rounded-2xl bg-white/5 border border-white/10 shrink-0">
-                <p class="text-xs text-stone-400 font-medium">Riwayat Transaksi</p>
+                <p class="text-xs text-stone-300 font-medium">Riwayat Transaksi</p>
                 <p class="text-xl sm:text-2xl font-black text-emerald-400 mt-0.5">{{ currentUser.rentalCount }} Kali Sewa</p>
-                <p class="text-[10px] text-stone-400 mt-0.5">Catatan Pengembalian: 100% Tepat Waktu</p>
+                <p class="text-[10px] text-stone-300 mt-0.5 font-medium">Catatan Pengembalian: 100% Tepat Waktu</p>
               </div>
             </div>
 
@@ -500,7 +500,7 @@ function handleAddAddressSubmit() {
               <h2 class="font-display text-xl sm:text-2xl font-black text-theme-primary mt-0.5">
                 Kualifikasi & Perbandingan Keuntungan
               </h2>
-              <p class="text-xs sm:text-sm text-stone-500 mt-1 max-w-2xl leading-relaxed">
+              <p class="text-xs sm:text-sm text-stone-600 dark:text-stone-300 mt-1 max-w-2xl leading-relaxed font-medium">
                 Pelajari syarat kualifikasi, ketentuan dana deposit, dan cara meningkatkan level akun Anda untuk mendapatkan fasilitas rental terbaik.
               </p>
             </div>
@@ -657,7 +657,7 @@ function handleAddAddressSubmit() {
                   <h3 class="font-extrabold text-base sm:text-xl text-theme-primary mt-0.5">
                     Identitas Anda Telah Terverifikasi
                   </h3>
-                  <p class="text-xs text-stone-500 dark:text-stone-300 mt-0.5">
+                  <p class="text-xs sm:text-sm text-stone-600 dark:text-stone-200 mt-1 font-medium leading-relaxed">
                     Fasilitas Bebas Deposit 100% (Rp 0) aktif secara permanen untuk seluruh transaksi sewa.
                   </p>
                 </div>
