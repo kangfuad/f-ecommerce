@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none">
+  <rect width="512" height="512" rx="128" fill="#14261B" />
+  <rect x="8" y="8" width="496" height="496" rx="120" stroke="#34D399" stroke-width="8" stroke-opacity="0.3" />
+  
+  <g transform="translate(64, 64) scale(8)">
+    <!-- Isometric Rental Box Top Face -->
+    <path d="M24 11L35 17.5L24 24L13 17.5L24 11Z" fill="#34D399" stroke="#FFFFFF" stroke-width="1.8" stroke-linejoin="round" />
+    
+    <!-- Isometric Rental Box Left Face -->
+    <path d="M13 17.5L24 24V37L13 30.5V17.5Z" fill="#10B981" stroke="#FFFFFF" stroke-width="1.8" stroke-linejoin="round" />
+    
+    <!-- Isometric Rental Box Right Face -->
+    <path d="M35 17.5L24 24V37L35 30.5V17.5Z" fill="#059669" stroke="#FFFFFF" stroke-width="1.8" stroke-linejoin="round" />
+    
+    <!-- Center Core Node -->
+    <circle cx="24" cy="24" r="2.8" fill="#FFFFFF" stroke="#14261B" stroke-width="1" />
+  </g>
+</svg>
