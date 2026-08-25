@@ -263,6 +263,14 @@ export function useAuth() {
     phone?: string
     email?: string
     address?: string
+    provinceId?: string
+    provinceName?: string
+    regencyId?: string
+    regencyName?: string
+    districtId?: string
+    districtName?: string
+    villageId?: string
+    villageName?: string
     postalCode?: string
     emergencyContactName?: string
     emergencyPhone?: string
@@ -281,6 +289,14 @@ export function useAuth() {
       email: data.email ?? currentUser.value.email,
       phone: data.phone ?? currentUser.value.phone,
       address: data.address ?? currentUser.value.address,
+      provinceId: data.provinceId ?? currentUser.value.provinceId,
+      provinceName: data.provinceName ?? currentUser.value.provinceName,
+      regencyId: data.regencyId ?? currentUser.value.regencyId,
+      regencyName: data.regencyName ?? currentUser.value.regencyName,
+      districtId: data.districtId ?? currentUser.value.districtId,
+      districtName: data.districtName ?? currentUser.value.districtName,
+      villageId: data.villageId ?? currentUser.value.villageId,
+      villageName: data.villageName ?? currentUser.value.villageName,
       postalCode: data.postalCode ?? currentUser.value.postalCode,
       emergencyContactName: data.emergencyContactName ?? currentUser.value.emergencyContactName,
       emergencyPhone: data.emergencyPhone ?? currentUser.value.emergencyPhone,
@@ -321,11 +337,7 @@ export function useAuth() {
       await new Promise((resolve) => setTimeout(resolve, 800))
 
       const updated = new UserProfile({
-        id: currentUser.value.id,
-        fullName: currentUser.value.fullName,
-        email: currentUser.value.email,
-        phone: currentUser.value.phone,
-        avatarUrl: currentUser.value.avatarUrl,
+        ...currentUser.value,
         isKycVerified: true,
         kycStatus: 'VERIFIED',
         idType: data.idType,
@@ -333,9 +345,6 @@ export function useAuth() {
         idPhotoUrl: data.idPhotoUrl,
         selfiePhotoUrl: data.selfiePhotoUrl,
         memberTier: 'VERIFIED_GOLD',
-        rentalCount: currentUser.value.rentalCount,
-        joinedAt: currentUser.value.joinedAt,
-        savedAddresses: currentUser.value.savedAddresses,
       })
 
       currentUser.value = updated
@@ -351,6 +360,14 @@ export function useAuth() {
     phone: string
     fullAddress: string
     city: string
+    provinceId?: string
+    provinceName?: string
+    regencyId?: string
+    regencyName?: string
+    districtId?: string
+    districtName?: string
+    villageId?: string
+    villageName?: string
     postalCode?: string
     isDefault?: boolean
   }) {
@@ -370,6 +387,14 @@ export function useAuth() {
       phone: addr.phone,
       fullAddress: addr.fullAddress,
       city: addr.city,
+      provinceId: addr.provinceId,
+      provinceName: addr.provinceName,
+      regencyId: addr.regencyId,
+      regencyName: addr.regencyName,
+      districtId: addr.districtId,
+      districtName: addr.districtName,
+      villageId: addr.villageId,
+      villageName: addr.villageName,
       postalCode: addr.postalCode,
       isDefault: shouldBeDefault,
     }
@@ -377,20 +402,7 @@ export function useAuth() {
     existing.push(newAddress)
 
     const updated = new UserProfile({
-      id: currentUser.value.id,
-      fullName: currentUser.value.fullName,
-      email: currentUser.value.email,
-      phone: currentUser.value.phone,
-      avatarUrl: currentUser.value.avatarUrl,
-      isKycVerified: currentUser.value.isKycVerified,
-      kycStatus: currentUser.value.kycStatus,
-      idType: currentUser.value.idType,
-      idNumber: currentUser.value.idNumber,
-      idPhotoUrl: currentUser.value.idPhotoUrl,
-      selfiePhotoUrl: currentUser.value.selfiePhotoUrl,
-      memberTier: currentUser.value.memberTier,
-      rentalCount: currentUser.value.rentalCount,
-      joinedAt: currentUser.value.joinedAt,
+      ...currentUser.value,
       savedAddresses: existing,
     })
 
@@ -406,20 +418,7 @@ export function useAuth() {
     }
 
     const updated = new UserProfile({
-      id: currentUser.value.id,
-      fullName: currentUser.value.fullName,
-      email: currentUser.value.email,
-      phone: currentUser.value.phone,
-      avatarUrl: currentUser.value.avatarUrl,
-      isKycVerified: currentUser.value.isKycVerified,
-      kycStatus: currentUser.value.kycStatus,
-      idType: currentUser.value.idType,
-      idNumber: currentUser.value.idNumber,
-      idPhotoUrl: currentUser.value.idPhotoUrl,
-      selfiePhotoUrl: currentUser.value.selfiePhotoUrl,
-      memberTier: currentUser.value.memberTier,
-      rentalCount: currentUser.value.rentalCount,
-      joinedAt: currentUser.value.joinedAt,
+      ...currentUser.value,
       savedAddresses: existing,
     })
 
@@ -435,20 +434,7 @@ export function useAuth() {
     }))
 
     const updated = new UserProfile({
-      id: currentUser.value.id,
-      fullName: currentUser.value.fullName,
-      email: currentUser.value.email,
-      phone: currentUser.value.phone,
-      avatarUrl: currentUser.value.avatarUrl,
-      isKycVerified: currentUser.value.isKycVerified,
-      kycStatus: currentUser.value.kycStatus,
-      idType: currentUser.value.idType,
-      idNumber: currentUser.value.idNumber,
-      idPhotoUrl: currentUser.value.idPhotoUrl,
-      selfiePhotoUrl: currentUser.value.selfiePhotoUrl,
-      memberTier: currentUser.value.memberTier,
-      rentalCount: currentUser.value.rentalCount,
-      joinedAt: currentUser.value.joinedAt,
+      ...currentUser.value,
       savedAddresses: existing,
     })
 

@@ -5,6 +5,14 @@ export interface SavedAddress {
   phone: string
   fullAddress: string
   city: string
+  provinceId?: string
+  provinceName?: string
+  regencyId?: string
+  regencyName?: string
+  districtId?: string
+  districtName?: string
+  villageId?: string
+  villageName?: string
   postalCode?: string
   isDefault: boolean
 }
@@ -19,6 +27,14 @@ export interface UserProfileProps {
   email: string
   phone: string
   address?: string
+  provinceId?: string
+  provinceName?: string
+  regencyId?: string
+  regencyName?: string
+  districtId?: string
+  districtName?: string
+  villageId?: string
+  villageName?: string
   postalCode?: string
   emergencyContactName?: string
   emergencyPhone?: string
@@ -48,6 +64,14 @@ export class UserProfile {
   public readonly email: string
   public readonly phone: string
   public readonly address?: string
+  public readonly provinceId?: string
+  public readonly provinceName?: string
+  public readonly regencyId?: string
+  public readonly regencyName?: string
+  public readonly districtId?: string
+  public readonly districtName?: string
+  public readonly villageId?: string
+  public readonly villageName?: string
   public readonly postalCode?: string
   public readonly emergencyContactName?: string
   public readonly emergencyPhone?: string
@@ -76,6 +100,14 @@ export class UserProfile {
     this.email = props.email
     this.phone = props.phone
     this.address = props.address
+    this.provinceId = props.provinceId
+    this.provinceName = props.provinceName
+    this.regencyId = props.regencyId
+    this.regencyName = props.regencyName
+    this.districtId = props.districtId
+    this.districtName = props.districtName
+    this.villageId = props.villageId
+    this.villageName = props.villageName
     this.postalCode = props.postalCode
     this.emergencyContactName = props.emergencyContactName
     this.emergencyPhone = props.emergencyPhone
@@ -104,6 +136,14 @@ export class UserProfile {
           phone: props.phone,
           fullAddress: props.address,
           city: props.city,
+          provinceId: props.provinceId,
+          provinceName: props.provinceName,
+          regencyId: props.regencyId,
+          regencyName: props.regencyName,
+          districtId: props.districtId,
+          districtName: props.districtName,
+          villageId: props.villageId,
+          villageName: props.villageName,
           postalCode: props.postalCode || '',
           isDefault: true,
         },

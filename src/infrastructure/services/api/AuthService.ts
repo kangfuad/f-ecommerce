@@ -15,6 +15,14 @@ export interface AuthUserDto {
   companyOrStudio?: string
   socialMediaInstagram?: string
   city?: string
+  provinceId?: string
+  provinceName?: string
+  regencyId?: string
+  regencyName?: string
+  districtId?: string
+  districtName?: string
+  villageId?: string
+  villageName?: string
   address?: string
   postalCode?: string
   bio?: string

@@ -58,7 +58,15 @@ const editEmergencyRelation = ref('Pasangan')
 const editProfession = ref('')
 const editCompanyOrStudio = ref('')
 const editSocialMediaInstagram = ref('')
-const editCity = ref('Jakarta Selatan')
+const editProvinceId = ref('31')
+const editProvinceName = ref('DKI JAKARTA')
+const editRegencyId = ref('3171')
+const editRegencyName = ref('KOTA JAKARTA SELATAN')
+const editDistrictId = ref('3171060')
+const editDistrictName = ref('KEBAYORAN BARU')
+const editVillageId = ref('3171060008')
+const editVillageName = ref('SELONG')
+const editCity = ref('Kel. Selong, Kec. Kebayoran Baru, Kota Jakarta Selatan, DKI Jakarta')
 const editBio = ref('')
 
 // KYC Form State
@@ -74,7 +82,15 @@ const isAddAddressModalOpen = ref(false)
 const addrLabel = ref('Rumah')
 const addrRecipient = ref('')
 const addrPhone = ref('')
-const addrCity = ref('Jakarta Selatan')
+const addrProvinceId = ref('31')
+const addrProvinceName = ref('DKI JAKARTA')
+const addrRegencyId = ref('3171')
+const addrRegencyName = ref('KOTA JAKARTA SELATAN')
+const addrDistrictId = ref('3171060')
+const addrDistrictName = ref('KEBAYORAN BARU')
+const addrVillageId = ref('3171060008')
+const addrVillageName = ref('SELONG')
+const addrCity = ref('Kel. Selong, Kec. Kebayoran Baru, Kota Jakarta Selatan, DKI Jakarta')
 const addrFull = ref('')
 const addrPostalCode = ref('')
 const addrIsDefault = ref(false)
@@ -97,7 +113,7 @@ async function loadTiersData() {
       tiersDisclaimer.value = res.data.disclaimer
     }
   } catch {
-    // fallback
+    // fallback gracefully
   } finally {
     isLoadingTiers.value = false
   }
@@ -118,6 +134,15 @@ onMounted(() => {
     editEmail.value = currentUser.value.email
     editPhone.value = currentUser.value.phone
     editAddress.value = currentUser.value.address || ''
+    editProvinceId.value = currentUser.value.provinceId || '31'
+    editProvinceName.value = currentUser.value.provinceName || 'DKI JAKARTA'
+    editRegencyId.value = currentUser.value.regencyId || '3171'
+    editRegencyName.value = currentUser.value.regencyName || 'KOTA JAKARTA SELATAN'
+    editDistrictId.value = currentUser.value.districtId || '3171060'
+    editDistrictName.value = currentUser.value.districtName || 'KEBAYORAN BARU'
+    editVillageId.value = currentUser.value.villageId || '3171060008'
+    editVillageName.value = currentUser.value.villageName || 'SELONG'
+    editCity.value = currentUser.value.city || 'Kel. Selong, Kec. Kebayoran Baru, Kota Jakarta Selatan, DKI Jakarta'
     editPostalCode.value = currentUser.value.postalCode || ''
     editEmergencyContactName.value = currentUser.value.emergencyContactName || ''
     editEmergencyPhone.value = currentUser.value.emergencyPhone || ''
@@ -125,7 +150,6 @@ onMounted(() => {
     editProfession.value = currentUser.value.profession || ''
     editCompanyOrStudio.value = currentUser.value.companyOrStudio || ''
     editSocialMediaInstagram.value = currentUser.value.socialMediaInstagram || ''
-    editCity.value = currentUser.value.city || 'Jakarta Selatan'
     editBio.value = currentUser.value.bio || ''
 
     kycFullName.value = currentUser.value.fullName
@@ -145,6 +169,15 @@ function openEditProfile() {
   editEmail.value = currentUser.value.email
   editPhone.value = currentUser.value.phone
   editAddress.value = currentUser.value.address || ''
+  editProvinceId.value = currentUser.value.provinceId || '31'
+  editProvinceName.value = currentUser.value.provinceName || 'DKI JAKARTA'
+  editRegencyId.value = currentUser.value.regencyId || '3171'
+  editRegencyName.value = currentUser.value.regencyName || 'KOTA JAKARTA SELATAN'
+  editDistrictId.value = currentUser.value.districtId || '3171060'
+  editDistrictName.value = currentUser.value.districtName || 'KEBAYORAN BARU'
+  editVillageId.value = currentUser.value.villageId || '3171060008'
+  editVillageName.value = currentUser.value.villageName || 'SELONG'
+  editCity.value = currentUser.value.city || 'Kel. Selong, Kec. Kebayoran Baru, Kota Jakarta Selatan, DKI Jakarta'
   editPostalCode.value = currentUser.value.postalCode || ''
   editEmergencyContactName.value = currentUser.value.emergencyContactName || ''
   editEmergencyPhone.value = currentUser.value.emergencyPhone || ''
@@ -152,7 +185,6 @@ function openEditProfile() {
   editProfession.value = currentUser.value.profession || ''
   editCompanyOrStudio.value = currentUser.value.companyOrStudio || ''
   editSocialMediaInstagram.value = currentUser.value.socialMediaInstagram || ''
-  editCity.value = currentUser.value.city || 'Jakarta Selatan'
   editBio.value = currentUser.value.bio || ''
   isEditProfileModalOpen.value = true
 }
@@ -168,6 +200,14 @@ function handleSaveProfile() {
     displayName: editDisplayName.value.trim() || editFullName.value.trim(),
     phone: editPhone.value.trim(),
     address: editAddress.value.trim(),
+    provinceId: editProvinceId.value,
+    provinceName: editProvinceName.value,
+    regencyId: editRegencyId.value,
+    regencyName: editRegencyName.value,
+    districtId: editDistrictId.value,
+    districtName: editDistrictName.value,
+    villageId: editVillageId.value,
+    villageName: editVillageName.value,
     postalCode: editPostalCode.value.trim(),
     emergencyContactName: editEmergencyContactName.value.trim(),
     emergencyPhone: editEmergencyPhone.value.trim(),
@@ -245,6 +285,14 @@ function handleAddAddressSubmit() {
     label: addrLabel.value,
     recipientName: addrRecipient.value.trim(),
     phone: addrPhone.value.trim(),
+    provinceId: addrProvinceId.value,
+    provinceName: addrProvinceName.value,
+    regencyId: addrRegencyId.value,
+    regencyName: addrRegencyName.value,
+    districtId: addrDistrictId.value,
+    districtName: addrDistrictName.value,
+    villageId: addrVillageId.value,
+    villageName: addrVillageName.value,
     city: addrCity.value,
     fullAddress: addrFull.value.trim(),
     postalCode: addrPostalCode.value.trim(),
@@ -1101,7 +1149,31 @@ function handleAddAddressSubmit() {
 
             <!-- Independent Cascading Master Wilayah (Provinsi -> Kota/Kab -> Kecamatan -> Kelurahan) -->
             <CascadingRegionSelect
+              :province-id="editProvinceId"
+              :province-name="editProvinceName"
+              :regency-id="editRegencyId"
+              :regency-name="editRegencyName"
+              :district-id="editDistrictId"
+              :district-name="editDistrictName"
+              :village-id="editVillageId"
+              :village-name="editVillageName"
+              @update:province-id="editProvinceId = $event"
+              @update:province-name="editProvinceName = $event"
+              @update:regency-id="editRegencyId = $event"
+              @update:regency-name="editRegencyName = $event"
+              @update:district-id="editDistrictId = $event"
+              @update:district-name="editDistrictName = $event"
+              @update:village-id="editVillageId = $event"
+              @update:village-name="editVillageName = $event"
               @change="(payload) => {
+                editProvinceId = payload.provinceId
+                editProvinceName = payload.provinceName
+                editRegencyId = payload.regencyId
+                editRegencyName = payload.regencyName
+                editDistrictId = payload.districtId
+                editDistrictName = payload.districtName
+                editVillageId = payload.villageId
+                editVillageName = payload.villageName
                 if (payload.regencyName) {
                   editCity = payload.fullRegionText || `${payload.regencyName}, ${payload.provinceName}`
                 }
@@ -1317,7 +1389,31 @@ function handleAddAddressSubmit() {
               Pilih Wilayah Pengiriman (Master Wilayah):
             </span>
             <CascadingRegionSelect
+              :province-id="addrProvinceId"
+              :province-name="addrProvinceName"
+              :regency-id="addrRegencyId"
+              :regency-name="addrRegencyName"
+              :district-id="addrDistrictId"
+              :district-name="addrDistrictName"
+              :village-id="addrVillageId"
+              :village-name="addrVillageName"
+              @update:province-id="addrProvinceId = $event"
+              @update:province-name="addrProvinceName = $event"
+              @update:regency-id="addrRegencyId = $event"
+              @update:regency-name="addrRegencyName = $event"
+              @update:district-id="addrDistrictId = $event"
+              @update:district-name="addrDistrictName = $event"
+              @update:village-id="addrVillageId = $event"
+              @update:village-name="addrVillageName = $event"
               @change="(payload) => {
+                addrProvinceId = payload.provinceId
+                addrProvinceName = payload.provinceName
+                addrRegencyId = payload.regencyId
+                addrRegencyName = payload.regencyName
+                addrDistrictId = payload.districtId
+                addrDistrictName = payload.districtName
+                addrVillageId = payload.villageId
+                addrVillageName = payload.villageName
                 if (payload.regencyName) {
                   addrCity = payload.fullRegionText || `${payload.regencyName}, ${payload.provinceName}`
                 }

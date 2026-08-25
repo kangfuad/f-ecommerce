@@ -13,9 +13,13 @@ import {
 
 const props = withDefaults(
   defineProps<{
+    provinceId?: string
     provinceName?: string
+    regencyId?: string
     regencyName?: string
+    districtId?: string
     districtName?: string
+    villageId?: string
     villageName?: string
     layout?: 'grid-4' | 'grid-2' | 'stacked'
     required?: boolean
@@ -27,9 +31,13 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
+  (e: 'update:provinceId', val: string): void
   (e: 'update:provinceName', val: string): void
+  (e: 'update:regencyId', val: string): void
   (e: 'update:regencyName', val: string): void
+  (e: 'update:districtId', val: string): void
   (e: 'update:districtName', val: string): void
+  (e: 'update:villageId', val: string): void
   (e: 'update:villageName', val: string): void
   (e: 'change', payload: {
     provinceId: string
@@ -104,9 +112,13 @@ function emitFullChange() {
   const dName = currentDistrict.value ? toTitleCase(currentDistrict.value.name) : ''
   const vName = currentVillage.value ? toTitleCase(currentVillage.value.name) : ''
 
+  emit('update:provinceId', selectedProvinceId.value)
   emit('update:provinceName', pName)
+  emit('update:regencyId', selectedRegencyId.value)
   emit('update:regencyName', rName)
+  emit('update:districtId', selectedDistrictId.value)
   emit('update:districtName', dName)
+  emit('update:villageId', selectedVillageId.value)
   emit('update:villageName', vName)
 
   const parts = [
@@ -201,32 +213,143 @@ function onVillageChange(newVillageId: string) {
   emitFullChange()
 }
 
+// Sequential synchronization from props (supports ID codes and Name strings)
+async function syncCascadeFromProps() {
+  if (provinces.value.length === 0) {
+    await loadProvinces()
+  }
+
+  // 1. Province match
+  if (props.provinceId || props.provinceName) {
+    const foundProv = provinces.value.find((p) => {
+      if (props.provinceId && p.id === props.provinceId) return true
+      if (props.provinceName) {
+        const name = p.name.toLowerCase()
+        const target = props.provinceName.toLowerCase().trim()
+        return name === target || p.id === props.provinceName || target.includes(name) || name.includes(target)
+      }
+      return false
+    })
+
+    if (foundProv && selectedProvinceId.value !== foundProv.id) {
+      selectedProvinceId.value = foundProv.id
+      isLoadingRegencies.value = true
+      try {
+        const res = await RegionService.getRegencies(foundProv.id)
+        if (res.status === 'success' && res.data) {
+          regencies.value = res.data
+        }
+      } finally {
+        isLoadingRegencies.value = false
+      }
+    }
+  }
+
+  // 2. Regency match
+  if ((props.regencyId || props.regencyName) && selectedProvinceId.value) {
+    const foundReg = regencies.value.find((r) => {
+      if (props.regencyId && r.id === props.regencyId) return true
+      if (props.regencyName) {
+        const name = r.name.toLowerCase()
+        const target = props.regencyName.toLowerCase().trim()
+        return name === target || r.id === props.regencyName || target.includes(name) || name.includes(target)
+      }
+      return false
+    })
+
+    if (foundReg && selectedRegencyId.value !== foundReg.id) {
+      selectedRegencyId.value = foundReg.id
+      isLoadingDistricts.value = true
+      try {
+        const res = await RegionService.getDistricts(foundReg.id)
+        if (res.status === 'success' && res.data) {
+          districts.value = res.data
+        }
+      } finally {
+        isLoadingDistricts.value = false
+      }
+    }
+  }
+
+  // 3. District match
+  if ((props.districtId || props.districtName) && selectedRegencyId.value) {
+    const foundDist = districts.value.find((d) => {
+      if (props.districtId && d.id === props.districtId) return true
+      if (props.districtName) {
+        const name = d.name.toLowerCase()
+        const target = props.districtName.toLowerCase().trim()
+        return name === target || d.id === props.districtName || target.includes(name) || name.includes(target)
+      }
+      return false
+    })
+
+    if (foundDist && selectedDistrictId.value !== foundDist.id) {
+      selectedDistrictId.value = foundDist.id
+      isLoadingVillages.value = true
+      try {
+        const res = await RegionService.getVillages(foundDist.id)
+        if (res.status === 'success' && res.data) {
+          villages.value = res.data
+        }
+      } finally {
+        isLoadingVillages.value = false
+      }
+    }
+  }
+
+  // 4. Village match
+  if ((props.villageId || props.villageName) && selectedDistrictId.value) {
+    const foundVill = villages.value.find((v) => {
+      if (props.villageId && v.id === props.villageId) return true
+      if (props.villageName) {
+        const name = v.name.toLowerCase()
+        const target = props.villageName.toLowerCase().trim()
+        return name === target || v.id === props.villageName || target.includes(name) || name.includes(target)
+      }
+      return false
+    })
+
+    if (foundVill && selectedVillageId.value !== foundVill.id) {
+      selectedVillageId.value = foundVill.id
+    }
+  }
+}
+
 // Initial load
 async function loadProvinces() {
+  if (provinces.value.length > 0) return
   isLoadingProvinces.value = true
   try {
     const res = await RegionService.getProvinces()
     if (res.status === 'success' && res.data) {
       provinces.value = res.data
-      
-      // Auto-match initial values if provided
-      if (props.provinceName) {
-        const found = provinces.value.find(
-          (p) => p.name.toLowerCase() === props.provinceName?.toLowerCase() || p.id === props.provinceName
-        )
-        if (found) {
-          await onProvinceChange(found.id)
-        }
-      }
     }
   } finally {
     isLoadingProvinces.value = false
   }
 }
 
-onMounted(() => {
-  loadProvinces()
+onMounted(async () => {
+  await loadProvinces()
+  await syncCascadeFromProps()
 })
+
+watch(
+  () => [
+    props.provinceId,
+    props.provinceName,
+    props.regencyId,
+    props.regencyName,
+    props.districtId,
+    props.districtName,
+    props.villageId,
+    props.villageName,
+  ],
+  () => {
+    syncCascadeFromProps()
+  },
+  { deep: true }
+)
 </script>
 
 <template>
