@@ -235,11 +235,11 @@ function handleAddAddressSubmit() {
                 </h1>
                 <span
                   :class="[
-                    'text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border shrink-0',
-                    currentUser.kycBadge.classes
+                    'text-[10px] font-black px-2.5 py-0.5 rounded-full border shrink-0',
+                    currentUser.tierBadge.classes
                   ]"
                 >
-                  {{ currentUser.kycBadge.label }}
+                  {{ currentUser.tierBadge.label }}
                 </span>
               </div>
               <p class="text-xs text-stone-500 truncate">{{ currentUser.email }} • {{ currentUser.phone }}</p>
@@ -277,7 +277,7 @@ function handleAddAddressSubmit() {
                 : 'border-theme-border bg-theme-card text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
             ]"
           >
-            Ringkasan & Member Tier
+            Member Tier & Keuntungan
           </button>
 
           <button

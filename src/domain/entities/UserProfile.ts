@@ -84,6 +84,26 @@ export class UserProfile {
     }
   }
 
+  public get tierBadge(): { label: string; classes: string } {
+    switch (this.memberTier) {
+      case 'VERIFIED_GOLD':
+        return {
+          label: '★ Verified Gold',
+          classes: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 font-black',
+        }
+      case 'PRO_STUDIO':
+        return {
+          label: '★ Mitra Studio Pro',
+          classes: 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30 font-black',
+        }
+      default:
+        return {
+          label: 'Starter Member',
+          classes: 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 border-theme-border font-bold',
+        }
+    }
+  }
+
   public get kycBadge(): { label: string; classes: string } {
     if (this.isKycVerified || this.kycStatus === 'VERIFIED') {
       return {
