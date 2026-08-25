@@ -96,53 +96,61 @@ async function handleConfirm() {
 </script>
 
 <template>
-  <div v-if="order" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+  <div v-if="order" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
     <!-- Backdrop -->
     <div @click="emit('close')" class="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity"></div>
 
     <!-- Modal Card Container -->
-    <div class="relative bg-theme-card rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl border border-theme-border z-10 animate-fade-up text-theme-primary p-5 sm:p-6 space-y-5">
+    <div class="relative bg-theme-card rounded-3xl max-w-lg w-full max-h-[92vh] overflow-y-auto custom-scrollbar shadow-2xl border border-theme-border z-10 animate-fade-up text-theme-primary p-4 sm:p-6 space-y-4 sm:space-y-5">
+      
       <!-- Header -->
-      <div class="flex items-center justify-between pb-3 border-b border-theme-border">
-        <div>
-          <div class="flex items-center gap-2">
-            <h3 class="font-extrabold text-base text-theme-primary">Pembayaran Tagihan Sewa</h3>
-            <span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-800 dark:text-amber-300 font-bold text-[10px] border border-amber-500/30">
+      <div class="flex items-start justify-between gap-2.5 pb-3 border-b border-theme-border">
+        <div class="min-w-0 flex-1">
+          <div class="flex flex-wrap items-center gap-1.5">
+            <h3 class="font-extrabold text-sm sm:text-base text-theme-primary leading-snug">
+              Pembayaran Tagihan Sewa
+            </h3>
+            <span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-800 dark:text-amber-300 font-bold text-[9px] sm:text-[10px] border border-amber-500/30 shrink-0">
               Menunggu Pembayaran
             </span>
           </div>
-          <p class="text-xs text-stone-500">ID Pesanan: {{ order.id }}</p>
+          <p class="text-[11px] sm:text-xs text-stone-500 mt-0.5 truncate">
+            ID Pesanan: <span class="font-mono font-bold text-theme-primary">#{{ order.id }}</span>
+          </p>
         </div>
+
         <button
+          type="button"
           @click="emit('close')"
-          class="w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-500 hover:text-theme-primary transition cursor-pointer"
+          class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-500 hover:text-theme-primary transition cursor-pointer shrink-0 mt-0.5"
+          title="Tutup dialog"
         >
-          <IconClose :size="16" />
+          <IconClose :size="14" />
         </button>
       </div>
 
       <!-- Countdown Timer Bar -->
-      <div class="p-3 bg-amber-500/10 border border-amber-500/25 rounded-2xl flex items-center justify-between text-xs">
-        <div class="flex items-center gap-2 text-amber-800 dark:text-amber-300 font-bold">
-          <IconClock :size="15" />
-          <span>Batas Waktu Pembayaran:</span>
+      <div class="p-2.5 sm:p-3 bg-amber-500/10 border border-amber-500/25 rounded-2xl flex items-center justify-between gap-2 text-xs">
+        <div class="flex items-center gap-1.5 sm:gap-2 text-amber-800 dark:text-amber-300 font-bold min-w-0">
+          <IconClock :size="14" class="shrink-0" />
+          <span class="text-[11px] sm:text-xs truncate">Batas Waktu Pembayaran:</span>
         </div>
-        <span class="font-black font-mono text-sm text-amber-700 dark:text-amber-400 bg-amber-500/20 px-2.5 py-0.5 rounded-lg">
+        <span class="font-black font-mono text-xs sm:text-sm text-amber-700 dark:text-amber-400 bg-amber-500/20 px-2 py-0.5 rounded-lg shrink-0">
           {{ formattedTimeLeft }}
         </span>
       </div>
 
       <!-- Payment Method Gateway Display -->
       <!-- Case 1: QRIS -->
-      <div v-if="order.paymentMethod === 'QRIS'" class="p-4 bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-2xl text-center space-y-3">
-        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-forest/10 border border-forest/20 text-forest dark:text-forest-glow text-xs font-black">
-          <IconQrcode :size="14" />
-          <span>QRIS Standar Nasional (Otomatis & Real-Time)</span>
+      <div v-if="order.paymentMethod === 'QRIS'" class="p-3 sm:p-4 bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-2xl text-center space-y-2.5 sm:space-y-3">
+        <div class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full bg-forest/10 border border-forest/20 text-forest dark:text-forest-glow text-[10px] sm:text-xs font-black max-w-full">
+          <IconQrcode :size="13" class="shrink-0" />
+          <span class="truncate">QRIS Standar Nasional (Otomatis & Real-Time)</span>
         </div>
 
-        <div class="p-4 bg-white rounded-2xl border border-stone-200 inline-block shadow-sm">
+        <div class="p-3 sm:p-4 bg-white rounded-2xl border border-stone-200 inline-block shadow-sm">
           <!-- QR Code Representation -->
-          <svg class="w-44 h-44 mx-auto" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg class="w-36 h-36 sm:w-44 sm:h-44 mx-auto" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect width="100" height="100" fill="white" />
             <!-- Corner Markers -->
             <rect x="5" y="5" width="30" height="30" fill="black" />
@@ -175,32 +183,35 @@ async function handleConfirm() {
           </svg>
         </div>
 
-        <p class="text-xs text-stone-500">
+        <p class="text-[11px] sm:text-xs text-stone-500 leading-relaxed px-1">
           Pindai kode QR menggunakan aplikasi BCA, GoPay, OVO, Dana, ShopeePay, Livin', atau m-Banking Anda.
         </p>
       </div>
 
       <!-- Case 2: Virtual Account -->
-      <div v-else class="p-4 bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-2xl space-y-3 text-xs">
+      <div v-else class="p-3.5 sm:p-4 bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-2xl space-y-2.5 sm:space-y-3 text-xs">
         <div class="flex items-center justify-between pb-2 border-b border-theme-border">
-          <div class="flex items-center gap-2">
-            <div class="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center">
-              <IconBank :size="14" />
+          <div class="flex items-center gap-2 min-w-0">
+            <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0">
+              <IconBank :size="13" />
             </div>
-            <span class="font-bold text-theme-primary">
+            <span class="font-bold text-theme-primary text-xs truncate">
               {{ order.paymentMethod.replace('_', ' ') }}
             </span>
           </div>
-          <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">Verifikasi Otomatis</span>
+          <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold shrink-0">Verifikasi Otomatis</span>
         </div>
 
         <div class="space-y-1">
-          <span class="text-stone-500 text-[11px] font-bold">Nomor Virtual Account:</span>
-          <div class="flex items-center justify-between p-2.5 rounded-xl bg-white dark:bg-stone-800 border border-theme-border">
-            <span class="font-mono font-black text-sm text-theme-primary tracking-wider">{{ displayVaNumber }}</span>
+          <span class="text-stone-500 text-[10px] sm:text-[11px] font-bold block">Nomor Virtual Account:</span>
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 p-2.5 rounded-xl bg-white dark:bg-stone-800 border border-theme-border">
+            <span class="font-mono font-black text-xs sm:text-sm text-theme-primary tracking-wider select-all break-all">
+              {{ displayVaNumber }}
+            </span>
             <button
+              type="button"
               @click="copyVa"
-              class="px-2.5 py-1 rounded-lg bg-stone-100 dark:bg-stone-700 hover:bg-stone-200 text-xs font-bold text-theme-primary transition cursor-pointer"
+              class="w-full sm:w-auto px-3 py-1.5 rounded-lg bg-stone-100 dark:bg-stone-700 hover:bg-stone-200 text-xs font-bold text-theme-primary transition cursor-pointer text-center"
             >
               {{ copiedVa ? 'Tersalin' : 'Salin VA' }}
             </button>
@@ -209,40 +220,45 @@ async function handleConfirm() {
       </div>
 
       <!-- Nominal Tagihan -->
-      <div class="p-3.5 rounded-2xl bg-forest/10 border border-forest/25 space-y-2 text-xs">
-        <div class="flex items-center justify-between">
-          <span class="text-stone-600 dark:text-stone-400">Total Tagihan Yang Harus Dibayar:</span>
-          <div class="flex items-center gap-2">
-            <span class="font-black text-sm sm:text-base text-forest dark:text-forest-glow">
+      <div class="p-3 sm:p-3.5 rounded-2xl bg-forest/10 border border-forest/25 space-y-1.5 sm:space-y-2 text-xs">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
+          <span class="text-[11px] sm:text-xs text-stone-600 dark:text-stone-400">
+            Total Tagihan Yang Harus Dibayar:
+          </span>
+          <div class="flex items-center justify-between sm:justify-end gap-2">
+            <span class="font-black text-sm sm:text-base text-forest dark:text-forest-glow font-mono">
               {{ formatRupiah(order.pricing.grandTotal) }}
             </span>
             <button
+              type="button"
               @click="copyAmount"
-              class="text-[10px] font-bold text-stone-500 hover:text-theme-primary bg-white dark:bg-stone-800 px-2 py-0.5 rounded border border-theme-border cursor-pointer"
+              class="text-[10px] font-bold text-stone-500 hover:text-theme-primary bg-white dark:bg-stone-800 px-2 py-0.5 rounded border border-theme-border cursor-pointer transition"
             >
               {{ copiedAmount ? 'Tersalin' : 'Salin' }}
             </button>
           </div>
         </div>
-        <p class="text-[11px] text-stone-500 flex items-center gap-1.5 pt-1">
-          <IconCheck :size="12" class="text-emerald-500 stroke-[3] shrink-0" />
-          <span>Tidak ada biaya deposit jaminan (Status member KYC terverifikasi).</span>
+        <p class="text-[10px] sm:text-[11px] text-stone-500 dark:text-stone-400 flex items-center gap-1.5 pt-0.5 leading-tight">
+          <IconCheck :size="11" class="text-emerald-500 stroke-[3] shrink-0" />
+          <span>Bebas Deposit Rp 0 (Status member KYC terverifikasi).</span>
         </p>
       </div>
 
       <!-- Action Buttons -->
-      <div class="pt-2 space-y-2.5">
-        <div class="flex items-center gap-3">
+      <div class="pt-1 sm:pt-2 space-y-2">
+        <div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
           <button
+            type="button"
             @click="emit('close')"
-            class="flex-1 py-2.5 px-4 rounded-full border border-theme-border hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-bold text-theme-primary transition cursor-pointer text-center"
+            class="w-full sm:w-1/2 py-2.5 px-4 rounded-full border border-theme-border hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-bold text-theme-primary transition cursor-pointer text-center"
           >
             Bayar Nanti
           </button>
           <button
+            type="button"
             @click="handleConfirm"
             :disabled="isSubmitting"
-            class="flex-1 py-2.5 px-4 rounded-full bg-[#244E33] hover:bg-[#1B3B26] dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-stone-950 text-xs font-black shadow-md transition cursor-pointer text-center flex items-center justify-center gap-1.5"
+            class="w-full sm:w-1/2 py-2.5 px-4 rounded-full bg-[#244E33] hover:bg-[#1B3B26] dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-stone-950 text-xs font-black shadow-md transition cursor-pointer text-center flex items-center justify-center gap-1.5"
           >
             <div v-if="isSubmitting" class="w-3.5 h-3.5 border-2 border-white dark:border-stone-950 border-t-transparent rounded-full animate-spin"></div>
             <IconCheck v-else :size="14" />
@@ -250,8 +266,9 @@ async function handleConfirm() {
           </button>
         </div>
 
-        <div class="text-center pt-1">
+        <div class="text-center pt-0.5">
           <button
+            type="button"
             @click="emit('close'); emit('cancel-order', order)"
             class="text-[11px] font-bold text-rose-600 dark:text-rose-400 hover:underline cursor-pointer"
           >
@@ -259,6 +276,7 @@ async function handleConfirm() {
           </button>
         </div>
       </div>
+
     </div>
   </div>
 </template>
