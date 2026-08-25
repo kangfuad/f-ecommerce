@@ -4,7 +4,7 @@ import { formatRupiah } from '@/core/utils/currency'
 import { IconClose, IconCheck, IconShieldCheck } from '@/presentation/components/icons'
 
 interface Props {
-  order: OrderDto | null
+  order: any
 }
 
 const props = defineProps<Props>()
@@ -21,15 +21,15 @@ function handlePrint() {
 </script>
 
 <template>
-  <div v-if="order" class="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto print:p-0 print:static print:bg-white">
+  <div v-if="order" class="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto print:static print:p-0">
     <!-- Backdrop (hidden on print) -->
-    <div @click="emit('close')" class="fixed inset-0 bg-black/65 backdrop-blur-sm transition-opacity print:hidden"></div>
+    <div @click="emit('close')" class="fixed inset-0 bg-black/65 backdrop-blur-sm transition-opacity print-hide"></div>
 
     <!-- Modal Card Container -->
-    <div class="relative bg-white text-stone-900 rounded-3xl max-w-2xl w-full max-h-[92vh] my-auto overflow-y-auto custom-scrollbar shadow-2xl border border-stone-200 z-10 animate-fade-up p-6 sm:p-8 space-y-6 print:shadow-none print:border-none print:p-0 print:max-w-none print:max-h-none print:overflow-visible">
+    <div id="printable-invoice-modal-card" class="relative bg-white text-stone-900 rounded-3xl max-w-2xl w-full max-h-[92vh] my-auto overflow-y-auto custom-scrollbar shadow-2xl border border-stone-200 z-10 animate-fade-up p-6 sm:p-8 space-y-6">
       
       <!-- Top Action Bar (hidden on print) -->
-      <div class="flex items-center justify-between border-b border-stone-200 pb-4 print:hidden">
+      <div class="flex items-center justify-between border-b border-stone-200 pb-4 print-hide">
         <div class="flex items-center gap-2">
           <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black border border-emerald-300">
             INVOICE RESMI
@@ -131,7 +131,7 @@ function handlePrint() {
             </thead>
             <tbody class="divide-y divide-stone-100">
               <tr v-for="(item, idx) in order.items" :key="idx" class="text-stone-800">
-                <td class="py-3 px-2 font-mono text-stone-400">{{ idx + 1 }}</td>
+                <td class="py-3 px-2 font-mono text-stone-400">{{ Number(idx) + 1 }}</td>
                 <td class="py-3 px-2">
                   <strong class="font-bold block text-stone-950">{{ item.productName }}</strong>
                   <span class="text-[10px] text-stone-500 font-normal">Kondisi: Siap Pakai (QC Tested 100%)</span>
@@ -190,19 +190,67 @@ function handlePrint() {
   </div>
 </template>
 
-<style scoped>
+<style>
 @media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm 15mm;
+  }
+
+  /* Hide entire background app & all elements by default */
+  html, body {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #1c1917 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
   body * {
-    visibility: hidden;
+    visibility: hidden !important;
   }
-  #printable-invoice, #printable-invoice * {
-    visibility: visible;
+
+  /* Hide app header, footer, floating buttons, toasts, pwa banners */
+  header,
+  footer,
+  nav,
+  aside,
+  .floating-theme-toggle,
+  .pwa-install-prompt,
+  .pwa-offline-banner,
+  .toast-container,
+  .print-hide {
+    display: none !important;
+    visibility: hidden !important;
   }
-  #printable-invoice {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
+
+  /* Make ONLY the printable invoice modal and its children visible */
+  #printable-invoice-modal-card,
+  #printable-invoice-modal-card * {
+    visibility: visible !important;
+  }
+
+  #printable-invoice-modal-card {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    color: #1c1917 !important;
+    z-index: 999999 !important;
+    overflow: visible !important;
   }
 }
 </style>

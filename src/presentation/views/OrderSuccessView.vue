@@ -7,6 +7,7 @@ import { formatRupiah } from '@/core/utils/currency'
 import { formatDateToIndonesian } from '@/core/utils/date'
 import AppHeader from '@/presentation/components/common/AppHeader.vue'
 import AppFooter from '@/presentation/components/common/AppFooter.vue'
+import InvoicePrintModal from '@/presentation/components/orders/InvoicePrintModal.vue'
 import {
   IconCheck,
   IconShieldCheck,
@@ -21,7 +22,7 @@ const router = useRouter()
 const { loadOrderFromStorage, currentOrder } = useCheckout()
 const { isLoggedIn } = useAuth()
 
-const isDownloading = ref(false)
+const showInvoiceModal = ref(false)
 
 watch(
   isLoggedIn,
@@ -43,14 +44,6 @@ onMounted(() => {
     router.replace('/katalog')
   }
 })
-
-function handleDownloadInvoice() {
-  isDownloading.value = true
-  setTimeout(() => {
-    isDownloading.value = false
-    window.print()
-  }, 400)
-}
 </script>
 
 <template>
@@ -168,7 +161,8 @@ function handleDownloadInvoice() {
           <!-- Actions -->
           <div class="pt-3 border-t border-theme-border flex flex-col sm:flex-row gap-2.5">
             <button
-              @click="handleDownloadInvoice"
+              type="button"
+              @click="showInvoiceModal = true"
               class="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-full border border-stone-300 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 text-theme-primary font-bold text-xs transition cursor-pointer"
             >
               <IconDownload :size="14" />
@@ -187,6 +181,13 @@ function handleDownloadInvoice() {
 
       </div>
     </main>
+
+    <!-- Printable Invoice Modal -->
+    <InvoicePrintModal
+      :order="currentOrder"
+      v-if="showInvoiceModal"
+      @close="showInvoiceModal = false"
+    />
 
     <AppFooter />
   </div>
