@@ -13,9 +13,9 @@ export default defineConfig({
       includeAssets: ['favicon.ico', 'favicon.svg', 'apple-touch-icon.png', 'icons.svg', 'data/*.json'],
       manifest: {
         id: '/',
-        name: 'e-punyasewa | Sewa Kamera & Drone Cinema',
+        name: 'e-punyasewa — Platform Sewa & Rental Perlengkapan Modern',
         short_name: 'e-punyasewa',
-        description: 'Platform Rental Kamera Bioskop, Drone Cinema, Lensa & Lighting Studio Premium di Indonesia.',
+        description: 'Platform Sewa & Rental Perlengkapan Modern Terlengkap di Indonesia. Bebas Deposit Member KYC & Garansi QC 100%.',
         theme_color: '#14261B',
         background_color: '#0c140f',
         display: 'standalone',
@@ -26,7 +26,7 @@ export default defineConfig({
         launch_handler: {
           client_mode: ['focus-existing', 'auto'],
         },
-        categories: ['shopping', 'entertainment', 'photography', 'business'],
+        categories: ['shopping', 'business', 'lifestyle', 'entertainment'],
         icons: [
           {
             src: '/pwa-192x192.png',
@@ -49,9 +49,9 @@ export default defineConfig({
         ],
         shortcuts: [
           {
-            name: 'Katalog Alat',
+            name: 'Katalog Perlengkapan',
             short_name: 'Katalog',
-            description: 'Jelajahi seluruh kamera sinema dan drone premium',
+            description: 'Jelajahi seluruh katalog unit sewa dan perlengkapan modern',
             url: '/katalog',
             icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }],
           },

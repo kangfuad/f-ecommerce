@@ -73,7 +73,7 @@ function handlePrint() {
               <h2 class="font-display text-xl font-black text-theme-primary print:text-stone-950">e-punyasewa</h2>
             </div>
             <p class="text-stone-500 dark:text-stone-400 print:text-stone-500 text-[11px] leading-relaxed">
-              PT Punya Sewa Sinema Indonesia<br />
+              PT Punya Sewa Indonesia<br />
               Jl. Senopati Raya No. 45, Kebayoran Baru, Jakarta Selatan<br />
               support@e-punyasewa.id • +62 812-3456-7890
             </p>
@@ -185,7 +185,7 @@ function handlePrint() {
         <!-- Footer Notes & Legal Verification -->
         <div class="border-t border-theme-border print:border-stone-200 pt-4 text-[10px] text-stone-400 dark:text-stone-500 print:text-stone-400 text-center leading-relaxed">
           <p>Dokumen ini adalah bukti transaksi dan sewa resmi yang diterbitkan secara elektronik oleh sistem e-punyasewa.</p>
-          <p>Terima kasih atas kepercayaan Anda menyewa perlengkapan sinematografi bersama e-punyasewa.</p>
+          <p>Terima kasih atas kepercayaan Anda menyewa perlengkapan modern bersama e-punyasewa.</p>
         </div>
 
       </div>
