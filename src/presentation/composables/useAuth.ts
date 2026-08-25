@@ -111,6 +111,8 @@ export function useAuth() {
           companyOrStudio: user.companyOrStudio,
           socialMediaInstagram: user.socialMediaInstagram,
           city: user.city,
+          address: user.address,
+          postalCode: user.postalCode,
           bio: user.bio,
           isKycVerified: true,
           kycStatus: 'VERIFIED',
@@ -259,6 +261,8 @@ export function useAuth() {
     displayName?: string
     phone?: string
     email?: string
+    address?: string
+    postalCode?: string
     emergencyContactName?: string
     emergencyPhone?: string
     emergencyRelation?: string
@@ -275,6 +279,8 @@ export function useAuth() {
       displayName: data.displayName ?? currentUser.value.displayName,
       email: data.email ?? currentUser.value.email,
       phone: data.phone ?? currentUser.value.phone,
+      address: data.address ?? currentUser.value.address,
+      postalCode: data.postalCode ?? currentUser.value.postalCode,
       emergencyContactName: data.emergencyContactName ?? currentUser.value.emergencyContactName,
       emergencyPhone: data.emergencyPhone ?? currentUser.value.emergencyPhone,
       emergencyRelation: data.emergencyRelation ?? currentUser.value.emergencyRelation,

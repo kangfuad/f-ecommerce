@@ -18,6 +18,8 @@ export interface UserProfileProps {
   displayName?: string
   email: string
   phone: string
+  address?: string
+  postalCode?: string
   emergencyContactName?: string
   emergencyPhone?: string
   emergencyRelation?: string
@@ -45,6 +47,8 @@ export class UserProfile {
   public readonly displayName?: string
   public readonly email: string
   public readonly phone: string
+  public readonly address?: string
+  public readonly postalCode?: string
   public readonly emergencyContactName?: string
   public readonly emergencyPhone?: string
   public readonly emergencyRelation?: string
@@ -71,6 +75,8 @@ export class UserProfile {
     this.displayName = props.displayName
     this.email = props.email
     this.phone = props.phone
+    this.address = props.address
+    this.postalCode = props.postalCode
     this.emergencyContactName = props.emergencyContactName
     this.emergencyPhone = props.emergencyPhone
     this.emergencyRelation = props.emergencyRelation

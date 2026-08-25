@@ -19,6 +19,8 @@ import {
 } from '@/presentation/components/icons'
 
 import { MemberTierService, type MemberTierDto } from '@/infrastructure/services/api/MemberTierService'
+import { CityService, type CityDto } from '@/infrastructure/services/api/CityService'
+import SearchableSelect, { type SelectOption } from '@/presentation/components/common/SearchableSelect.vue'
 
 const router = useRouter()
 const {
@@ -36,10 +38,11 @@ const { showToast } = useToast()
 // Active Tab
 const activeTab = ref<'account' | 'kyc' | 'addresses'>('account')
 
-// Member Tiers Dynamic Data
+// Dynamic Cities & Tiers Data
 const memberTiers = ref<MemberTierDto[]>([])
 const tiersDisclaimer = ref<string>('')
 const isLoadingTiers = ref(false)
+const cityOptions = ref<SelectOption[]>([])
 
 // Edit Profile Form State
 const isEditProfileModalOpen = ref(false)
@@ -47,6 +50,8 @@ const editFullName = ref('')
 const editDisplayName = ref('')
 const editEmail = ref('')
 const editPhone = ref('')
+const editAddress = ref('')
+const editPostalCode = ref('')
 const editEmergencyContactName = ref('')
 const editEmergencyPhone = ref('')
 const editEmergencyRelation = ref('Pasangan')
@@ -70,6 +75,7 @@ const addrRecipient = ref('')
 const addrPhone = ref('')
 const addrCity = ref('Jakarta Selatan')
 const addrFull = ref('')
+const addrPostalCode = ref('')
 const addrIsDefault = ref(false)
 
 watch(
@@ -90,14 +96,31 @@ async function loadTiersData() {
       tiersDisclaimer.value = res.data.disclaimer
     }
   } catch {
-    // fallback if needed
+    // fallback
   } finally {
     isLoadingTiers.value = false
   }
 }
 
+async function loadCitiesData() {
+  try {
+    const res = await CityService.getCities()
+    if (res.status === 'success' && Array.isArray(res.data)) {
+      cityOptions.value = res.data.map((c) => ({
+        value: c.name,
+        label: c.name,
+        subtitle: c.province,
+        badge: c.isHub ? 'Hub Siap Antar' : undefined,
+      }))
+    }
+  } catch {
+    // fallback
+  }
+}
+
 onMounted(() => {
   loadTiersData()
+  loadCitiesData()
 
   if (!isLoggedIn.value) {
     openLoginModal()
@@ -110,6 +133,8 @@ onMounted(() => {
     editDisplayName.value = currentUser.value.displayName || currentUser.value.fullName
     editEmail.value = currentUser.value.email
     editPhone.value = currentUser.value.phone
+    editAddress.value = currentUser.value.address || ''
+    editPostalCode.value = currentUser.value.postalCode || ''
     editEmergencyContactName.value = currentUser.value.emergencyContactName || ''
     editEmergencyPhone.value = currentUser.value.emergencyPhone || ''
     editEmergencyRelation.value = currentUser.value.emergencyRelation || 'Pasangan'
@@ -135,6 +160,8 @@ function openEditProfile() {
   editDisplayName.value = currentUser.value.displayName || currentUser.value.fullName
   editEmail.value = currentUser.value.email
   editPhone.value = currentUser.value.phone
+  editAddress.value = currentUser.value.address || ''
+  editPostalCode.value = currentUser.value.postalCode || ''
   editEmergencyContactName.value = currentUser.value.emergencyContactName || ''
   editEmergencyPhone.value = currentUser.value.emergencyPhone || ''
   editEmergencyRelation.value = currentUser.value.emergencyRelation || 'Pasangan'
@@ -156,6 +183,8 @@ function handleSaveProfile() {
     fullName: editFullName.value.trim(),
     displayName: editDisplayName.value.trim() || editFullName.value.trim(),
     phone: editPhone.value.trim(),
+    address: editAddress.value.trim(),
+    postalCode: editPostalCode.value.trim(),
     emergencyContactName: editEmergencyContactName.value.trim(),
     emergencyPhone: editEmergencyPhone.value.trim(),
     emergencyRelation: editEmergencyRelation.value,
@@ -170,7 +199,7 @@ function handleSaveProfile() {
   showToast({
     type: 'success',
     title: 'Profil Lengkap Diperbarui',
-    message: 'Data identitas, kontak darurat, dan profil profesi Anda berhasil disimpan.',
+    message: 'Data identitas, alamat domisili, kontak darurat, dan profil profesi Anda berhasil disimpan.',
   })
 }
 
@@ -233,11 +262,13 @@ function handleAddAddressSubmit() {
     phone: addrPhone.value.trim(),
     city: addrCity.value,
     fullAddress: addrFull.value.trim(),
+    postalCode: addrPostalCode.value.trim(),
     isDefault: addrIsDefault.value,
   })
 
   isAddAddressModalOpen.value = false
   addrFull.value = ''
+  addrPostalCode.value = ''
   showToast({ type: 'success', title: 'Alamat Tersimpan', message: 'Alamat pengiriman baru berhasil ditambahkan.' })
 }
 </script>
@@ -274,7 +305,7 @@ function handleAddAddressSubmit() {
             <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-forest dark:bg-emerald-600 text-white flex items-center justify-center font-display text-2xl sm:text-3xl font-black shadow-md border-2 border-white/20 shrink-0 mt-1 sm:mt-0">
               {{ currentUser.initials }}
             </div>
-            <div class="min-w-0 space-y-1.5">
+            <div class="min-w-0 space-y-2">
               <div class="flex flex-wrap items-center gap-2">
                 <h1 class="font-display text-xl sm:text-2xl font-black text-theme-primary truncate">
                   {{ currentUser.fullName }}
@@ -290,16 +321,34 @@ function handleAddAddressSubmit() {
               </div>
 
               <!-- Professional & Studio Tag -->
-              <p v-if="currentUser.profession" class="text-xs font-bold text-forest dark:text-forest-glow">
-                {{ currentUser.profession }}
+              <p v-if="currentUser.profession" class="text-xs font-bold text-forest dark:text-forest-glow flex items-center gap-1.5 flex-wrap">
+                <span>{{ currentUser.profession }}</span>
                 <span v-if="currentUser.companyOrStudio" class="text-stone-400 font-normal"> • {{ currentUser.companyOrStudio }}</span>
+                <span v-if="currentUser.socialMediaInstagram" class="text-stone-500 font-semibold"> ({{ currentUser.socialMediaInstagram }})</span>
               </p>
 
-              <!-- Contacts & Location -->
-              <p class="text-xs text-stone-500 truncate">
-                {{ currentUser.email }} • {{ currentUser.phone }} • {{ currentUser.city || 'Jabodetabek' }}
-                <span v-if="currentUser.socialMediaInstagram" class="font-semibold text-stone-700 dark:text-stone-300"> • {{ currentUser.socialMediaInstagram }}</span>
-              </p>
+              <!-- Contacts & Location Details -->
+              <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-stone-500 font-medium">
+                <span class="flex items-center gap-1 text-theme-primary">
+                  <span>✉️</span> {{ currentUser.email }}
+                </span>
+                <span class="text-stone-300 dark:text-stone-700">•</span>
+                <span class="flex items-center gap-1 text-theme-primary">
+                  <span>📱</span> {{ currentUser.phone }}
+                </span>
+                <span v-if="currentUser.address || currentUser.city" class="text-stone-300 dark:text-stone-700">•</span>
+                <span v-if="currentUser.address || currentUser.city" class="flex items-center gap-1 text-stone-600 dark:text-stone-300">
+                  <IconLocation :size="12" class="text-forest dark:text-forest-glow shrink-0" />
+                  <span class="truncate max-w-xs">{{ currentUser.address ? `${currentUser.address}, ${currentUser.city || ''}` : currentUser.city }}</span>
+                </span>
+              </div>
+
+              <!-- Emergency Contact Info -->
+              <div v-if="currentUser.emergencyContactName" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-300 text-[11px] font-medium">
+                <span class="font-bold">Kontak Darurat:</span>
+                <span>{{ currentUser.emergencyContactName }} ({{ currentUser.emergencyRelation || 'Kerabat' }})</span>
+                <span v-if="currentUser.emergencyPhone">• {{ currentUser.emergencyPhone }}</span>
+              </div>
 
               <!-- Bio quote if present -->
               <p v-if="currentUser.bio" class="text-[11px] text-stone-600 dark:text-stone-300 italic max-w-xl line-clamp-1">
@@ -819,25 +868,31 @@ function handleAddAddressSubmit() {
       <div @click="isEditProfileModalOpen = false" class="fixed inset-0 bg-black/70 backdrop-blur-xs"></div>
       <div class="relative bg-theme-card rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-theme-border z-10 animate-fade-up text-theme-primary space-y-6 max-h-[90vh] overflow-y-auto custom-scrollbar">
         
+        <!-- Modal Header -->
         <div class="flex items-center justify-between border-b border-theme-border pb-4">
           <div>
-            <span class="text-[10px] font-black uppercase tracking-wider text-forest dark:text-forest-glow">
-              Pengaturan Akun Penyewa
+            <span class="text-[10px] font-black uppercase tracking-wider text-forest dark:text-forest-glow flex items-center gap-1.5">
+              <span>Pengaturan Akun Penyewa</span>
+              <span class="w-1.5 h-1.5 rounded-full bg-forest dark:bg-forest-glow"></span>
+              <span>Data Rental Resmi</span>
             </span>
-            <h3 class="font-display font-black text-lg sm:text-xl text-theme-primary">
+            <h3 class="font-display font-black text-lg sm:text-xl text-theme-primary mt-0.5">
               Ubah Data Akun & Profil Kreatif
             </h3>
           </div>
-          <button @click="isEditProfileModalOpen = false" class="w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center cursor-pointer hover:bg-stone-200">
-            <IconClose :size="14" />
+          <button
+            @click="isEditProfileModalOpen = false"
+            class="w-9 h-9 rounded-full bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 flex items-center justify-center cursor-pointer transition text-stone-500 hover:text-theme-primary"
+          >
+            <IconClose :size="15" />
           </button>
         </div>
 
         <form @submit.prevent="handleSaveProfile" class="space-y-6 text-xs">
           
           <!-- SECTION 1: Identitas Pribadi & Kontak Utama -->
-          <div class="space-y-3">
-            <h4 class="font-black text-xs uppercase tracking-wider text-stone-500 dark:text-stone-400 flex items-center gap-1.5 border-b border-theme-border pb-1.5">
+          <div class="bg-stone-50 dark:bg-stone-900/60 p-4 sm:p-5 rounded-2xl border border-theme-border space-y-3.5">
+            <h4 class="font-black text-xs uppercase tracking-wider text-forest dark:text-forest-glow flex items-center gap-1.5 border-b border-theme-border pb-2">
               <span>1. Identitas Pribadi & Kontak Utama</span>
             </h4>
 
@@ -848,7 +903,7 @@ function handleAddAddressSubmit() {
                   v-model="editFullName"
                   type="text"
                   placeholder="Nama lengkap resmi"
-                  class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
+                  class="w-full bg-white dark:bg-stone-800 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
                   required
                 />
               </div>
@@ -859,8 +914,24 @@ function handleAddAddressSubmit() {
                   v-model="editDisplayName"
                   type="text"
                   placeholder="Contoh: Fuad"
-                  class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
+                  class="w-full bg-white dark:bg-stone-800 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
                 />
+              </div>
+
+              <div class="space-y-1">
+                <div class="flex items-center justify-between">
+                  <label class="font-bold block text-theme-primary">Alamat Email Terdaftar</label>
+                  <span class="text-[9px] font-black text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-full border border-emerald-500/20">
+                    ✓ Terhubung
+                  </span>
+                </div>
+                <input
+                  v-model="editEmail"
+                  type="email"
+                  disabled
+                  class="w-full bg-stone-100 dark:bg-stone-800/60 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-stone-500 cursor-not-allowed"
+                />
+                <span class="text-[10px] text-stone-400">Digunakan untuk pengiriman faktur & invoice sewa resmi.</span>
               </div>
 
               <div class="space-y-1">
@@ -869,33 +940,64 @@ function handleAddAddressSubmit() {
                   v-model="editPhone"
                   type="tel"
                   placeholder="0812xxxxxxxx"
-                  class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
+                  class="w-full bg-white dark:bg-stone-800 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
                   required
                 />
-                <span class="text-[10px] text-stone-400">Digunakan untuk koordinasi serah terima unit & kurir.</span>
-              </div>
-
-              <div class="space-y-1">
-                <label class="font-bold block text-theme-primary">Alamat Email Terdaftar</label>
-                <input
-                  v-model="editEmail"
-                  type="email"
-                  disabled
-                  class="w-full bg-stone-100 dark:bg-stone-800 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-stone-500 cursor-not-allowed"
-                />
-                <span class="text-[10px] text-stone-400">Email akun digunakan untuk pengiriman faktur & invoice.</span>
+                <span class="text-[10px] text-stone-400">Untuk koordinasi pengiriman dan serah terima unit.</span>
               </div>
             </div>
           </div>
 
-          <!-- SECTION 2: Kontak Darurat / Kerabat -->
-          <div class="space-y-3">
-            <h4 class="font-black text-xs uppercase tracking-wider text-stone-500 dark:text-stone-400 flex items-center gap-1.5 border-b border-theme-border pb-1.5">
-              <span>2. Kontak Darurat Kerabat / Studio</span>
+          <!-- SECTION 2: Alamat Domisili / Operasional -->
+          <div class="bg-stone-50 dark:bg-stone-900/60 p-4 sm:p-5 rounded-2xl border border-theme-border space-y-3.5">
+            <h4 class="font-black text-xs uppercase tracking-wider text-forest dark:text-forest-glow flex items-center gap-1.5 border-b border-theme-border pb-2">
+              <span>2. Alamat Domisili & Wilayah Operasional</span>
             </h4>
-            <p class="text-[11px] text-stone-500">
-              Diperlukan untuk koordinasi darurat keamanan unit sewa bernilai tinggi jika nomor utama tidak dapat dihubungi.
-            </p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+              <div class="sm:col-span-2">
+                <SearchableSelect
+                  v-model="editCity"
+                  label="Kota / Wilayah Domisili Utama"
+                  placeholder="Pilih atau cari kota domisili..."
+                  searchPlaceholder="Ketik nama kota / provinsi (misal: Jakarta, Surabaya, Bali)..."
+                  :options="cityOptions"
+                  required
+                />
+              </div>
+
+              <div class="space-y-1">
+                <label class="font-bold block text-theme-primary">Kode Pos</label>
+                <input
+                  v-model="editPostalCode"
+                  type="text"
+                  placeholder="Contoh: 12190"
+                  class="w-full bg-white dark:bg-stone-800 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
+                />
+              </div>
+            </div>
+
+            <div class="space-y-1">
+              <label class="font-bold block text-theme-primary">Alamat Lengkap (Nama Jalan, No. Bangunan, Patokan)</label>
+              <textarea
+                v-model="editAddress"
+                rows="2"
+                placeholder="Contoh: Jl. Senopati Raya No. 45, Kebayoran Baru, Jakarta Selatan"
+                class="w-full bg-white dark:bg-stone-800 border border-theme-border rounded-xl p-3 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- SECTION 3: Kontak Darurat Kerabat / Studio -->
+          <div class="bg-stone-50 dark:bg-stone-900/60 p-4 sm:p-5 rounded-2xl border border-theme-border space-y-3.5">
+            <div>
+              <h4 class="font-black text-xs uppercase tracking-wider text-forest dark:text-forest-glow flex items-center gap-1.5 border-b border-theme-border pb-2">
+                <span>3. Kontak Darurat Kerabat / Studio</span>
+              </h4>
+              <p class="text-[11px] text-stone-500 mt-1">
+                Diperlukan untuk koordinasi darurat keamanan unit sewa jika nomor utama tidak dapat dihubungi.
+              </p>
+            </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
               <div class="space-y-1">
@@ -904,7 +1006,7 @@ function handleAddAddressSubmit() {
                   v-model="editEmergencyContactName"
                   type="text"
                   placeholder="Nama kerabat / rekan"
-                  class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
+                  class="w-full bg-white dark:bg-stone-800 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
                 />
               </div>
 
@@ -914,7 +1016,7 @@ function handleAddAddressSubmit() {
                   v-model="editEmergencyPhone"
                   type="tel"
                   placeholder="0812xxxxxxxx"
-                  class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
+                  class="w-full bg-white dark:bg-stone-800 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
                 />
               </div>
 
@@ -922,7 +1024,7 @@ function handleAddAddressSubmit() {
                 <label class="font-bold block text-theme-primary">Hubungan Kerabat</label>
                 <select
                   v-model="editEmergencyRelation"
-                  class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest cursor-pointer"
+                  class="w-full bg-white dark:bg-stone-800 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest cursor-pointer"
                 >
                   <option value="Pasangan">Pasangan (Suami/Istri)</option>
                   <option value="Orang Tua">Orang Tua</option>
@@ -933,30 +1035,30 @@ function handleAddAddressSubmit() {
             </div>
           </div>
 
-          <!-- SECTION 3: Profil Profesi & Media Sosial Kreatif -->
-          <div class="space-y-3">
-            <h4 class="font-black text-xs uppercase tracking-wider text-stone-500 dark:text-stone-400 flex items-center gap-1.5 border-b border-theme-border pb-1.5">
-              <span>3. Profil Profesi & Portofolio Kreatif</span>
+          <!-- SECTION 4: Profil Profesi & Portofolio Kreatif -->
+          <div class="bg-stone-50 dark:bg-stone-900/60 p-4 sm:p-5 rounded-2xl border border-theme-border space-y-3.5">
+            <h4 class="font-black text-xs uppercase tracking-wider text-forest dark:text-forest-glow flex items-center gap-1.5 border-b border-theme-border pb-2">
+              <span>4. Profil Profesi & Media Sosial Kreatif</span>
             </h4>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
               <div class="space-y-1">
                 <label class="font-bold block text-theme-primary">Profesi / Spesialisasi</label>
                 <input
                   v-model="editProfession"
                   type="text"
-                  placeholder="Contoh: Commercial Filmmaker / Fotografer"
-                  class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
+                  placeholder="Contoh: Commercial Filmmaker"
+                  class="w-full bg-white dark:bg-stone-800 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
                 />
               </div>
 
               <div class="space-y-1">
-                <label class="font-bold block text-theme-primary">Nama Studio / Production House</label>
+                <label class="font-bold block text-theme-primary">Nama Studio / PH</label>
                 <input
                   v-model="editCompanyOrStudio"
                   type="text"
                   placeholder="Contoh: Auri Visual Studio"
-                  class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
+                  class="w-full bg-white dark:bg-stone-800 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
                 />
               </div>
 
@@ -966,26 +1068,8 @@ function handleAddAddressSubmit() {
                   v-model="editSocialMediaInstagram"
                   type="text"
                   placeholder="Contoh: @aurifuad"
-                  class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
+                  class="w-full bg-white dark:bg-stone-800 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
                 />
-              </div>
-
-              <div class="space-y-1">
-                <label class="font-bold block text-theme-primary">Kota Domisili Utama</label>
-                <select
-                  v-model="editCity"
-                  class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest cursor-pointer"
-                >
-                  <option value="Jakarta Selatan">Jakarta Selatan</option>
-                  <option value="Jakarta Pusat">Jakarta Pusat</option>
-                  <option value="Jakarta Barat">Jakarta Barat</option>
-                  <option value="Jakarta Timur">Jakarta Timur</option>
-                  <option value="Jakarta Utara">Jakarta Utara</option>
-                  <option value="Tangerang Selatan">Tangerang Selatan</option>
-                  <option value="Bandung">Bandung</option>
-                  <option value="Surabaya">Surabaya</option>
-                  <option value="Bali">Bali (Denpasar/Kuta)</option>
-                </select>
               </div>
             </div>
 
@@ -994,14 +1078,14 @@ function handleAddAddressSubmit() {
               <textarea
                 v-model="editBio"
                 rows="2"
-                placeholder="Deskripsi singkat profesi atau kebutuhan perlengkapan produksi Anda..."
-                class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl p-3 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
+                placeholder="Deskripsi singkat spesialisasi karya atau kebutuhan produksi Anda..."
+                class="w-full bg-white dark:bg-stone-800 border border-theme-border rounded-xl p-3 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
               ></textarea>
             </div>
           </div>
 
           <!-- Action Buttons -->
-          <div class="pt-4 border-t border-theme-border flex items-center justify-end gap-3">
+          <div class="pt-3 border-t border-theme-border flex items-center justify-end gap-3 sticky bottom-0 bg-theme-card/95 backdrop-blur-md py-2 z-10">
             <button
               type="button"
               @click="isEditProfileModalOpen = false"
@@ -1023,102 +1107,119 @@ function handleAddAddressSubmit() {
     <!-- Modal 2: Add New Address -->
     <div v-if="isAddAddressModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div @click="isAddAddressModalOpen = false" class="fixed inset-0 bg-black/70 backdrop-blur-xs"></div>
-      <div class="relative bg-theme-card rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-theme-border z-10 animate-fade-up text-theme-primary space-y-4">
+      <div class="relative bg-theme-card rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-theme-border z-10 animate-fade-up text-theme-primary space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+        
         <div class="flex items-center justify-between border-b border-theme-border pb-3">
-          <h3 class="font-display font-extrabold text-base">Tambah Alamat Pengiriman Baru</h3>
-          <button @click="isAddAddressModalOpen = false" class="w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center cursor-pointer">
+          <div>
+            <span class="text-[10px] font-black uppercase tracking-wider text-forest dark:text-forest-glow">
+              Buku Alamat Pengiriman
+            </span>
+            <h3 class="font-display font-black text-base text-theme-primary mt-0.5">
+              Tambah Alamat Pengiriman Baru
+            </h3>
+          </div>
+          <button
+            @click="isAddAddressModalOpen = false"
+            class="w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 flex items-center justify-center cursor-pointer transition text-stone-500 hover:text-theme-primary"
+          >
             <IconClose :size="14" />
           </button>
         </div>
 
-        <form @submit.prevent="handleAddAddressSubmit" class="space-y-3.5 text-xs">
+        <form @submit.prevent="handleAddAddressSubmit" class="space-y-4 text-xs">
           <div class="grid grid-cols-2 gap-3">
             <div class="space-y-1">
-              <label class="font-bold block text-theme-primary">Label Alamat</label>
+              <label class="font-bold block text-theme-primary">Label Alamat <span class="text-rose-500">*</span></label>
               <input
                 v-model="addrLabel"
                 type="text"
-                placeholder="Contoh: Rumah / Studio"
-                class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
+                placeholder="Contoh: Rumah / Studio / Kantor"
+                class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
                 required
               />
             </div>
-            <div class="space-y-1">
-              <label class="font-bold block text-theme-primary">Kota / Wilayah</label>
-              <select
+            
+            <div>
+              <SearchableSelect
                 v-model="addrCity"
-                class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest cursor-pointer"
-              >
-                <option value="Jakarta Selatan">Jakarta Selatan</option>
-                <option value="Jakarta Pusat">Jakarta Pusat</option>
-                <option value="Jakarta Barat">Jakarta Barat</option>
-                <option value="Jakarta Timur">Jakarta Timur</option>
-                <option value="Jakarta Utara">Jakarta Utara</option>
-                <option value="Tangerang Selatan">Tangerang Selatan</option>
-                <option value="Bandung">Bandung</option>
-                <option value="Surabaya">Surabaya</option>
-                <option value="Bali">Bali (Denpasar/Kuta)</option>
-              </select>
+                label="Kota / Wilayah Pengiriman"
+                placeholder="Pilih atau cari kota..."
+                searchPlaceholder="Ketik kota pengiriman..."
+                :options="cityOptions"
+                required
+              />
             </div>
           </div>
 
           <div class="grid grid-cols-2 gap-3">
             <div class="space-y-1">
-              <label class="font-bold block text-theme-primary">Nama Penerima</label>
+              <label class="font-bold block text-theme-primary">Nama Penerima <span class="text-rose-500">*</span></label>
               <input
                 v-model="addrRecipient"
                 type="text"
-                placeholder="Nama penerima paket"
-                class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
+                placeholder="Nama penerima paket sewa"
+                class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
                 required
               />
             </div>
             <div class="space-y-1">
-              <label class="font-bold block text-theme-primary">No. WhatsApp</label>
+              <label class="font-bold block text-theme-primary">No. WhatsApp Penerima <span class="text-rose-500">*</span></label>
               <input
                 v-model="addrPhone"
                 type="tel"
                 placeholder="0812xxxxxxx"
-                class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
+                class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
                 required
               />
             </div>
           </div>
 
           <div class="space-y-1">
-            <label class="font-bold block text-theme-primary">Alamat Lengkap (Nama Jalan, No. Bangunan, Patokan)</label>
+            <div class="flex items-center justify-between">
+              <label class="font-bold block text-theme-primary">Alamat Lengkap (Nama Jalan, No. Rumah, RT/RW, Patokan) <span class="text-rose-500">*</span></label>
+            </div>
             <textarea
               v-model="addrFull"
               rows="3"
-              placeholder="Contoh: Jl. Senopati Raya No. 45, Studio Fotografi Lantai 2"
+              placeholder="Contoh: Jl. Senopati Raya No. 45, Studio Fotografi Lt. 2, Kebayoran Baru"
               class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl p-3 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
               required
             ></textarea>
           </div>
 
-          <div class="flex items-center gap-2 pt-1">
+          <div class="space-y-1">
+            <label class="font-bold block text-theme-primary">Kode Pos (Opsional)</label>
+            <input
+              v-model="addrPostalCode"
+              type="text"
+              placeholder="Contoh: 12190"
+              class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
+            />
+          </div>
+
+          <div class="flex items-center gap-2.5 pt-1 bg-stone-50 dark:bg-stone-900/60 p-3 rounded-xl border border-theme-border">
             <input
               id="is-default-addr"
               v-model="addrIsDefault"
               type="checkbox"
               class="w-4 h-4 rounded text-forest focus:ring-forest cursor-pointer"
             />
-            <label for="is-default-addr" class="text-xs font-semibold cursor-pointer">
-              Jadikan sebagai alamat pengiriman utama
+            <label for="is-default-addr" class="text-xs font-bold cursor-pointer text-theme-primary">
+              Jadikan sebagai alamat pengiriman utama (Default Checkout)
             </label>
           </div>
 
-          <div class="pt-2 flex justify-end gap-2">
+          <div class="pt-3 border-t border-theme-border flex justify-end gap-2.5">
             <button
               type="button"
               @click="isAddAddressModalOpen = false"
-              class="px-4 py-2 rounded-full border border-theme-border font-bold hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer"
+              class="px-4 py-2.5 rounded-full border border-theme-border font-bold hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer text-xs"
             >
               Batal
             </button>
             <button
               type="submit"
-              class="px-5 py-2 rounded-full bg-forest text-white font-bold cursor-pointer shadow-sm"
+              class="px-5 py-2.5 rounded-full bg-forest hover:bg-forest/90 text-white font-black cursor-pointer shadow-sm text-xs"
             >
               Simpan Alamat
             </button>

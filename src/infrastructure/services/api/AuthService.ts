@@ -14,6 +14,8 @@ export interface AuthUserDto {
   companyOrStudio?: string
   socialMediaInstagram?: string
   city?: string
+  address?: string
+  postalCode?: string
   bio?: string
   isKycVerified: boolean
   kycStatus?: 'UNVERIFIED' | 'PENDING_REVIEW' | 'VERIFIED'
