@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { IconChevronDown, IconCheck, IconLocation, IconClose } from '@/presentation/components/icons'
 
 export interface SelectOption {
@@ -12,7 +12,7 @@ export interface SelectOption {
 const props = withDefaults(
   defineProps<{
     modelValue: string
-    options: SelectOption[] | string[]
+    options?: SelectOption[] | string[]
     placeholder?: string
     searchPlaceholder?: string
     label?: string
@@ -20,6 +20,7 @@ const props = withDefaults(
     disabled?: boolean
   }>(),
   {
+    options: () => [],
     placeholder: 'Pilih opsi...',
     searchPlaceholder: 'Ketik untuk mencari...',
     required: false,
@@ -34,9 +35,20 @@ const emit = defineEmits<{
 const isOpen = ref(false)
 const searchQuery = ref('')
 const containerRef = ref<HTMLElement | null>(null)
+const searchInputRef = ref<HTMLInputElement | null>(null)
+
+// Watch isOpen to automatically focus search input when opened
+watch(isOpen, async (val) => {
+  if (val) {
+    searchQuery.value = ''
+    await nextTick()
+    searchInputRef.value?.focus()
+  }
+})
 
 // Normalize options to SelectOption format
 const normalizedOptions = computed<SelectOption[]>(() => {
+  if (!props.options || !Array.isArray(props.options)) return []
   return props.options.map((opt) => {
     if (typeof opt === 'string') {
       return { value: opt, label: opt }
@@ -125,18 +137,19 @@ onUnmounted(() => {
       <!-- Search Input inside Popover -->
       <div class="relative flex items-center shrink-0">
         <input
+          ref="searchInputRef"
           v-model="searchQuery"
           type="text"
           :placeholder="searchPlaceholder"
-          autofocus
+          @keydown.esc="isOpen = false"
           class="w-full bg-stone-100 dark:bg-stone-800/90 border border-theme-border rounded-xl pl-8 pr-8 py-2 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
         />
         <span class="absolute left-2.5 text-stone-400 text-xs">🔍</span>
         <button
           v-if="searchQuery"
           type="button"
-          @click="searchQuery = ''"
-          class="absolute right-2.5 text-stone-400 hover:text-theme-primary text-xs"
+          @click="searchQuery = ''; searchInputRef?.focus()"
+          class="absolute right-2.5 text-stone-400 hover:text-theme-primary text-xs cursor-pointer"
         >
           ✕
         </button>
