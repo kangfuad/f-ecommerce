@@ -36,6 +36,26 @@ const canNativeShare = computed(() => {
   return typeof navigator !== 'undefined' && !!navigator.share
 })
 
+// Detect if running as installed PWA (standalone mode)
+const isStandaloneMode = computed(() => {
+  if (typeof window === 'undefined') return false
+  return (
+    window.matchMedia('(display-mode: standalone)').matches ||
+    (window.navigator as any).standalone === true
+  )
+})
+
+// iOS standalone PWA cannot use window.open — it opens a broken blank Safari VC.
+// Use location.href to navigate directly, or native share as primary on mobile.
+function openExternalUrl(url: string) {
+  if (isStandaloneMode.value) {
+    // In PWA standalone: location.href navigates in-place (app leaves, user comes back)
+    window.location.href = url
+  } else {
+    window.open(url, '_blank', 'noopener')
+  }
+}
+
 async function handleCopyLink() {
   if (!shareUrl.value) return
   try {
@@ -72,25 +92,25 @@ async function handleCopyLink() {
 
 function shareToWhatsApp() {
   const text = `${shareMessage.value}\n\n${shareUrl.value}`
-  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank')
+  openExternalUrl(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`)
 }
 
 function shareToTelegram() {
-  window.open(`https://t.me/share/url?url=${encodeURIComponent(shareUrl.value)}&text=${encodeURIComponent(shareMessage.value)}`, '_blank')
+  openExternalUrl(`https://t.me/share/url?url=${encodeURIComponent(shareUrl.value)}&text=${encodeURIComponent(shareMessage.value)}`)
 }
 
 function shareToTwitter() {
-  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareMessage.value)}&url=${encodeURIComponent(shareUrl.value)}`, '_blank')
+  openExternalUrl(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareMessage.value)}&url=${encodeURIComponent(shareUrl.value)}`)
 }
 
 function shareToFacebook() {
-  window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl.value)}`, '_blank')
+  openExternalUrl(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl.value)}`)
 }
 
 function shareToEmail() {
   const subject = `Rekomendasi Sewa: ${props.product?.name} — e-punyasewa`
   const body = `${shareMessage.value}\n\nLihat spesifikasi dan sewa online di: ${shareUrl.value}`
-  window.open(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank')
+  openExternalUrl(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`)
 }
 
 async function triggerNativeShare() {
