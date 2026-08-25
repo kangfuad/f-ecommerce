@@ -300,7 +300,7 @@ function parseUrlQuery() {
   }
 
   // 8. Product Modal Deep Link (Auto opens modal when link has ?produk=... or /produk/:id)
-  const targetProduct = (q.produk || q.item || q.product) as string | undefined
+  const targetProduct = (q.produk || q.item || q.product || route.params.slug) as string | undefined
   if (targetProduct) {
     if (allProducts.value && allProducts.value.length > 0) {
       const cleanTarget = targetProduct.toLowerCase().trim()

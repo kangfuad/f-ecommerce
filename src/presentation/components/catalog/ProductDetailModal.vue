@@ -10,6 +10,7 @@ import { useToast } from '@/presentation/composables/useToast'
 import DateRangePicker from '../rental/DateRangePicker.vue'
 import RentalPriceBreakdown from '../rental/RentalPriceBreakdown.vue'
 import BaseButton from '../common/BaseButton.vue'
+import ProductShareModal from './ProductShareModal.vue'
 import { formatRupiah } from '@/core/utils/currency'
 import { ItemConditionLabel } from '@/domain/enums/ItemCondition'
 import {
@@ -33,45 +34,11 @@ const emit = defineEmits<{
 }>()
 
 const activeImageIndex = ref(0)
+const showShareModal = ref(false)
 const { addToCart, isLoading: isAddingToCart } = useCart()
 const { isLoggedIn, openLoginModal } = useAuth()
 const { openLightbox } = useImageLightbox()
 const { showToast } = useToast()
-
-async function copyProductLink() {
-  if (!props.product) return
-  const url = `${window.location.origin}/produk/${props.product.id}`
-  const shareData = {
-    title: `${props.product.name} — e-punyasewa`,
-    text: `Sewa ${props.product.name} (${formatRupiah(props.product.dailyRate.amount)}/hari) di e-punyasewa. Bebas Deposit Rp 0 & Garansi QC 100%!`,
-    url,
-  }
-
-  // 1. Native Web Share API (Mobile WhatsApp, Instagram, Telegram, Twitter/X)
-  if (typeof navigator !== 'undefined' && navigator.share && navigator.canShare && navigator.canShare(shareData)) {
-    try {
-      await navigator.share(shareData)
-      return
-    } catch {
-      // User cancelled share dialog, continue
-    }
-  }
-
-  // 2. Fallback to Clipboard Copy
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(url).then(() => {
-      showToast({
-        type: 'success',
-        title: 'Tautan Produk Disalin!',
-        message: 'Link produk berhasil disalin dan siap dibagikan.',
-      })
-    }).catch(() => {
-      showToast({ type: 'info', title: 'Tautan Produk', message: url })
-    })
-  } else {
-    showToast({ type: 'info', title: 'Tautan Produk', message: url })
-  }
-}
 
 // Lock background page scroll when modal is open
 useBodyScrollLock(() => !!props.product)
@@ -181,9 +148,9 @@ async function handleAddToCart() {
       <div class="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 flex items-center gap-2">
         <button
           type="button"
-          @click="copyProductLink"
+          @click="showShareModal = true"
           class="h-8 sm:h-9 px-2.5 sm:px-3 rounded-full bg-stone-100/90 dark:bg-stone-800/90 hover:bg-stone-200 dark:hover:bg-stone-700 border border-theme-border shadow-md flex items-center justify-center gap-1.5 text-xs font-bold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white transition-colors cursor-pointer"
-          title="Salin tautan produk untuk dibagikan"
+          title="Bagikan unit sewa ke media sosial atau salin tautan"
         >
           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
@@ -397,5 +364,12 @@ async function handleAddToCart() {
         </div>
       </div>
     </div>
+
+    <!-- YouTube Style Share Modal -->
+    <ProductShareModal
+      :product="product"
+      v-if="showShareModal"
+      @close="showShareModal = false"
+    />
   </div>
 </template>
