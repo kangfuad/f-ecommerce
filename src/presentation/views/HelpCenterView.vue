@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
 import { APP_CONFIG } from '@/core/config/app.config'
+import { useFaq } from '@/presentation/composables/useFaq'
 import AppHeader from '@/presentation/components/common/AppHeader.vue'
 import AppFooter from '@/presentation/components/common/AppFooter.vue'
 import {
@@ -14,90 +14,16 @@ import {
   IconStar,
 } from '@/presentation/components/icons'
 
-// Search state
-const searchQuery = ref('')
-const selectedCategory = ref<string>('ALL')
-
-// FAQ Data
-interface FaqItem {
-  id: string
-  category: 'PROSEDUR' | 'DEPOSIT' | 'ASURANSI' | 'PENGANTARAN'
-  categoryLabel: string
-  question: string
-  answer: string
-}
-
-const faqs: FaqItem[] = [
-  {
-    id: 'faq-1',
-    category: 'PROSEDUR',
-    categoryLabel: 'Alur & Prosedur Rental',
-    question: 'Bagaimana alur dan prosedur menyewa unit di e-punyasewa?',
-    answer: 'Alur sewa sangat mudah: 1) Pilih unit kamera/drone/gadget di katalog, 2) Tentukan tanggal mulai dan selesai sewa, 3) Pilih metode serah terima (Diantar Kurir ke Alamat atau Ambil Sendiri di Hub), 4) Selesaikan pembayaran online (QRIS/Transfer VA), 5) Unit melewati inspeksi QC & sterilisasi sebelum diserahkan kepada Anda.',
-  },
-  {
-    id: 'faq-2',
-    category: 'PROSEDUR',
-    categoryLabel: 'Alur & Prosedur Rental',
-    question: 'Apakah saya bisa memperpanjang durasi sewa saat unit sedang digunakan?',
-    answer: 'Tentu bisa! Selama unit belum dipesan oleh penyewa lain pada hari berikutnya, Anda dapat mengajukan perpanjangan masa sewa langsung dari dashboard "Riwayat Pesanan" atau menghubungi CS WhatsApp kami.',
-  },
-  {
-    id: 'faq-3',
-    category: 'DEPOSIT',
-    categoryLabel: 'Kebijakan Deposit & Refund',
-    question: 'Berapa besaran deposit jaminan dan kapan dikembalikan?',
-    answer: 'Deposit jaminan dihitung proporsional berdasarkan nilai perangkat. Deposit bersifat 100% REFUNDABLE (dapat dikembalikan penuh) dan akan otomatis ditransfer kembali ke rekening Anda maksimal 1x24 jam setelah unit selesai diperiksa oleh tim QC saat pengembalian.',
-  },
-  {
-    id: 'faq-4',
-    category: 'DEPOSIT',
-    categoryLabel: 'Kebijakan Deposit & Refund',
-    question: 'Bagaimana cara mendapatkan fasilitas Bebas Deposit (Rp 0)?',
-    answer: 'Anda cukup melakukan verifikasi identitas (e-KTP / SIM) di menu Profil Akun Anda. Setelah status akun berubah menjadi "Verified Gold", seluruh pesanan sewa Anda di e-punyasewa otomatis BEBAS DEPOSIT (Rp 0).',
-  },
-  {
-    id: 'faq-5',
-    category: 'ASURANSI',
-    categoryLabel: 'Asuransi & Proteksi Unit',
-    question: 'Apa saja yang dilindungi oleh opsi Asuransi Proteksi Unit?',
-    answer: 'Asuransi opsional melindungi penyewa dari risiko biaya perbaikan akibat goresan halus kosmetik, kendala debu/kelembapan wajar, dan kerusakan fungsi non-kesengajaan selama masa sewa.',
-  },
-  {
-    id: 'faq-6',
-    category: 'PENGANTARAN',
-    categoryLabel: 'Pengantaran Kurir & Hub',
-    question: 'Wilayah mana saja yang dijangkau oleh layanan pengiriman kurir?',
-    answer: 'Layanan kurir instan dan sameday kami saat ini mencakup area Jabodetabek (Jakarta, Bogor, Depok, Tangerang, Bekasi), Bandung, Surabaya, dan Bali. Unit diantar dalam wadah hardcase anti-guncangan bersertifikasi.',
-  },
-  {
-    id: 'faq-7',
-    category: 'PENGANTARAN',
-    categoryLabel: 'Pengantaran Kurir & Hub',
-    question: 'Berapa jam sebelum jadwal sewa saya bisa mengambil unit di Hub?',
-    answer: 'Untuk pengambilan di Hub Titik Temu, unit siap diambil mulai H-1 pukul 19.00 WIB (tanpa biaya tambahan) atau sesuai jam mulai sewa pada hari-H.',
-  },
-]
-
-// Open accordion tracking
-const openFaqIds = ref<string[]>(['faq-1', 'faq-3', 'faq-4'])
-
-function toggleFaq(id: string) {
-  if (openFaqIds.value.includes(id)) {
-    openFaqIds.value = openFaqIds.value.filter((i) => i !== id)
-  } else {
-    openFaqIds.value.push(id)
-  }
-}
-
-const filteredFaqs = computed(() => {
-  return faqs.filter((faq) => {
-    const matchesCategory = selectedCategory.value === 'ALL' || faq.category === selectedCategory.value
-    const query = searchQuery.value.toLowerCase().trim()
-    const matchesSearch = !query || faq.question.toLowerCase().includes(query) || faq.answer.toLowerCase().includes(query)
-    return matchesCategory && matchesSearch
-  })
-})
+const {
+  isLoading,
+  errorMessage,
+  searchQuery,
+  selectedCategory,
+  openFaqIds,
+  loadFaqs,
+  toggleFaq,
+  filteredFaqs,
+} = useFaq()
 </script>
 
 <template>
@@ -197,15 +123,44 @@ const filteredFaqs = computed(() => {
 
       <!-- FAQ Accordion List -->
       <div class="space-y-3 max-w-3xl mx-auto">
+        <!-- Loading State Skeleton -->
+        <div v-if="isLoading" class="space-y-3">
+          <div
+            v-for="n in 4"
+            :key="n"
+            class="bg-theme-card rounded-2xl border border-theme-border p-5 animate-pulse space-y-2"
+          >
+            <div class="h-3 w-28 bg-stone-200 dark:bg-stone-800 rounded"></div>
+            <div class="h-4 w-3/4 bg-stone-200 dark:bg-stone-800 rounded"></div>
+          </div>
+        </div>
+
+        <!-- Error State -->
         <div
-          v-if="filteredFaqs.length === 0"
+          v-else-if="errorMessage"
+          class="text-center py-12 bg-theme-card rounded-3xl border border-rose-500/30 p-8 space-y-3"
+        >
+          <p class="font-bold text-rose-600 dark:text-rose-400 text-sm">{{ errorMessage }}</p>
+          <button
+            @click="loadFaqs"
+            class="px-5 py-2 bg-forest text-white rounded-full text-xs font-bold cursor-pointer"
+          >
+            Coba Lagi
+          </button>
+        </div>
+
+        <!-- Empty State -->
+        <div
+          v-else-if="filteredFaqs.length === 0"
           class="text-center py-12 bg-theme-card rounded-3xl border border-theme-border p-8"
         >
           <p class="font-bold text-theme-primary text-sm">Tidak ada pertanyaan yang cocok</p>
           <p class="text-xs text-stone-500 mt-1">Coba gunakan kata kunci pencarian yang lain.</p>
         </div>
 
+        <!-- FAQ Items -->
         <div
+          v-else
           v-for="faq in filteredFaqs"
           :key="faq.id"
           class="bg-theme-card rounded-2xl border border-theme-border overflow-hidden transition shadow-xs"
