@@ -24,8 +24,22 @@ export class ApiClient {
         throw new Error(`HTTP Error ${response.status}: ${response.statusText}`)
       }
 
-      const json: ApiResponse<T> = await response.json()
-      return json
+      const json: any = await response.json()
+      if (Array.isArray(json)) {
+        return {
+          status: 'success',
+          data: json as T,
+          message: 'Data retrieved successfully',
+        }
+      }
+      if (json && typeof json === 'object' && ('status' in json || 'data' in json)) {
+        return json as ApiResponse<T>
+      }
+      return {
+        status: 'success',
+        data: json as T,
+        message: 'Data retrieved successfully',
+      }
     } catch (error: any) {
       console.error(`[ApiClient GET ${endpoint}] Error:`, error)
       return {
