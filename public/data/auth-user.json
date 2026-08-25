@@ -25,7 +25,19 @@
       "idNumber": "3174092801950003",
       "initials": "AF",
       "membershipTier": "GOLD",
-      "avatarUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop"
+      "avatarUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop",
+      "savedAddresses": [
+        {
+          "id": "addr_studio_senopati",
+          "label": "Studio Utama (Domisili)",
+          "recipientName": "Auri Fuad",
+          "phone": "081234567890",
+          "fullAddress": "Jl. Senopati Raya No. 45, Kebayoran Baru",
+          "city": "Jakarta Selatan",
+          "postalCode": "12190",
+          "isDefault": true
+        }
+      ]
     }
   },
   "message": "Token refreshed successfully!"

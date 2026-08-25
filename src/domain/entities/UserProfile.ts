@@ -95,7 +95,22 @@ export class UserProfile {
     this.memberTier = props.memberTier
     this.rentalCount = props.rentalCount
     this.joinedAt = props.joinedAt
-    this.savedAddresses = props.savedAddresses || []
+    if ((!props.savedAddresses || props.savedAddresses.length === 0) && props.address && props.city) {
+      this.savedAddresses = [
+        {
+          id: `addr_domisili_${props.id}`,
+          label: 'Alamat Domisili (Utama)',
+          recipientName: props.fullName,
+          phone: props.phone,
+          fullAddress: props.address,
+          city: props.city,
+          postalCode: props.postalCode || '',
+          isDefault: true,
+        },
+      ]
+    } else {
+      this.savedAddresses = props.savedAddresses || []
+    }
   }
 
   public get initials(): string {

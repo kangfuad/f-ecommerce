@@ -121,6 +121,7 @@ export function useAuth() {
           memberTier: 'VERIFIED_GOLD',
           rentalCount: 5,
           joinedAt: new Date('2026-01-15'),
+          savedAddresses: user.savedAddresses,
         })
 
         currentUser.value = demoUser

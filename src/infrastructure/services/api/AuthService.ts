@@ -1,5 +1,6 @@
 import { apiClient } from './ApiClient'
 import type { ApiResponse } from './ApiResponse'
+import type { SavedAddress } from '@/domain/entities/UserProfile'
 
 export interface AuthUserDto {
   id: string
@@ -24,6 +25,7 @@ export interface AuthUserDto {
   initials: string
   membershipTier?: 'SILVER' | 'GOLD' | 'PLATINUM'
   avatarUrl?: string
+  savedAddresses?: SavedAddress[]
 }
 
 export interface AuthResultDto {
