@@ -463,75 +463,75 @@ function handleAddAddressSubmit() {
         <!-- TAB 1: Member Tier & Account Overview -->
         <div v-if="activeTab === 'account'" class="space-y-8 animate-fade-up">
           
-          <!-- Active Member Tier Hero Card -->
-          <div class="bg-gradient-to-br from-stone-900 via-stone-950 to-[#14261B] text-white rounded-3xl p-6 sm:p-8 border border-stone-800 shadow-xl space-y-6">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
+          <!-- Active Member Tier Hero Card (Dynamic Light & Dark Theme) -->
+          <div class="bg-gradient-to-br from-emerald-50/90 via-white to-stone-100/90 dark:from-stone-900 dark:via-stone-950 dark:to-[#14261B] text-theme-primary dark:text-white rounded-3xl p-6 sm:p-8 border border-emerald-500/20 dark:border-stone-800 shadow-xl space-y-6 transition-all duration-300">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-theme-border dark:border-white/10 pb-5">
               <div class="space-y-1.5">
                 <div class="flex items-center gap-2">
-                  <span class="text-[10px] font-black uppercase tracking-widest text-emerald-400">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-forest dark:text-emerald-400">
                     Tingkatan Keanggotaan Aktif
                   </span>
-                  <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-black border border-emerald-400/30">
+                  <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[10px] font-black border border-emerald-500/30">
                     Akun Terverifikasi
                   </span>
                 </div>
-                <h2 class="font-display text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight">
+                <h2 class="font-display text-2xl sm:text-3xl md:text-4xl font-black text-theme-primary dark:text-white tracking-tight">
                   {{ currentUser.tierLabel }}
                 </h2>
-                <p class="text-xs sm:text-sm text-emerald-300 font-bold">
+                <p class="text-xs sm:text-sm text-forest dark:text-emerald-300 font-bold">
                   Fasilitas Bebas Deposit 100% (Rp 0) aktif pada akun Anda.
                 </p>
               </div>
 
-              <div class="text-left sm:text-right p-4 rounded-2xl bg-white/5 border border-white/10 shrink-0">
-                <p class="text-xs text-stone-300 font-medium">Riwayat Transaksi</p>
-                <p class="text-xl sm:text-2xl font-black text-emerald-400 mt-0.5">{{ currentUser.rentalCount }} Kali Sewa</p>
-                <p class="text-[10px] text-stone-300 mt-0.5 font-medium">Catatan Pengembalian: 100% Tepat Waktu</p>
+              <div class="text-left sm:text-right p-4 rounded-2xl bg-white/80 dark:bg-white/5 border border-emerald-500/20 dark:border-white/10 shrink-0 shadow-xs">
+                <p class="text-xs text-stone-600 dark:text-stone-300 font-medium">Riwayat Transaksi</p>
+                <p class="text-xl sm:text-2xl font-black text-forest dark:text-emerald-400 mt-0.5">{{ currentUser.rentalCount }} Kali Sewa</p>
+                <p class="text-[10px] text-stone-500 dark:text-stone-300 mt-0.5 font-medium">Catatan Pengembalian: 100% Tepat Waktu</p>
               </div>
             </div>
 
             <!-- Active Perks Grid (Large & High Contrast) -->
-            <div class="space-y-2">
-              <h3 class="text-xs font-black uppercase tracking-wider text-stone-400">
+            <div class="space-y-2.5">
+              <h3 class="text-xs font-black uppercase tracking-wider text-stone-600 dark:text-stone-400">
                 Keuntungan Eksklusif Tingkat Anda Saat Ini:
               </h3>
               <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/10 space-y-2 hover:bg-white/10 transition">
-                  <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-black text-xs shadow-sm">
+                <div class="p-4 sm:p-5 rounded-2xl bg-white/90 dark:bg-white/5 border border-theme-border dark:border-white/10 space-y-2 hover:bg-emerald-50/50 dark:hover:bg-white/10 transition shadow-xs">
+                  <div class="w-10 h-10 rounded-xl bg-forest/10 dark:bg-emerald-500/20 text-forest dark:text-emerald-300 flex items-center justify-center font-black text-xs shadow-sm">
                     Rp 0
                   </div>
-                  <h4 class="font-extrabold text-sm sm:text-base text-white">Bebas Deposit 100%</h4>
-                  <p class="text-xs sm:text-sm text-stone-300 font-normal leading-relaxed">
+                  <h4 class="font-extrabold text-sm sm:text-base text-theme-primary dark:text-white">Bebas Deposit 100%</h4>
+                  <p class="text-xs sm:text-sm text-stone-600 dark:text-stone-300 font-normal leading-relaxed">
                     Sewa kamera sinema dan drone premium tanpa perlu menahan dana deposit sepeser pun.
                   </p>
                 </div>
 
-                <div class="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/10 space-y-2 hover:bg-white/10 transition">
-                  <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center shadow-sm">
+                <div class="p-4 sm:p-5 rounded-2xl bg-white/90 dark:bg-white/5 border border-theme-border dark:border-white/10 space-y-2 hover:bg-emerald-50/50 dark:hover:bg-white/10 transition shadow-xs">
+                  <div class="w-10 h-10 rounded-xl bg-forest/10 dark:bg-emerald-500/20 text-forest dark:text-emerald-300 flex items-center justify-center shadow-sm">
                     <IconCheck :size="20" />
                   </div>
-                  <h4 class="font-extrabold text-sm sm:text-base text-white">Prioritas QC & Sterilisasi</h4>
-                  <p class="text-xs sm:text-sm text-stone-300 font-normal leading-relaxed">
+                  <h4 class="font-extrabold text-sm sm:text-base text-theme-primary dark:text-white">Prioritas QC & Sterilisasi</h4>
+                  <p class="text-xs sm:text-sm text-stone-600 dark:text-stone-300 font-normal leading-relaxed">
                     Unit diperiksa dan disiapkan lebih awal oleh teknisi senior sebelum jadwal syuting Anda.
                   </p>
                 </div>
 
-                <div class="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/10 space-y-2 hover:bg-white/10 transition">
-                  <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center shadow-sm">
+                <div class="p-4 sm:p-5 rounded-2xl bg-white/90 dark:bg-white/5 border border-theme-border dark:border-white/10 space-y-2 hover:bg-emerald-50/50 dark:hover:bg-white/10 transition shadow-xs">
+                  <div class="w-10 h-10 rounded-xl bg-forest/10 dark:bg-emerald-500/20 text-forest dark:text-emerald-300 flex items-center justify-center shadow-sm">
                     <IconDeliveryTruck :size="20" />
                   </div>
-                  <h4 class="font-extrabold text-sm sm:text-base text-white">Kurir Terdedikasi</h4>
-                  <p class="text-xs sm:text-sm text-stone-300 font-normal leading-relaxed">
+                  <h4 class="font-extrabold text-sm sm:text-base text-theme-primary dark:text-white">Kurir Terdedikasi</h4>
+                  <p class="text-xs sm:text-sm text-stone-600 dark:text-stone-300 font-normal leading-relaxed">
                     Pengantaran langsung ke lokasi studio/rumah dalam hardcase anti-guncangan bersertifikasi.
                   </p>
                 </div>
 
-                <div class="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/10 space-y-2 hover:bg-white/10 transition">
-                  <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center shadow-sm">
+                <div class="p-4 sm:p-5 rounded-2xl bg-white/90 dark:bg-white/5 border border-theme-border dark:border-white/10 space-y-2 hover:bg-emerald-50/50 dark:hover:bg-white/10 transition shadow-xs">
+                  <div class="w-10 h-10 rounded-xl bg-forest/10 dark:bg-emerald-500/20 text-forest dark:text-emerald-300 flex items-center justify-center shadow-sm">
                     <IconStar :size="20" />
                   </div>
-                  <h4 class="font-extrabold text-sm sm:text-base text-white">Support CS WhatsApp VIP</h4>
-                  <p class="text-xs sm:text-sm text-stone-300 font-normal leading-relaxed">
+                  <h4 class="font-extrabold text-sm sm:text-base text-theme-primary dark:text-white">Support CS WhatsApp VIP</h4>
+                  <p class="text-xs sm:text-sm text-stone-600 dark:text-stone-300 font-normal leading-relaxed">
                     Respon konsultasi teknis cepat dan kemudahan proses perpanjangan masa sewa alat.
                   </p>
                 </div>
@@ -597,14 +597,14 @@ function handleAddAddressSubmit() {
                     <h3 class="font-display font-black text-lg sm:text-xl text-theme-primary pt-1">
                       {{ tier.name }}
                     </h3>
-                    <p class="text-xs text-stone-500 leading-relaxed font-medium">
+                    <p class="text-xs text-stone-600 dark:text-stone-300 leading-relaxed font-medium">
                       {{ tier.tagline }}
                     </p>
                   </div>
 
                   <!-- Qualification Box -->
-                  <div class="p-3.5 rounded-2xl bg-stone-50 dark:bg-stone-900 border border-theme-border space-y-1 text-xs">
-                    <span class="text-[10px] font-black uppercase text-stone-400 block tracking-wider">
+                  <div class="p-3.5 rounded-2xl bg-stone-50 dark:bg-stone-900/80 border border-theme-border space-y-1 text-xs">
+                    <span class="text-[10px] font-black uppercase text-stone-500 dark:text-stone-400 block tracking-wider">
                       Syarat & Kualifikasi:
                     </span>
                     <p class="text-xs text-theme-primary font-semibold leading-relaxed">
@@ -613,9 +613,9 @@ function handleAddAddressSubmit() {
                   </div>
 
                   <!-- Deposit Status Badge -->
-                  <div class="p-3 rounded-2xl bg-forest/5 dark:bg-forest/10 border border-forest/20 flex items-center justify-between text-xs">
-                    <span class="text-stone-500 dark:text-stone-400 font-medium">Fasilitas Deposit:</span>
-                    <strong class="text-forest dark:text-forest-glow font-black">{{ tier.depositRequirement }}</strong>
+                  <div class="p-3 rounded-2xl bg-emerald-500/10 dark:bg-emerald-950/60 border border-emerald-500/25 flex items-center justify-between text-xs">
+                    <span class="text-stone-600 dark:text-stone-300 font-medium">Fasilitas Deposit:</span>
+                    <strong class="text-forest dark:text-emerald-300 font-black">{{ tier.depositRequirement }}</strong>
                   </div>
 
                   <!-- Perks List -->
@@ -632,7 +632,7 @@ function handleAddAddressSubmit() {
                         <IconCheck :size="15" class="text-forest dark:text-forest-glow shrink-0 mt-0.5" />
                         <div>
                           <strong class="font-bold block text-theme-primary">{{ perk.title }}</strong>
-                          <span class="text-stone-500 dark:text-stone-400 font-normal">{{ perk.desc }}</span>
+                          <span class="text-stone-600 dark:text-stone-300 font-normal">{{ perk.desc }}</span>
                         </div>
                       </div>
                     </div>
@@ -641,7 +641,7 @@ function handleAddAddressSubmit() {
 
                 <!-- Footer / How to Upgrade Action -->
                 <div class="pt-5 mt-5 border-t border-theme-border space-y-2.5">
-                  <div class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">
+                  <div class="text-[11px] text-stone-600 dark:text-stone-300 leading-relaxed">
                     <strong class="text-theme-primary block font-bold mb-0.5">Cara Naik Tingkat:</strong>
                     {{ tier.howToUpgrade }}
                   </div>
