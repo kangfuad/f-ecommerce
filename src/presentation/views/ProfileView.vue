@@ -793,14 +793,14 @@ function handleAddAddressSubmit() {
         <div v-if="activeTab === 'kyc'" class="space-y-6 animate-fade-up">
           
           <!-- State A: Already Verified View -->
-          <div v-if="currentUser.isKycVerified && !isEditingKyc" class="bg-theme-card rounded-3xl border border-theme-border p-6 sm:p-8 shadow-card space-y-6">
+          <div v-if="currentUser.isKycVerified && !isEditingKyc" class="bg-theme-card rounded-3xl border border-theme-border p-4 sm:p-6 md:p-8 shadow-card space-y-6">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-theme-border pb-5">
-              <div class="flex items-center gap-4">
-                <div class="w-14 h-14 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-sm">
-                  <IconShieldCheck :size="28" />
+              <div class="flex items-start sm:items-center gap-3.5 sm:gap-4">
+                <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-sm mt-0.5 sm:mt-0">
+                  <IconShieldCheck :size="26" />
                 </div>
-                <div>
-                  <div class="flex items-center gap-2">
+                <div class="min-w-0 flex-1">
+                  <div class="flex flex-wrap items-center gap-1.5">
                     <span class="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
                       Status Akun Resmi
                     </span>
@@ -809,7 +809,7 @@ function handleAddAddressSubmit() {
                       <span>Terverifikasi (Verified Gold)</span>
                     </span>
                   </div>
-                  <h3 class="font-extrabold text-base sm:text-xl text-theme-primary mt-0.5">
+                  <h3 class="font-extrabold text-base sm:text-xl text-theme-primary mt-0.5 leading-snug">
                     Identitas Anda Telah Terverifikasi
                   </h3>
                   <p class="text-xs sm:text-sm text-stone-600 dark:text-stone-200 mt-1 font-medium leading-relaxed">
@@ -819,11 +819,11 @@ function handleAddAddressSubmit() {
               </div>
 
               <!-- Button to open editing / re-uploading KYC -->
-              <div class="flex flex-wrap items-center gap-2 shrink-0 self-start sm:self-auto">
+              <div class="w-full sm:w-auto shrink-0 pt-1 sm:pt-0">
                 <button
                   type="button"
                   @click="openKycForm"
-                  class="px-4 py-2 rounded-full border border-theme-border hover:border-forest/40 bg-stone-50 dark:bg-stone-900 text-xs font-bold text-theme-primary flex items-center gap-1.5 cursor-pointer transition shadow-2xs"
+                  class="w-full sm:w-auto px-4 py-2.5 rounded-full border border-theme-border hover:border-forest/40 bg-stone-50 dark:bg-stone-900 text-xs font-bold text-theme-primary flex items-center justify-center gap-1.5 cursor-pointer transition shadow-2xs text-center"
                 >
                   <IconEdit :size="13" />
                   <span>Perbarui Dokumen</span>
@@ -832,7 +832,7 @@ function handleAddAddressSubmit() {
             </div>
 
             <!-- Verified Document Details Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-5 rounded-2xl bg-stone-50 dark:bg-stone-900/80 border border-theme-border text-xs">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 p-4 sm:p-5 rounded-2xl bg-stone-50 dark:bg-stone-900/80 border border-theme-border text-xs">
               <div class="space-y-1">
                 <span class="text-stone-400 dark:text-stone-400 font-bold block text-[10px] uppercase">Jenis Dokumen</span>
                 <p class="font-extrabold text-theme-primary text-sm">{{ currentUser.idType || 'e-KTP Nasional' }}</p>
@@ -848,7 +848,7 @@ function handleAddAddressSubmit() {
             </div>
 
             <!-- 3 Key KYC Benefits Highlights -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
               <div class="p-4 rounded-2xl bg-emerald-500/10 dark:bg-emerald-950/60 border border-emerald-500/25 dark:border-emerald-500/30 text-xs space-y-1.5 shadow-2xs">
                 <p class="font-extrabold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5 text-xs sm:text-sm">
                   <IconCheck :size="13" class="stroke-[3] shrink-0 text-emerald-600 dark:text-emerald-400" />
@@ -882,14 +882,14 @@ function handleAddAddressSubmit() {
           </div>
 
           <!-- State B: Pending Administrator Review State (Verifikasi Sedang Diproses oleh Administrator) -->
-          <div v-else-if="currentUser.kycStatus === 'PENDING_REVIEW' && !isEditingKyc" class="bg-theme-card rounded-3xl border border-amber-500/30 dark:border-amber-500/30 p-6 sm:p-8 shadow-card space-y-6">
+          <div v-else-if="currentUser.kycStatus === 'PENDING_REVIEW' && !isEditingKyc" class="bg-theme-card rounded-3xl border border-amber-500/30 dark:border-amber-500/30 p-4 sm:p-6 md:p-8 shadow-card space-y-5 sm:space-y-6">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-theme-border pb-5">
-              <div class="flex items-center gap-4">
-                <div class="w-14 h-14 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 shadow-sm relative">
-                  <IconClock :size="28" class="animate-pulse" />
+              <div class="flex items-start sm:items-center gap-3.5 sm:gap-4">
+                <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 shadow-sm relative mt-0.5 sm:mt-0">
+                  <IconClock :size="26" class="animate-pulse" />
                 </div>
-                <div>
-                  <div class="flex items-center gap-2">
+                <div class="min-w-0 flex-1">
+                  <div class="flex flex-wrap items-center gap-1.5">
                     <span class="text-[10px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400">
                       Status Pengajuan Dokumen
                     </span>
@@ -898,7 +898,7 @@ function handleAddAddressSubmit() {
                       <span>Sedang Diproses Administrator</span>
                     </span>
                   </div>
-                  <h3 class="font-extrabold text-base sm:text-xl text-theme-primary mt-0.5">
+                  <h3 class="font-extrabold text-base sm:text-xl text-theme-primary mt-0.5 leading-snug">
                     Verifikasi Dokumen Sedang Ditinjau oleh Administrator
                   </h3>
                   <p class="text-xs sm:text-sm text-stone-600 dark:text-stone-300 mt-1 font-medium leading-relaxed">
@@ -908,9 +908,9 @@ function handleAddAddressSubmit() {
               </div>
 
               <!-- Status indicator in pending state (Locked to prevent duplicate data submission) -->
-              <div class="flex flex-wrap items-center gap-2 shrink-0 self-start sm:self-auto">
+              <div class="w-full sm:w-auto shrink-0 pt-1 sm:pt-0">
                 <div
-                  class="px-4 py-2 rounded-full border border-amber-500/30 bg-amber-500/10 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-xs font-bold flex items-center gap-1.5 shadow-2xs select-none"
+                  class="w-full sm:w-auto px-4 py-2 rounded-full border border-amber-500/30 bg-amber-500/10 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-xs font-bold flex items-center justify-center gap-1.5 shadow-2xs select-none text-center"
                   title="Dokumen sedang dalam tahap validasi administrator dan terkunci sementara untuk mencegah duplikasi data."
                 >
                   <IconShieldCheck :size="13" class="shrink-0" />
@@ -920,18 +920,18 @@ function handleAddAddressSubmit() {
             </div>
 
             <!-- 3-Step Visual Progress Tracker -->
-            <div class="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-amber-500/5 via-stone-50 to-emerald-500/5 dark:from-amber-950/20 dark:via-stone-900/40 dark:to-emerald-950/20 border border-theme-border space-y-4">
+            <div class="p-4 sm:p-6 rounded-2xl bg-gradient-to-r from-amber-500/5 via-stone-50 to-emerald-500/5 dark:from-amber-950/20 dark:via-stone-900/40 dark:to-emerald-950/20 border border-theme-border space-y-3.5">
               <span class="text-[11px] font-black uppercase tracking-wider text-theme-primary block">
                 Tahapan Proses Verifikasi Identitas:
               </span>
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <!-- Step 1 -->
                 <div class="flex items-start gap-3 p-3.5 rounded-xl bg-white/80 dark:bg-stone-800/80 border border-emerald-500/30 shadow-2xs">
                   <div class="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 mt-0.5">
                     <IconCheck :size="14" class="stroke-[3]" />
                   </div>
-                  <div class="space-y-0.5">
-                    <h5 class="text-xs font-bold text-theme-primary">1. Dokumen Terkirim</h5>
+                  <div class="space-y-0.5 min-w-0">
+                    <h5 class="text-xs font-bold text-theme-primary truncate">1. Dokumen Terkirim</h5>
                     <p class="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">Berkas berhasil diunggah</p>
                   </div>
                 </div>
@@ -941,8 +941,8 @@ function handleAddAddressSubmit() {
                   <div class="w-7 h-7 rounded-full bg-amber-500 text-stone-950 flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs animate-pulse">
                     <IconClock :size="14" />
                   </div>
-                  <div class="space-y-0.5">
-                    <h5 class="text-xs font-bold text-amber-800 dark:text-amber-300">2. Review Administrator</h5>
+                  <div class="space-y-0.5 min-w-0">
+                    <h5 class="text-xs font-bold text-amber-800 dark:text-amber-300 truncate">2. Review Admin</h5>
                     <p class="text-[11px] text-amber-700 dark:text-amber-400 font-medium">Validasi NIK & Kesesuaian Foto</p>
                   </div>
                 </div>
@@ -952,8 +952,8 @@ function handleAddAddressSubmit() {
                   <div class="w-7 h-7 rounded-full bg-stone-200 dark:bg-stone-800 text-stone-500 flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">
                     3
                   </div>
-                  <div class="space-y-0.5">
-                    <h5 class="text-xs font-bold text-stone-500 dark:text-stone-400">3. Fasilitas Bebas Deposit</h5>
+                  <div class="space-y-0.5 min-w-0">
+                    <h5 class="text-xs font-bold text-stone-500 dark:text-stone-400 truncate">3. Bebas Deposit</h5>
                     <p class="text-[11px] text-stone-400">Status Verified Gold Aktif</p>
                   </div>
                 </div>
@@ -961,29 +961,29 @@ function handleAddAddressSubmit() {
             </div>
 
             <!-- Submitted KYC Information Box -->
-            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 p-5 rounded-2xl bg-stone-50 dark:bg-stone-900/80 border border-theme-border text-xs">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5 p-4 sm:p-5 rounded-2xl bg-stone-50 dark:bg-stone-900/80 border border-theme-border text-xs">
               <div class="space-y-1">
                 <span class="text-stone-400 dark:text-stone-400 font-bold block text-[10px] uppercase">Jenis Dokumen</span>
-                <p class="font-extrabold text-theme-primary text-sm">{{ currentUser.idType || 'e-KTP Nasional' }}</p>
+                <p class="font-extrabold text-theme-primary text-xs sm:text-sm">{{ currentUser.idType || 'e-KTP Nasional' }}</p>
               </div>
               <div class="space-y-1">
                 <span class="text-stone-400 dark:text-stone-400 font-bold block text-[10px] uppercase">Nomor Identitas (NIK)</span>
-                <p class="font-mono font-black text-theme-primary text-sm">{{ currentUser.idNumber || '3174************' }}</p>
+                <p class="font-mono font-black text-theme-primary text-xs sm:text-sm">{{ currentUser.idNumber || '3174************' }}</p>
               </div>
               <div class="space-y-1">
-                <span class="text-stone-400 dark:text-stone-400 font-bold block text-[10px] uppercase">Nama Pemilik Dokumen</span>
-                <p class="font-bold text-theme-primary text-sm">{{ currentUser.fullName }}</p>
+                <span class="text-stone-400 dark:text-stone-400 font-bold block text-[10px] uppercase">Nama Pemilik</span>
+                <p class="font-bold text-theme-primary text-xs sm:text-sm truncate">{{ currentUser.fullName }}</p>
               </div>
               <div class="space-y-1">
-                <span class="text-stone-400 dark:text-stone-400 font-bold block text-[10px] uppercase">Estimasi Waktu Proses</span>
-                <p class="font-bold text-amber-700 dark:text-amber-300 text-sm">15 - 30 Menit</p>
+                <span class="text-stone-400 dark:text-stone-400 font-bold block text-[10px] uppercase">Estimasi Validasi</span>
+                <p class="font-bold text-amber-700 dark:text-amber-300 text-xs sm:text-sm">15 - 30 Menit</p>
               </div>
             </div>
 
             <!-- Fast-Track Assistance & Demo Controls Bar -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-amber-500/5 dark:bg-amber-950/20 border border-amber-500/20 text-xs">
-              <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-300 flex items-center justify-center shrink-0">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 p-4 rounded-2xl bg-amber-500/5 dark:bg-amber-950/20 border border-amber-500/20 text-xs">
+              <div class="flex items-start sm:items-center gap-3">
+                <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-300 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
                   <IconShieldCheck :size="16" />
                 </div>
                 <div>
@@ -992,12 +992,12 @@ function handleAddAddressSubmit() {
                 </div>
               </div>
 
-              <div class="flex flex-wrap items-center gap-2">
+              <div class="grid grid-cols-1 sm:flex sm:flex-wrap items-center gap-2 w-full sm:w-auto">
                 <a
                   :href="`https://wa.me/6281234567890?text=${encodeURIComponent('Halo Tim Admin e-punyasewa, mohon bantu verifikasi dokumen KYC akun saya atas nama ' + currentUser.fullName + ' (NIK: ' + (currentUser.idNumber || '') + ')')}`"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 transition shadow-xs cursor-pointer"
+                  class="px-4 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition shadow-xs cursor-pointer text-center"
                 >
                   <span>Chat WhatsApp Admin</span>
                   <IconArrowRight :size="12" />
@@ -1007,7 +1007,7 @@ function handleAddAddressSubmit() {
                 <button
                   type="button"
                   @click="handleSimulateAdminApprove"
-                  class="px-4 py-2 rounded-full bg-forest/10 hover:bg-forest/20 text-forest dark:text-forest-glow border border-forest/30 font-bold text-xs cursor-pointer transition flex items-center gap-1.5"
+                  class="px-4 py-2.5 rounded-full bg-forest/10 hover:bg-forest/20 text-forest dark:text-forest-glow border border-forest/30 font-bold text-xs cursor-pointer transition flex items-center justify-center gap-1.5 text-center"
                   title="Simulasikan persetujuan instan dari admin"
                 >
                   <IconCheck :size="12" class="stroke-[2.5]" />
@@ -1019,13 +1019,13 @@ function handleAddAddressSubmit() {
           </div>
 
           <!-- State C: Unverified OR Editing Form State -->
-          <div v-else class="bg-theme-card rounded-3xl border border-theme-border p-6 sm:p-8 shadow-card space-y-6">
+          <div v-else class="bg-theme-card rounded-3xl border border-theme-border p-4 sm:p-6 md:p-8 shadow-card space-y-6">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-theme-border pb-5">
               <div>
                 <span class="text-[11px] font-extrabold uppercase tracking-widest text-forest dark:text-forest-glow">
                   Formulir Verifikasi Identitas (KYC)
                 </span>
-                <h2 class="font-display text-xl sm:text-2xl font-black text-theme-primary mt-0.5">
+                <h2 class="font-display text-xl sm:text-2xl font-black text-theme-primary mt-0.5 leading-snug">
                   Unggah Dokumen Identitas Resmi
                 </h2>
                 <p class="text-xs text-stone-500 mt-1 max-w-xl leading-relaxed">
@@ -1045,21 +1045,21 @@ function handleAddAddressSubmit() {
             </div>
 
             <!-- 2-Column Balanced Grid: Form on Left, Guidelines & Security on Right -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
               
               <!-- Form Column (7 cols) -->
-              <form @submit.prevent="handleKycSubmit" class="lg:col-span-7 space-y-5">
+              <form @submit.prevent="handleKycSubmit" class="lg:col-span-7 space-y-4 sm:space-y-5">
                 <!-- 1. ID Type Selector -->
                 <div class="space-y-1.5 text-xs">
                   <label class="font-bold text-theme-primary block">1. Pilih Jenis Dokumen Identitas</label>
-                  <div class="grid grid-cols-3 gap-2.5">
+                  <div class="grid grid-cols-3 gap-2">
                     <button
                       type="button"
                       v-for="type in (['KTP', 'SIM', 'PASPOR'] as const)"
                       :key="type"
                       @click="kycIdType = type"
                       :class="[
-                        'py-2.5 px-3 rounded-xl border text-xs font-bold transition cursor-pointer text-center',
+                        'py-2.5 px-2 rounded-xl border text-[11px] sm:text-xs font-bold transition cursor-pointer text-center truncate',
                         kycIdType === type
                           ? 'bg-forest text-white border-forest shadow-xs'
                           : 'border-theme-border bg-stone-50 dark:bg-stone-900 text-stone-600 dark:text-stone-300 hover:border-forest/40'
@@ -1071,7 +1071,7 @@ function handleAddAddressSubmit() {
                 </div>
 
                 <!-- 2 & 3. NIK & Nama Lengkap -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
                   <div class="space-y-1.5 text-xs">
                     <label class="font-bold text-theme-primary block">
                       2. Nomor Identitas (NIK / SIM) <span class="text-rose-500">*</span>
@@ -1104,19 +1104,19 @@ function handleAddAddressSubmit() {
                   <label class="font-bold text-theme-primary block">
                     4. Unggah Foto Fisik Dokumen Asli <span class="text-rose-500">*</span>
                   </label>
-                  <div class="border-2 border-dashed border-theme-border rounded-3xl p-6 sm:p-8 text-center bg-stone-50 dark:bg-stone-900/50 hover:bg-stone-100/50 dark:hover:bg-stone-900 transition">
+                  <div class="border-2 border-dashed border-theme-border rounded-3xl p-4 sm:p-6 md:p-8 text-center bg-stone-50 dark:bg-stone-900/50 hover:bg-stone-100/50 dark:hover:bg-stone-900 transition">
                     
                     <div v-if="kycPhotoPreview" class="space-y-3">
                       <img :src="kycPhotoPreview" alt="Preview Dokumen" class="max-h-52 mx-auto rounded-2xl object-contain border border-theme-border shadow-md" />
-                      <div class="flex items-center justify-center gap-2">
-                        <label class="inline-block px-4 py-1.5 rounded-full bg-stone-200 dark:bg-stone-800 text-xs font-bold text-theme-primary hover:bg-stone-300 dark:hover:bg-stone-700 cursor-pointer transition">
+                      <div class="flex flex-wrap items-center justify-center gap-2">
+                        <label class="inline-block px-4 py-2 rounded-full bg-stone-200 dark:bg-stone-800 text-xs font-bold text-theme-primary hover:bg-stone-300 dark:hover:bg-stone-700 cursor-pointer transition">
                           Ganti Foto Dokumen
                           <input type="file" ref="kycFileInputRef" accept="image/*" @change="handleFileUpload" class="hidden" />
                         </label>
                         <button
                           type="button"
                           @click="clearKycPhoto"
-                          class="px-3 py-1.5 rounded-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-bold cursor-pointer transition"
+                          class="px-3 py-2 rounded-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-bold cursor-pointer transition"
                         >
                           Hapus
                         </button>
@@ -1128,27 +1128,27 @@ function handleAddAddressSubmit() {
                         <IconShieldCheck :size="24" />
                       </div>
                       <div>
-                        <p class="font-bold text-theme-primary text-xs">Klik tombol di bawah untuk memilih foto identitas</p>
-                        <p class="text-[11px] text-stone-500 mt-0.5">Pastikan 4 sudut e-KTP/SIM terlihat jelas, tidak buram, dan pencahayaan terang</p>
+                        <p class="font-bold text-theme-primary text-xs">Pilih foto identitas asli</p>
+                        <p class="text-[11px] text-stone-500 mt-0.5">Pastikan 4 sudut kartu terlihat jelas, tidak buram, dan pencahayaan terang</p>
                       </div>
-                      <label class="inline-block px-6 py-2.5 rounded-full bg-[#244E33] hover:bg-[#1B3B26] text-white text-xs font-bold cursor-pointer shadow-sm transition">
+                      <label class="inline-block w-full sm:w-auto px-6 py-2.5 rounded-full bg-[#244E33] hover:bg-[#1B3B26] text-white text-xs font-bold cursor-pointer shadow-sm transition text-center">
                         Pilih Berkas Foto Dokumen
                         <input type="file" ref="kycFileInputRef" accept="image/*" @change="handleFileUpload" class="hidden" />
                       </label>
-                      <p class="text-[10px] text-stone-400">Format yang didukung: JPG, PNG, WEBP (Maksimal 5 MB)</p>
+                      <p class="text-[10px] text-stone-400">Format: JPG, PNG, WEBP (Maksimal 5 MB)</p>
                     </div>
 
                   </div>
                 </div>
 
                 <!-- Submit Action Button -->
-                <div class="pt-3 border-t border-theme-border flex items-center gap-3">
+                <div class="pt-3 border-t border-theme-border flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
                   <BaseButton
                     type="submit"
                     :loading="isSubmittingKyc"
                     variant="primary"
                     size="md"
-                    class="w-full sm:w-auto font-black cursor-pointer shadow-md"
+                    class="w-full sm:w-auto font-black cursor-pointer shadow-md text-center justify-center"
                   >
                     <IconShieldCheck :size="16" />
                     <span>Kirim Dokumen & Verifikasi KYC</span>
@@ -1158,7 +1158,7 @@ function handleAddAddressSubmit() {
                     v-if="currentUser.isKycVerified || currentUser.kycStatus === 'PENDING_REVIEW'"
                     type="button"
                     @click="isEditingKyc = false"
-                    class="px-5 py-2.5 rounded-full border border-theme-border hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-bold text-stone-600 dark:text-stone-300 cursor-pointer"
+                    class="w-full sm:w-auto px-5 py-2.5 rounded-full border border-theme-border hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-bold text-stone-600 dark:text-stone-300 cursor-pointer text-center"
                   >
                     Batal
                   </button>
