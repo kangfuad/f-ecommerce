@@ -19,8 +19,8 @@ import {
 } from '@/presentation/components/icons'
 
 import { MemberTierService, type MemberTierDto } from '@/infrastructure/services/api/MemberTierService'
-import { CityService, type CityDto } from '@/infrastructure/services/api/CityService'
 import SearchableSelect, { type SelectOption } from '@/presentation/components/common/SearchableSelect.vue'
+import CascadingRegionSelect from '@/presentation/components/common/CascadingRegionSelect.vue'
 
 const router = useRouter()
 const {
@@ -38,11 +38,10 @@ const { showToast } = useToast()
 // Active Tab
 const activeTab = ref<'account' | 'kyc' | 'addresses'>('account')
 
-// Dynamic Cities & Tiers Data
+// Dynamic Tiers Data
 const memberTiers = ref<MemberTierDto[]>([])
 const tiersDisclaimer = ref<string>('')
 const isLoadingTiers = ref(false)
-const cityOptions = ref<SelectOption[]>([])
 
 // Edit Profile Form State
 const isEditProfileModalOpen = ref(false)
@@ -102,25 +101,8 @@ async function loadTiersData() {
   }
 }
 
-async function loadCitiesData() {
-  try {
-    const res = await CityService.getCities()
-    if (res.status === 'success' && Array.isArray(res.data)) {
-      cityOptions.value = res.data.map((c) => ({
-        value: c.name,
-        label: c.name,
-        subtitle: c.province,
-        badge: c.isHub ? 'Hub Siap Antar' : undefined,
-      }))
-    }
-  } catch {
-    // fallback
-  }
-}
-
 onMounted(() => {
   loadTiersData()
-  loadCitiesData()
 
   if (!isLoggedIn.value) {
     openLoginModal()
@@ -948,22 +930,31 @@ function handleAddAddressSubmit() {
             </div>
           </div>
 
-          <!-- SECTION 2: Alamat Domisili / Operasional -->
+          <!-- SECTION 2: Alamat Domisili / Operasional (Master Wilayah) -->
           <div class="bg-stone-50 dark:bg-stone-900/60 p-4 sm:p-5 rounded-2xl border border-theme-border space-y-3.5">
             <h4 class="font-black text-xs uppercase tracking-wider text-forest dark:text-forest-glow flex items-center gap-1.5 border-b border-theme-border pb-2">
               <span>2. Alamat Domisili & Wilayah Operasional</span>
             </h4>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-              <div class="sm:col-span-2">
-                <SearchableSelect
-                  v-model="editCity"
-                  label="Kota / Wilayah Domisili Utama"
-                  placeholder="Pilih atau cari kota domisili..."
-                  searchPlaceholder="Ketik nama kota / provinsi (misal: Jakarta, Surabaya, Bali)..."
-                  :options="cityOptions"
-                  required
-                />
+            <!-- Independent Cascading Master Wilayah (Provinsi -> Kota/Kab -> Kecamatan -> Kelurahan) -->
+            <CascadingRegionSelect
+              @change="(payload) => {
+                if (payload.regencyName) {
+                  editCity = payload.fullRegionText || `${payload.regencyName}, ${payload.provinceName}`
+                }
+              }"
+              layout="grid-2"
+            />
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1">
+              <div class="sm:col-span-2 space-y-1">
+                <label class="font-bold block text-theme-primary">Alamat Lengkap (Nama Jalan, No. Bangunan, RT/RW)</label>
+                <textarea
+                  v-model="editAddress"
+                  rows="2"
+                  placeholder="Contoh: Jl. Senopati Raya No. 45, Kebayoran Baru"
+                  class="w-full bg-white dark:bg-stone-800 border border-theme-border rounded-xl p-3 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
+                ></textarea>
               </div>
 
               <div class="space-y-1">
@@ -975,16 +966,6 @@ function handleAddAddressSubmit() {
                   class="w-full bg-white dark:bg-stone-800 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
                 />
               </div>
-            </div>
-
-            <div class="space-y-1">
-              <label class="font-bold block text-theme-primary">Alamat Lengkap (Nama Jalan, No. Bangunan, Patokan)</label>
-              <textarea
-                v-model="editAddress"
-                rows="2"
-                placeholder="Contoh: Jl. Senopati Raya No. 45, Kebayoran Baru, Jakarta Selatan"
-                class="w-full bg-white dark:bg-stone-800 border border-theme-border rounded-xl p-3 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
-              ></textarea>
             </div>
           </div>
 
@@ -1127,28 +1108,15 @@ function handleAddAddressSubmit() {
         </div>
 
         <form @submit.prevent="handleAddAddressSubmit" class="space-y-4 text-xs">
-          <div class="grid grid-cols-2 gap-3">
-            <div class="space-y-1">
-              <label class="font-bold block text-theme-primary">Label Alamat <span class="text-rose-500">*</span></label>
-              <input
-                v-model="addrLabel"
-                type="text"
-                placeholder="Contoh: Rumah / Studio / Kantor"
-                class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
-                required
-              />
-            </div>
-            
-            <div>
-              <SearchableSelect
-                v-model="addrCity"
-                label="Kota / Wilayah Pengiriman"
-                placeholder="Pilih atau cari kota..."
-                searchPlaceholder="Ketik kota pengiriman..."
-                :options="cityOptions"
-                required
-              />
-            </div>
+          <div class="space-y-1">
+            <label class="font-bold block text-theme-primary">Label Alamat <span class="text-rose-500">*</span></label>
+            <input
+              v-model="addrLabel"
+              type="text"
+              placeholder="Contoh: Rumah / Studio / Kantor"
+              class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2.5 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
+              required
+            />
           </div>
 
           <div class="grid grid-cols-2 gap-3">
@@ -1174,14 +1142,30 @@ function handleAddAddressSubmit() {
             </div>
           </div>
 
+          <!-- Cascading Wilayah Pengiriman (Master Wilayah) -->
+          <div class="bg-stone-50 dark:bg-stone-900/60 p-3.5 rounded-2xl border border-theme-border space-y-2.5">
+            <span class="text-[11px] font-bold text-forest dark:text-forest-glow block">
+              Pilih Wilayah Pengiriman (Master Wilayah):
+            </span>
+            <CascadingRegionSelect
+              @change="(payload) => {
+                if (payload.regencyName) {
+                  addrCity = payload.fullRegionText || `${payload.regencyName}, ${payload.provinceName}`
+                }
+              }"
+              layout="grid-2"
+              :required="true"
+            />
+          </div>
+
           <div class="space-y-1">
             <div class="flex items-center justify-between">
               <label class="font-bold block text-theme-primary">Alamat Lengkap (Nama Jalan, No. Rumah, RT/RW, Patokan) <span class="text-rose-500">*</span></label>
             </div>
             <textarea
               v-model="addrFull"
-              rows="3"
-              placeholder="Contoh: Jl. Senopati Raya No. 45, Studio Fotografi Lt. 2, Kebayoran Baru"
+              rows="2"
+              placeholder="Contoh: Jl. Senopati Raya No. 45, Studio Fotografi Lt. 2"
               class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl p-3 text-xs font-medium text-theme-primary focus:outline-none focus:ring-1 focus:ring-forest"
               required
             ></textarea>
