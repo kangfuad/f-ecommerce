@@ -2,6 +2,7 @@
 import { onMounted, watch } from 'vue'
 import { useRoute, RouterView } from 'vue-router'
 import { useAuth } from '@/presentation/composables/useAuth'
+import { useTheme } from '@/presentation/composables/useTheme'
 import AppToast from '@/presentation/components/common/AppToast.vue'
 import AuthModal from '@/presentation/components/auth/AuthModal.vue'
 import ImageLightboxModal from '@/presentation/components/common/ImageLightboxModal.vue'
@@ -11,6 +12,7 @@ import FloatingThemeToggle from '@/presentation/components/common/FloatingThemeT
 
 const route = useRoute()
 const { isLoggedIn, openLoginModal, openRegisterModal, initAuth } = useAuth()
+const { initTheme } = useTheme()
 
 function checkAuthUrlQuery() {
   if (!isLoggedIn.value) {
@@ -23,6 +25,7 @@ function checkAuthUrlQuery() {
 }
 
 onMounted(() => {
+  initTheme()
   initAuth()
   checkAuthUrlQuery()
 })

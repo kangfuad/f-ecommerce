@@ -1,19 +1,32 @@
 import { ref } from 'vue'
-import { LocalStorageAdapter } from '@/infrastructure/storage/LocalStorageAdapter'
 
 export type ThemePreference = 'system' | 'light' | 'dark'
 export type ResolvedTheme = 'light' | 'dark'
 
 const THEME_STORAGE_KEY = 'eps_color_theme'
-const currentPreference = ref<ThemePreference>('system')
-const resolvedTheme = ref<ResolvedTheme>('light')
-let isListenerAttached = false
 
 function getSystemTheme(): ResolvedTheme {
   if (typeof window !== 'undefined' && window.matchMedia) {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   }
   return 'light'
+}
+
+function getStoredPreference(): ThemePreference {
+  try {
+    if (typeof localStorage !== 'undefined') {
+      const raw = localStorage.getItem(THEME_STORAGE_KEY)
+      if (!raw) return 'system'
+      let pref = raw
+      if (raw.indexOf('"') === 0 || raw.indexOf("'") === 0) {
+        try { pref = JSON.parse(raw) } catch {}
+      }
+      if (pref === 'light' || pref === 'dark' || pref === 'system') {
+        return pref
+      }
+    }
+  } catch {}
+  return 'system'
 }
 
 function updateDOMTheme(theme: ResolvedTheme) {
@@ -27,10 +40,25 @@ function updateDOMTheme(theme: ResolvedTheme) {
   }
 }
 
+// Module-level persistent singleton state
+const initialPreference = getStoredPreference()
+const currentPreference = ref<ThemePreference>(initialPreference)
+const resolvedTheme = ref<ResolvedTheme>(
+  initialPreference === 'system' ? getSystemTheme() : initialPreference
+)
+let isListenerAttached = false
+
+// Synchronize DOM immediately upon module import
+updateDOMTheme(resolvedTheme.value)
+
 export function useTheme() {
   function applyTheme(preference: ThemePreference) {
     currentPreference.value = preference
-    LocalStorageAdapter.setItem(THEME_STORAGE_KEY, preference)
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(THEME_STORAGE_KEY, preference)
+      }
+    } catch {}
 
     const effective = preference === 'system' ? getSystemTheme() : preference
     resolvedTheme.value = effective
@@ -61,14 +89,8 @@ export function useTheme() {
   }
 
   function initTheme() {
-    const saved = LocalStorageAdapter.getItem<ThemePreference | null>(THEME_STORAGE_KEY, null)
-    
-    // Use saved preference, or default to 'system'
-    const initialPreference: ThemePreference = saved === 'light' || saved === 'dark' || saved === 'system' 
-      ? saved 
-      : 'system'
-      
-    applyTheme(initialPreference)
+    const saved = getStoredPreference()
+    applyTheme(saved)
 
     // Listen for OS/System theme changes in real-time
     if (typeof window !== 'undefined' && window.matchMedia && !isListenerAttached) {

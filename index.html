@@ -47,14 +47,18 @@
     <script>
       (function() {
         try {
-          var pref = localStorage.getItem('eps_color_theme');
+          var raw = localStorage.getItem('eps_color_theme');
+          var pref = raw;
+          if (raw && (raw.indexOf('"') === 0 || raw.indexOf("'") === 0)) {
+            try { pref = JSON.parse(raw); } catch (e) { pref = raw; }
+          }
           var isDark = false;
           if (pref === 'dark') {
             isDark = true;
           } else if (pref === 'light') {
             isDark = false;
           } else {
-            isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            isDark = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
           }
           if (isDark) {
             document.documentElement.classList.add('dark');
