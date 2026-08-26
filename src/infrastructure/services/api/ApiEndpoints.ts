@@ -1,7 +1,7 @@
 /**
  * Centralized API Endpoints Registry for e-punyasewa
  * 
- * Organizes all backend API endpoints and local mock fallbacks by category/module.
+ * Organizes all backend API endpoints by category/module.
  * Whenever an endpoint path changes in the backend, only update this file.
  */
 
@@ -69,18 +69,6 @@ export const API_ENDPOINTS = {
   },
   FAQS: {
     LIST: '/faqs',
-  },
-  // Local JSON Mock Fallback Paths
-  LOCAL_MOCKS: {
-    AUTH_USER: '/data/auth-user.json',
-    PRODUCTS: '/data/products.json',
-    CATEGORIES: '/data/categories.json',
-    ORDERS: '/data/orders.json',
-    FAQS: '/data/faq.json',
-    PROVINCES: '/data/master-wilayah/provinces.json',
-    REGENCIES: '/data/master-wilayah/regencies.json',
-    DISTRICTS: '/data/master-wilayah/districts.json',
-    VILLAGES: '/data/master-wilayah/villages.json',
   },
 } as const
 

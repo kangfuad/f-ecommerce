@@ -1,5 +1,7 @@
 import { apiClient } from './ApiClient'
+import { API_ENDPOINTS } from './ApiEndpoints'
 import type { ApiResponse } from './ApiResponse'
+import { toTitleCase } from './RegionService'
 
 export interface CityDto {
   id: string
@@ -9,21 +11,25 @@ export interface CityDto {
 }
 
 export class CityService {
-  private static cachedCities: CityDto[] | null = null
-
   public static async getCities(): Promise<ApiResponse<CityDto[]>> {
-    if (this.cachedCities) {
+    const res = await apiClient.get<any[]>(API_ENDPOINTS.REGIONS.REGENCIES)
+    if (res.status === 'success' && Array.isArray(res.data)) {
+      const cities: CityDto[] = res.data.map((r) => ({
+        id: r.id,
+        name: toTitleCase(r.name),
+        province: r.provinceName || '',
+        isHub: ['3171', '3174', '3273', '3578', '5171'].includes(r.id),
+      }))
       return {
         status: 'success',
-        data: this.cachedCities,
-        message: 'Cities retrieved from cache',
+        data: cities,
+        message: 'Daftar kota berhasil diambil dari server.',
       }
     }
-
-    const response = await apiClient.get<CityDto[]>('/data/cities.json')
-    if (response.status === 'success' && Array.isArray(response.data)) {
-      this.cachedCities = response.data
+    return {
+      status: 'success',
+      data: [],
+      message: 'Tidak ada kota ditemukan',
     }
-    return response
   }
 }

@@ -4,7 +4,7 @@ export const AUTH_TOKEN_KEY = 'epunyasewa_auth_token'
 
 export class ApiClient {
   private readonly baseUrl: string
-  private readonly defaultTimeoutMs = 5000
+  private readonly defaultTimeoutMs = 10000
 
   constructor(baseUrl?: string) {
     const envBaseUrl = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env.VITE_API_BASE_URL : ''

@@ -13,9 +13,7 @@ export interface CategoryDto {
 }
 
 export class CategoryService {
-
   public static async getCategories(): Promise<ApiResponse<CategoryDto[]>> {
-    // 1. Try real API
     const realRes = await apiClient.get<CategoryDto[]>(API_ENDPOINTS.CATEGORIES.LIST)
     if (realRes.status === 'success' && Array.isArray(realRes.data)) {
       return {
@@ -24,27 +22,21 @@ export class CategoryService {
           ...c,
           label: c.label || c.name || c.id,
         })),
-        message: 'Categories retrieved successfully from API',
+        message: 'Daftar kategori berhasil diambil.',
       }
     }
-
-    return apiClient.get<CategoryDto[]>(API_ENDPOINTS.LOCAL_MOCKS.CATEGORIES)
+    return realRes
   }
 
   public static async getCategoryById(id: string): Promise<ApiResponse<CategoryDto | null>> {
-    const categoriesResponse = await this.getCategories()
-    if (categoriesResponse.status === 'success' && Array.isArray(categoriesResponse.data)) {
-      const found = categoriesResponse.data.find((c) => c.id === id) || null
-      return {
-        status: 'success',
-        data: found,
-        message: found ? `Category ${id} found` : `Category ${id} not found`,
-      }
+    const realRes = await apiClient.get<CategoryDto>(API_ENDPOINTS.CATEGORIES.DETAIL(id))
+    if (realRes.status === 'success' && realRes.data) {
+      return realRes
     }
     return {
       status: 'error',
       data: null,
-      message: categoriesResponse.message,
+      message: realRes.message || ('Category ' + id + ' not found'),
     }
   }
 }

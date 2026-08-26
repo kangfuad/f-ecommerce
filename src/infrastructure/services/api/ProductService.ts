@@ -48,9 +48,7 @@ export interface ProductFilterQuery {
 }
 
 export class ProductService {
-
   public static async getProducts(filter?: ProductFilterQuery): Promise<ApiResponse<ProductRawDto[]>> {
-    // 1. Try real API with query parameters
     let queryStr = ''
     if (filter) {
       const params = new URLSearchParams()
@@ -66,36 +64,10 @@ export class ProductService {
       queryStr = `?${params.toString()}`
     }
 
-    const realRes = await apiClient.get<ProductRawDto[]>(`${API_ENDPOINTS.PRODUCTS.LIST}${queryStr}`)
-    if (realRes.status === 'success' && Array.isArray(realRes.data)) {
-      return realRes
-    }
-
-    // 2. Fallback to local json data
-    return apiClient.get<ProductRawDto[]>(API_ENDPOINTS.LOCAL_MOCKS.PRODUCTS)
+    return apiClient.get<ProductRawDto[]>(`${API_ENDPOINTS.PRODUCTS.LIST}${queryStr}`)
   }
 
   public static async getProductById(idOrSlug: string): Promise<ApiResponse<ProductRawDto | null>> {
-    // 1. Try real backend API
-    const realRes = await apiClient.get<ProductRawDto>(API_ENDPOINTS.PRODUCTS.DETAIL(idOrSlug))
-    if (realRes.status === 'success' && realRes.data) {
-      return realRes
-    }
-
-    // 2. Fallback to local json data
-    const productsResponse = await this.getProducts()
-    if (productsResponse.status === 'success' && Array.isArray(productsResponse.data)) {
-      const found = productsResponse.data.find((p) => p.id === idOrSlug || (p as any).slug === idOrSlug) || null
-      return {
-        status: 'success',
-        data: found,
-        message: found ? `Product ${idOrSlug} retrieved successfully!` : `Product ${idOrSlug} not found`,
-      }
-    }
-    return {
-      status: 'error',
-      data: null,
-      message: productsResponse.message,
-    }
+    return apiClient.get<ProductRawDto>(API_ENDPOINTS.PRODUCTS.DETAIL(idOrSlug))
   }
 }
