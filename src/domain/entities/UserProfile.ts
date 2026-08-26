@@ -1,3 +1,22 @@
+export interface TenantReviewItem {
+  id: string
+  providerName: string
+  providerAvatar?: string
+  productName: string
+  rentalDate: string
+  rating: number
+  comment: string
+  tags: string[]
+}
+
+export interface UserReputation {
+  score: number
+  reviewCount: number
+  positivePercentage: number
+  trustBadges: string[]
+  reviews: TenantReviewItem[]
+}
+
 export interface SavedAddress {
   id: string
   label: string
@@ -57,6 +76,7 @@ export interface UserProfileProps {
   rentalCount: number
   joinedAt: Date
   savedAddresses?: SavedAddress[]
+  reputation?: UserReputation
 }
 
 export class UserProfile {
@@ -96,6 +116,7 @@ export class UserProfile {
   public readonly rentalCount: number
   public readonly joinedAt: Date
   public readonly savedAddresses: SavedAddress[]
+  public readonly reputation: UserReputation
 
   constructor(props: UserProfileProps) {
     this.id = props.id
@@ -157,6 +178,50 @@ export class UserProfile {
     } else {
       this.savedAddresses = props.savedAddresses || []
     }
+    if (props.reputation) {
+      this.reputation = props.reputation
+    } else {
+      this.reputation = {
+        score: 5.0,
+        reviewCount: 3,
+        positivePercentage: 100,
+        trustBadges: [
+          "Pengembalian Tepat Waktu (100%)",
+          "Unit Terjaga Sangat Baik",
+          "Komunikasi Ramah & Kooperatif",
+        ],
+        reviews: [
+          {
+            id: "rev_01",
+            providerName: "CinemaTech Rental Jakarta",
+            productName: "Sony FX3 Cinema Line Full-Frame Camera",
+            rentalDate: "20 Feb 2026",
+            rating: 5.0,
+            comment: "Penyewa sangat profesional, tepat waktu saat jadwal temu serah terima, dan unit kembali dalam kondisi sangat bersih dan rapi. Sangat direkomendasikan untuk mitra sewa lainnya.",
+            tags: ["Tepat Waktu", "Unit Sangat Bersih", "Direkomendasikan"],
+          },
+          {
+            id: "rev_02",
+            providerName: "Lens & Shutter Studio BSD",
+            productName: "DJI Mavic 3 Cine Pro Creator Combo",
+            rentalDate: "14 Feb 2026",
+            rating: 5.0,
+            comment: "Handling unit drone dan baterai sangat baik. Semua aksesoris lengkap tanpa ada goresan sedikitpun. Transaksi lancar dan memuaskan.",
+            tags: ["Handling Sempurna", "Aksesoris Lengkap", "Penyewa Teliti"],
+          },
+          {
+            id: "rev_03",
+            providerName: "GearUp Pro Audio Jakarta",
+            productName: "Sennheiser EW-DP Wireless Mic System",
+            rentalDate: "05 Feb 2026",
+            rating: 5.0,
+            comment: "Sangat kooperatif dan responsif saat koordinasi pengembalian. Member terpercaya bintang 5.",
+            tags: ["Responsif", "Terpercaya"],
+          },
+        ],
+      }
+    }
+
   }
 
   public get initials(): string {

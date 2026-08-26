@@ -294,7 +294,7 @@ function handleSaveProfile() {
             ]"
           >
             <IconStar :size="13" class="text-amber-500" />
-            <span>Reputasi & Ulasan Penyewa (5.0 ⭐)</span>
+            <span>Reputasi & Ulasan Penyewa ({{ currentUser?.reputation?.score ? currentUser.reputation.score.toFixed(1) : "5.0" }} ⭐)</span>
           </button>
         </div>
 
@@ -402,77 +402,82 @@ function handleSaveProfile() {
                 Skor Kredibilitas & Reputasi Penyewa
               </span>
               <div class="flex items-center gap-3">
-                <span class="text-3xl sm:text-4xl font-black font-mono text-theme-primary">5.0</span>
+                <span class="text-3xl sm:text-4xl font-black font-mono text-theme-primary">
+                  {{ currentUser?.reputation?.score ? currentUser.reputation.score.toFixed(1) : '5.0' }}
+                </span>
                 <div>
                   <div class="flex text-amber-500 text-sm">
-                    <span>⭐⭐⭐⭐⭐</span>
+                    <span v-for="i in 5" :key="i" :class="i <= Math.round(currentUser?.reputation?.score || 5) ? 'opacity-100' : 'opacity-30'">⭐</span>
                   </div>
-                  <p class="text-[11px] text-stone-500 font-bold">100% Ulasan Positif dari Mitra Penyedia Sewa</p>
+                  <p class="text-[11px] text-stone-500 font-bold">
+                    {{ currentUser?.reputation?.positivePercentage ?? 100 }}% Ulasan Positif dari Mitra Penyedia Sewa
+                  </p>
                 </div>
               </div>
             </div>
 
             <!-- Trust Badges -->
             <div class="flex flex-wrap gap-2">
-              <span class="px-3 py-1.5 rounded-2xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-xs font-extrabold border border-emerald-500/30 flex items-center gap-1.5">
+              <span
+                v-for="(badge, bIdx) in (currentUser?.reputation?.trustBadges || ['Pengembalian Tepat Waktu (100%)', 'Unit Terjaga Sangat Baik'])"
+                :key="bIdx"
+                class="px-3 py-1.5 rounded-2xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-xs font-extrabold border border-emerald-500/30 flex items-center gap-1.5"
+              >
                 <IconCheck :size="12" class="stroke-[3]" />
-                <span>Pengembalian Tepat Waktu (100%)</span>
-              </span>
-              <span class="px-3 py-1.5 rounded-2xl bg-blue-500/15 text-blue-700 dark:text-blue-300 text-xs font-extrabold border border-blue-500/30 flex items-center gap-1.5">
-                <IconShieldCheck :size="12" />
-                <span>Unit Terjaga Sangat Baik</span>
+                <span>{{ badge }}</span>
               </span>
             </div>
           </div>
 
           <!-- Reviews List from Providers -->
           <div class="space-y-4">
-            <h3 class="font-extrabold text-sm text-theme-primary">Ulasan dari Mitra Penyedia Sewa</h3>
+            <div class="flex items-center justify-between">
+              <h3 class="font-extrabold text-sm text-theme-primary">Ulasan dari Mitra Penyedia Sewa</h3>
+              <span class="text-xs font-bold text-stone-400">
+                Total {{ currentUser?.reputation?.reviews?.length ?? 0 }} Ulasan
+              </span>
+            </div>
 
-            <div class="space-y-3">
-              <div class="p-5 rounded-3xl bg-theme-card border border-theme-border space-y-3">
+            <!-- List if has reviews -->
+            <div v-if="currentUser?.reputation?.reviews && currentUser.reputation.reviews.length > 0" class="space-y-3">
+              <div
+                v-for="review in currentUser.reputation.reviews"
+                :key="review.id"
+                class="p-5 rounded-3xl bg-theme-card border border-theme-border space-y-3"
+              >
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-2xl bg-forest/10 text-forest dark:text-forest-glow flex items-center justify-center font-bold text-xs">
-                      CTR
+                      {{ review.providerName.split(' ').map(w => w[0]).slice(0, 3).join('').toUpperCase() }}
                     </div>
                     <div>
-                      <strong class="text-xs font-bold text-theme-primary block">CinemaTech Rental Jakarta</strong>
-                      <span class="text-[10px] text-stone-400">Transaksi Sewa: Sony FX3 Cinema Line • 20 Feb 2026</span>
+                      <strong class="text-xs font-bold text-theme-primary block">{{ review.providerName }}</strong>
+                      <span class="text-[10px] text-stone-400">Transaksi Sewa: {{ review.productName }} • {{ review.rentalDate }}</span>
                     </div>
                   </div>
-                  <span class="text-amber-500 font-black text-xs">5.0 ⭐</span>
+                  <span class="text-amber-500 font-black text-xs">{{ Number(review.rating).toFixed(1) }} ⭐</span>
                 </div>
                 <p class="text-xs text-stone-600 dark:text-stone-300 leading-relaxed italic">
-                  "Penyewa sangat profesional, tepat waktu saat jadwal temu serah terima, dan unit kembali dalam kondisi sangat bersih dan rapi. Sangat direkomendasikan untuk mitra sewa lainnya."
+                  "{{ review.comment }}"
                 </p>
-                <div class="flex flex-wrap gap-2 pt-1 border-t border-theme-border/60">
-                  <span class="px-2.5 py-0.5 rounded-full bg-stone-100 dark:bg-stone-800 text-[10px] font-semibold text-stone-600 dark:text-stone-300">
-                    Pengembalian Bersih & Utuh
-                  </span>
-                  <span class="px-2.5 py-0.5 rounded-full bg-stone-100 dark:bg-stone-800 text-[10px] font-semibold text-stone-600 dark:text-stone-300">
-                    Komunikasi Sangat Baik
+                <div v-if="review.tags && review.tags.length > 0" class="flex flex-wrap gap-2 pt-1 border-t border-theme-border/60">
+                  <span
+                    v-for="(tag, tIdx) in review.tags"
+                    :key="tIdx"
+                    class="px-2.5 py-0.5 rounded-full bg-stone-100 dark:bg-stone-800 text-[10px] font-semibold text-stone-600 dark:text-stone-300"
+                  >
+                    {{ tag }}
                   </span>
                 </div>
               </div>
+            </div>
 
-              <div class="p-5 rounded-3xl bg-theme-card border border-theme-border space-y-3">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-2xl bg-forest/10 text-forest dark:text-forest-glow flex items-center justify-center font-bold text-xs">
-                      SKD
-                    </div>
-                    <div>
-                      <strong class="text-xs font-bold text-theme-primary block">SkyDrone Pilot BSD</strong>
-                      <span class="text-[10px] text-stone-400">Transaksi Sewa: DJI Mavic 3 Pro Cine • 10 Jan 2026</span>
-                    </div>
-                  </div>
-                  <span class="text-amber-500 font-black text-xs">5.0 ⭐</span>
-                </div>
-                <p class="text-xs text-stone-600 dark:text-stone-300 leading-relaxed italic">
-                  "Serah terima berjalan lancar, pembayaran di tempat diselesaikan dengan cepat dan tanpa kendala. Baterai dan hardcase drone dirawat dengan sangat baik."
-                </p>
-              </div>
+            <!-- Empty State -->
+            <div v-else class="p-8 rounded-3xl bg-theme-card border border-theme-border text-center space-y-2">
+              <p class="font-bold text-sm text-theme-primary">Belum Ada Ulasan Masuk</p>
+              <p class="text-xs text-stone-400 max-w-sm mx-auto">
+                Selesaikan transaksi sewa perlengkapan pertama Anda untuk mendapatkan penilaian dan membangun reputasi penyewa terpercaya.
+              </p>
             </div>
           </div>
 
