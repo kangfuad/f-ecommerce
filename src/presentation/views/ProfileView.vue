@@ -2,6 +2,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/presentation/composables/useAuth'
+import { AuthService } from '@/infrastructure/services/api/AuthService'
 import { useToast } from '@/presentation/composables/useToast'
 import { formatDateToIndonesian } from '@/core/utils/date'
 import AppHeader from '@/presentation/components/common/AppHeader.vue'
@@ -29,7 +30,60 @@ const {
 const { showToast } = useToast()
 
 // Active Tab
-const activeTab = ref<'profile' | 'reviews'>('profile')
+const activeTab = ref<'profile' | 'reviews' | 'security'>('profile')
+
+// Change Password State
+const oldPassword = ref('')
+const newPassword = ref('')
+const confirmNewPassword = ref('')
+const isChangingPassword = ref(false)
+const changePasswordError = ref<string | null>(null)
+
+async function handleChangePassword() {
+  if (!oldPassword.value) {
+    changePasswordError.value = 'Silakan masukkan kata sandi saat ini.'
+    return
+  }
+  if (newPassword.value.length < 8) {
+    changePasswordError.value = 'Kata sandi baru minimal 8 karakter.'
+    return
+  }
+  if (newPassword.value !== confirmNewPassword.value) {
+    changePasswordError.value = 'Konfirmasi kata sandi baru tidak sesuai.'
+    return
+  }
+  if (oldPassword.value === newPassword.value) {
+    changePasswordError.value = 'Kata sandi baru tidak boleh sama dengan kata sandi saat ini.'
+    return
+  }
+
+  isChangingPassword.value = true
+  changePasswordError.value = null
+  try {
+    const res = await AuthService.changePassword(oldPassword.value, newPassword.value)
+    if (res.status === 'success') {
+      showToast({
+        type: 'success',
+        title: 'Kata Sandi Diperbarui',
+        message: 'Kata sandi akun Anda berhasil diperbarui.',
+      })
+      oldPassword.value = ''
+      newPassword.value = ''
+      confirmNewPassword.value = ''
+    } else {
+      changePasswordError.value = res.message || 'Gagal mengubah kata sandi.'
+      showToast({
+        type: 'error',
+        title: 'Gagal Memperbarui Sandi',
+        message: res.message || 'Kata sandi lama yang Anda masukkan salah.',
+      })
+    }
+  } catch (e: any) {
+    changePasswordError.value = e.message || 'Terjadi kesalahan sistem.'
+  } finally {
+    isChangingPassword.value = false
+  }
+}
 
 // Edit Profile Form State
 const isEditProfileModalOpen = ref(false)
@@ -295,6 +349,20 @@ function handleSaveProfile() {
           >
             <IconStar :size="13" class="text-amber-500" />
             <span>Reputasi & Ulasan Penyewa ({{ currentUser?.reputation?.reviewCount ? currentUser.reputation.score.toFixed(1) + " ⭐" : "0 Ulasan" }})</span>
+          </button>
+
+          <button
+            type="button"
+            @click="activeTab = 'security'"
+            :class="[
+              'px-5 py-2.5 rounded-full text-xs font-extrabold transition cursor-pointer shrink-0 flex items-center gap-1.5',
+              activeTab === 'security'
+                ? 'bg-[#244E33] dark:bg-emerald-500 text-white dark:text-stone-950 shadow-xs'
+                : 'bg-theme-card border border-theme-border text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
+            ]"
+          >
+            <IconShieldCheck :size="13" />
+            <span>Keamanan & Kata Sandi</span>
           </button>
         </div>
 

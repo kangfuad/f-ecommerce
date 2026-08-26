@@ -13,6 +13,7 @@ export const API_ENDPOINTS = {
   },
   USER: {
     PROFILE: '/user/profile',
+    CHANGE_PASSWORD: '/user/change-password',
   },
   CATEGORIES: {
     LIST: '/categories',

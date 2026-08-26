@@ -1,13 +1,48 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+import { Product } from '@/domain/entities/Product'
 import BaseButton from '../common/BaseButton.vue'
 import { IconArrowRight } from '@/presentation/components/icons'
 
-const FEATURED_PRODUCT_ID = 'eps_cam_01'
+interface Props {
+  featuredProduct?: Product | null
+}
+
+const props = defineProps<Props>()
 
 const emit = defineEmits<{
   (e: 'explore'): void
-  (e: 'select-featured', productId: string): void
+  (e: 'select-featured', product: Product): void
 }>()
+
+const displayImage = computed(() => {
+  return props.featuredProduct?.primaryImage || 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1000&auto=format&fit=crop'
+})
+
+const displayName = computed(() => {
+  return props.featuredProduct?.name || 'Unit Perlengkapan Sewa Pilihan'
+})
+
+const displayDescription = computed(() => {
+  return props.featuredProduct?.description || 'Siap pakai langsung untuk kebutuhan produksi & hobi kreatif Anda.'
+})
+
+const displayBadge = computed(() => {
+  if (props.featuredProduct?.badgeText) return props.featuredProduct.badgeText
+  if (props.featuredProduct?.isPopular) return 'Unit Terpopuler'
+  if (props.featuredProduct?.isFeatured) return 'Unit Pilihan'
+  return 'Unit Rekomendasi'
+})
+
+const displayRate = computed(() => {
+  return props.featuredProduct ? props.featuredProduct.dailyRate.format() : 'Rp 350.000'
+})
+
+function handleCardClick() {
+  if (props.featuredProduct) {
+    emit('select-featured', props.featuredProduct)
+  }
+}
 </script>
 
 <template>
@@ -74,16 +109,16 @@ const emit = defineEmits<{
           </div>
         </div>
 
-        <!-- Right: Interactive Visual Hero Card -->
+        <!-- Right: Interactive Visual Hero Card (Dynamic from API) -->
         <div class="lg:col-span-5 relative">
           <div
-            @click="emit('select-featured', FEATURED_PRODUCT_ID)"
+            @click="handleCardClick"
             class="relative rounded-3xl overflow-hidden shadow-2xl border border-stone-700/80 hover:border-forest-soft/80 dark:border-stone-700 hover:ring-2 hover:ring-forest-soft/40 bg-stone-800/80 dark:bg-espresso-card group cursor-pointer transition-all duration-500 hover:scale-[1.01]"
             title="Klik untuk lihat detail & kalkulasi sewa unit ini"
           >
             <img
-              src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1000&auto=format&fit=crop"
-              alt="Sony A7 IV Rental Unit"
+              :src="displayImage"
+              :alt="displayName"
               class="w-full h-72 sm:h-80 lg:h-80 xl:h-96 object-cover group-hover:scale-108 transition-transform duration-700 opacity-90 group-hover:opacity-100"
             />
             <div class="absolute inset-0 bg-gradient-to-t from-[#141211]/90 via-transparent to-black/20"></div>
@@ -97,18 +132,22 @@ const emit = defineEmits<{
             <!-- Floating rental quick card -->
             <div class="absolute bottom-4 left-4 right-4 sm:bottom-5 sm:left-5 sm:right-5 bg-[#1C1917]/90 dark:bg-espresso-card/95 backdrop-blur-md border border-stone-700/80 group-hover:border-forest-soft/50 rounded-2xl p-3.5 sm:p-4 text-white shadow-xl transition-all">
               <div class="flex items-start justify-between gap-2 sm:gap-3">
-                <div>
+                <div class="min-w-0 flex-1">
                   <span class="text-[9px] sm:text-[10px] uppercase tracking-wider font-extrabold text-[#A3C4AF] bg-[#244E33]/90 px-2 py-0.5 rounded border border-emerald-500/40">
-                    Unit Terpopuler
+                    {{ displayBadge }}
                   </span>
                   <p class="font-bold text-sm sm:text-base mt-1 text-white group-hover:text-forest-soft transition-colors truncate">
-                    Sony Alpha 7 IV Kit
+                    {{ displayName }}
                   </p>
-                  <p class="text-[11px] sm:text-xs text-stone-300 dark:text-stone-400 line-clamp-1">Siap pakai lengkap lensa GM & memory</p>
+                  <p class="text-[11px] sm:text-xs text-stone-300 dark:text-stone-400 line-clamp-1">
+                    {{ displayDescription }}
+                  </p>
                 </div>
-                <div class="text-right shrink-0">
+                <div class="text-right shrink-0 ml-2">
                   <p class="text-[9px] sm:text-[10px] text-stone-400">Mulai dari</p>
-                  <p class="text-sm sm:text-base font-extrabold text-forest-soft">Rp 350rb<span class="text-[10px] sm:text-xs font-normal text-stone-300">/hari</span></p>
+                  <p class="text-sm sm:text-base font-extrabold text-forest-soft">
+                    {{ displayRate }}<span class="text-[10px] sm:text-xs font-normal text-stone-300">/hari</span>
+                  </p>
                 </div>
               </div>
             </div>

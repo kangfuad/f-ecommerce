@@ -113,6 +113,14 @@ export class AuthService {
     return apiClient.put<AuthUserDto>(API_ENDPOINTS.USER.PROFILE, payload)
   }
 
+  
+  /**
+   * Change Current User Password
+   */
+  public static async changePassword(oldPassword: string, newPassword: string): Promise<ApiResponse<null>> {
+    return apiClient.put<null>(API_ENDPOINTS.USER.CHANGE_PASSWORD, { oldPassword, newPassword })
+  }
+
   public static async loginWithGoogle(): Promise<ApiResponse<AuthResultDto>> {
     return this.loginWithCredentials('auri.fuad@example.com', 'PasswordRahasia123!')
   }

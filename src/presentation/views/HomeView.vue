@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, shallowRef, onMounted } from 'vue'
+import { ref, shallowRef, computed, onMounted } from 'vue'
 import { Product } from '@/domain/entities/Product'
 import { ProductCategory } from '@/domain/enums/ProductCategory'
 import { useProducts } from '@/presentation/composables/useProducts'
@@ -32,6 +32,18 @@ const { initTheme } = useTheme()
 
 const selectedProductForModal = shallowRef<Product | null>(null)
 
+const topFeaturedProduct = computed(() => {
+  if (!products.value || products.value.length === 0) return null
+  return (
+    products.value.find((p) => p.isPopular && p.isFeatured) ||
+    products.value.find((p) => p.isPopular) ||
+    products.value.find((p) => p.isFeatured) ||
+    products.value[0] ||
+    null
+  )
+})
+
+
 function openProductModal(product: Product) {
   selectedProductForModal.value = product
 }
@@ -57,10 +69,12 @@ function scrollToCatalog() {
   }
 }
 
-function handleSelectFeatured(productId: string) {
-  const product = products.value.find((p) => p.id === productId)
-  if (product) {
-    openProductModal(product)
+function handleSelectFeatured(productOrId: Product | string) {
+  if (typeof productOrId === 'string') {
+    const product = products.value.find((p) => p.id === productOrId)
+    if (product) openProductModal(product)
+  } else if (productOrId) {
+    openProductModal(productOrId)
   }
 }
 
@@ -83,6 +97,7 @@ onMounted(() => {
     <main class="flex-1">
       <!-- 1. Hero Section -->
       <HeroBanner
+        :featured-product="topFeaturedProduct"
         @explore="scrollToCatalog"
         @select-featured="handleSelectFeatured"
       />

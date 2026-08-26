@@ -23,7 +23,6 @@ const {
   authError,
   closeAuthModal,
   login,
-  loginAsDemo,
   loginWithGoogle,
   loginWithApple,
   register,
@@ -57,23 +56,28 @@ async function handleLoginSubmit() {
   checkRedirectAfterAuth()
 }
 
-async function handleRegisterSubmit() {
-  await register(regFullName.value, regEmail.value, regPhone.value, regPassword.value)
-  checkRedirectAfterAuth()
-}
-
 async function handleGoogleSSO() {
   await loginWithGoogle()
   checkRedirectAfterAuth()
 }
+
+const regConfirmPassword = ref('')
 
 async function handleAppleSSO() {
   await loginWithApple()
   checkRedirectAfterAuth()
 }
 
-async function handleQuickDemoLogin() {
-  await loginAsDemo()
+async function handleRegisterSubmit() {
+  if (regPassword.value.length < 8) {
+    authError.value = 'Kata sandi minimal 8 karakter.'
+    return
+  }
+  if (regPassword.value !== regConfirmPassword.value) {
+    authError.value = 'Konfirmasi kata sandi tidak sesuai dengan kata sandi yang dibuat.'
+    return
+  }
+  await register(regFullName.value, regEmail.value, regPhone.value, regPassword.value)
   checkRedirectAfterAuth()
 }
 </script>
@@ -222,17 +226,7 @@ async function handleQuickDemoLogin() {
             </button>
           </div>
 
-          <!-- Quick 1-Tap Demo Login -->
-          <div class="pt-2 border-t border-theme-border text-center">
-            <button
-              @click.prevent="handleQuickDemoLogin"
-              type="button"
-              class="inline-flex items-center gap-1.5 text-xs font-bold text-forest dark:text-forest-glow hover:underline cursor-pointer bg-forest/10 dark:bg-forest/20 px-3.5 py-1.5 rounded-full border border-forest/30 transition"
-            >
-              <IconShieldCheck :size="14" />
-              <span>Masuk Cepat sebagai Member Terverifikasi (Demo)</span>
-            </button>
-          </div>
+
         </form>
 
         <!-- TAB 2: REGISTER -->
@@ -288,7 +282,25 @@ async function handleQuickDemoLogin() {
               v-model="regPassword"
               type="password"
               required
+              minlength="8"
               placeholder="Minimal 8 karakter"
+              class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2 text-xs text-theme-primary focus:outline-none focus:border-forest transition"
+            />
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-xs font-bold text-stone-600 dark:text-stone-400">Konfirmasi Kata Sandi</label>
+              <span v-if="regPassword && regConfirmPassword" :class="regPassword === regConfirmPassword ? 'text-emerald-500' : 'text-red-500'" class="text-[10px] font-bold">
+                {{ regPassword === regConfirmPassword ? '✓ Sandi Cocok' : '✗ Belum Cocok' }}
+              </span>
+            </div>
+            <input
+              v-model="regConfirmPassword"
+              type="password"
+              required
+              minlength="8"
+              placeholder="Ulangi kata sandi di atas"
               class="w-full bg-stone-50 dark:bg-stone-900 border border-theme-border rounded-xl px-3.5 py-2 text-xs text-theme-primary focus:outline-none focus:border-forest transition"
             />
           </div>
