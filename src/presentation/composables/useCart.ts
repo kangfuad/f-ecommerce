@@ -1,3 +1,4 @@
+import { ProductService } from '@/infrastructure/services/api/ProductService'
 import { shallowRef, ref, computed, inject } from 'vue'
 import { CartItem } from '@/domain/entities/CartItem'
 import { Product } from '@/domain/entities/Product'
@@ -30,7 +31,7 @@ let badgeTimeout: any = null
 
 export function useCart() {
   const manageCartUseCase = inject(TOKENS.MANAGE_CART_USE_CASE, DIContainer.manageCartUseCase)
-  const { isLoggedIn, openLoginModal } = useAuth()
+  const { currentUser, isLoggedIn, openLoginModal } = useAuth()
   const { showToast } = useToast()
 
   const totalItemCount = computed(() =>
@@ -112,17 +113,42 @@ export function useCart() {
     isLoading.value = true
     cartError.value = null
     try {
-      cartItems.value = await manageCartUseCase.addToCart(input)
-      
-      // Sync with Backend Database API
+      // 1. Proactive Self-Rental Check on Frontend
+      const prodRes = await ProductService.getProductById(input.productId)
+      const product = prodRes.status === 'success' ? prodRes.data : null
+      const userStoreId = (currentUser.value as any)?.providerStoreId || (currentUser.value as any)?.storeId
+      if (userStoreId && product?.provider?.id && userStoreId === product.provider.id) {
+        showToast({
+          type: 'warning',
+          title: 'Unit Toko Anda Sendiri',
+          message: 'Anda tidak dapat menambahkan unit dari toko milik Anda sendiri ke keranjang sewa.',
+        })
+        return
+      }
+
+      // 2. Add to Backend Database Cart first
       const startStr = (input.startDate instanceof Date ? input.startDate : new Date(input.startDate)).toISOString().slice(0, 10)
       const endStr = (input.endDate instanceof Date ? input.endDate : new Date(input.endDate)).toISOString().slice(0, 10)
-      CartService.addItem({
+      
+      const res = await CartService.addItem({
         productId: input.productId,
         quantity: input.quantity,
         startDate: startStr,
         endDate: endStr,
-      }).catch((e) => console.warn('Cart API sync failed:', e))
+      })
+
+      if (res.status !== 'success') {
+        const errMsg = res.message || 'Anda tidak dapat menambahkan unit dari toko milik Anda sendiri ke keranjang sewa.'
+        showToast({
+          type: 'warning',
+          title: 'Perhatian',
+          message: errMsg,
+        })
+        return
+      }
+
+      // 3. Update in-memory reactive cart on success
+      cartItems.value = await manageCartUseCase.addToCart(input)
 
       // Trigger non-intrusive animation and toast instead of forced drawer opening
       triggerCartAnimation(productName)

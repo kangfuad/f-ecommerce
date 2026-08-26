@@ -72,6 +72,7 @@ export interface UserProfileProps {
   selfiePhotoUrl?: string
   memberTier: MemberTier
   hasProviderStore?: boolean
+  providerStoreId?: string
   providerStoreName?: string
   rentalCount: number
   joinedAt: Date
