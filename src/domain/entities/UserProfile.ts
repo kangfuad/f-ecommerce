@@ -182,6 +182,42 @@ export class UserProfile {
       this.reputation = props.reputation
     } else {
       this.reputation = {
+        score: 0,
+        reviewCount: 0,
+        positivePercentage: 0,
+        trustBadges: [],
+        reviews: [],
+      }
+    }
+
+    if ((!props.savedAddresses || props.savedAddresses.length === 0) && props.address && props.city) {
+      this.savedAddresses = [
+        {
+          id: `addr_domisili_${props.id}`,
+          label: 'Alamat Domisili (Utama)',
+          recipientName: props.fullName,
+          phone: props.phone,
+          fullAddress: props.address,
+          city: props.city,
+          provinceId: props.provinceId,
+          provinceName: props.provinceName,
+          regencyId: props.regencyId,
+          regencyName: props.regencyName,
+          districtId: props.districtId,
+          districtName: props.districtName,
+          villageId: props.villageId,
+          villageName: props.villageName,
+          postalCode: props.postalCode || '',
+          isDefault: true,
+        },
+      ]
+    } else {
+      this.savedAddresses = props.savedAddresses || []
+    }
+    if (props.reputation) {
+      this.reputation = props.reputation
+    } else {
+      this.reputation = {
         score: 5.0,
         reviewCount: 3,
         positivePercentage: 100,

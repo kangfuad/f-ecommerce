@@ -294,7 +294,7 @@ function handleSaveProfile() {
             ]"
           >
             <IconStar :size="13" class="text-amber-500" />
-            <span>Reputasi & Ulasan Penyewa ({{ currentUser?.reputation?.score ? currentUser.reputation.score.toFixed(1) : "5.0" }} ⭐)</span>
+            <span>Reputasi & Ulasan Penyewa ({{ currentUser?.reputation?.reviewCount ? currentUser.reputation.score.toFixed(1) + " ⭐" : "0 Ulasan" }})</span>
           </button>
         </div>
 
@@ -403,29 +403,38 @@ function handleSaveProfile() {
               </span>
               <div class="flex items-center gap-3">
                 <span class="text-3xl sm:text-4xl font-black font-mono text-theme-primary">
-                  {{ currentUser?.reputation?.score ? currentUser.reputation.score.toFixed(1) : '5.0' }}
+                  {{ currentUser?.reputation?.reviewCount ? currentUser.reputation.score.toFixed(1) : '-' }}
                 </span>
                 <div>
-                  <div class="flex text-amber-500 text-sm">
-                    <span v-for="i in 5" :key="i" :class="i <= Math.round(currentUser?.reputation?.score || 5) ? 'opacity-100' : 'opacity-30'">⭐</span>
+                  <div v-if="currentUser?.reputation?.reviewCount" class="flex text-amber-500 text-sm">
+                    <span v-for="i in 5" :key="i" :class="i <= Math.round(currentUser.reputation.score) ? 'opacity-100' : 'opacity-30'">⭐</span>
                   </div>
                   <p class="text-[11px] text-stone-500 font-bold">
-                    {{ currentUser?.reputation?.positivePercentage ?? 100 }}% Ulasan Positif dari Mitra Penyedia Sewa
+                    <template v-if="currentUser?.reputation?.reviewCount">
+                      {{ currentUser.reputation.positivePercentage }}% Ulasan Positif ({{ currentUser.reputation.reviewCount }} Ulasan)
+                    </template>
+                    <template v-else>
+                      Belum memiliki ulasan transaksi dari mitra penyedia sewa
+                    </template>
                   </p>
                 </div>
               </div>
             </div>
 
             <!-- Trust Badges -->
-            <div class="flex flex-wrap gap-2">
+            <div v-if="currentUser?.reputation?.trustBadges && currentUser.reputation.trustBadges.length > 0" class="flex flex-wrap gap-2">
               <span
-                v-for="(badge, bIdx) in (currentUser?.reputation?.trustBadges || ['Pengembalian Tepat Waktu (100%)', 'Unit Terjaga Sangat Baik'])"
+                v-for="(badge, bIdx) in currentUser.reputation.trustBadges"
                 :key="bIdx"
                 class="px-3 py-1.5 rounded-2xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-xs font-extrabold border border-emerald-500/30 flex items-center gap-1.5"
               >
                 <IconCheck :size="12" class="stroke-[3]" />
                 <span>{{ badge }}</span>
               </span>
+            </div>
+            <div v-else class="px-3.5 py-1.5 rounded-2xl bg-stone-100 dark:bg-stone-800 text-stone-500 text-xs font-bold border border-theme-border flex items-center gap-1.5">
+              <IconShieldCheck :size="14" />
+              <span>Status Member Terverifikasi</span>
             </div>
           </div>
 
@@ -472,12 +481,17 @@ function handleSaveProfile() {
               </div>
             </div>
 
-            <!-- Empty State -->
-            <div v-else class="p-8 rounded-3xl bg-theme-card border border-theme-border text-center space-y-2">
-              <p class="font-bold text-sm text-theme-primary">Belum Ada Ulasan Masuk</p>
-              <p class="text-xs text-stone-400 max-w-sm mx-auto">
-                Selesaikan transaksi sewa perlengkapan pertama Anda untuk mendapatkan penilaian dan membangun reputasi penyewa terpercaya.
-              </p>
+            <!-- Real Clean Empty State -->
+            <div v-else class="p-10 rounded-3xl bg-theme-card border border-theme-border text-center space-y-3">
+              <div class="w-12 h-12 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-400 flex items-center justify-center mx-auto">
+                <IconStar :size="22" />
+              </div>
+              <div class="space-y-1">
+                <h4 class="font-bold text-sm text-theme-primary">Belum Ada Ulasan Masuk</h4>
+                <p class="text-xs text-stone-400 max-w-md mx-auto leading-relaxed">
+                  Anda belum memiliki riwayat ulasan dari mitra penyedia sewa. Selesaikan transaksi booking dan sewa pertama Anda untuk mengumpulkan penilaian kredibilitas.
+                </p>
+              </div>
             </div>
           </div>
 
