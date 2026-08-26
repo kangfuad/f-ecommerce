@@ -48,7 +48,7 @@ export class OrderService {
   public static async getOrders(status: string = 'ALL'): Promise<ApiResponse<OrderDto[]>> {
     // 1. Try real API
     const realRes = await apiClient.get<OrderDto[]>(`${API_ENDPOINTS.ORDERS.MY_ORDERS}?status=${status}`)
-    if (realRes.status === 'success' && Array.isArray(realRes.data) && realRes.data.length > 0) {
+    if (realRes.status === 'success' && Array.isArray(realRes.data)) {
       return realRes
     }
 
