@@ -21,6 +21,7 @@ import {
   IconChevronLeft,
   IconChevronRight,
   IconLocation,
+  IconShieldCheck,
 } from '@/presentation/components/icons'
 
 interface Props {
