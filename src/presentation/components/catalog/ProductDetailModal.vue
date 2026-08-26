@@ -296,16 +296,11 @@ async function handleAddToCart() {
             </div>
           </div>
 
-          <!-- Step 1: Date Range Picker -->
-          <div class="min-w-0">
-            <span class="text-[10px] uppercase font-extrabold tracking-wider text-stone-400 mb-1.5 block">
-              1. Pilih Tanggal Sewa & Pengembalian
-            </span>
-            <DateRangePicker
-              v-model:startDate="startDate"
-              v-model:endDate="endDate"
-            />
-          </div>
+          <!-- Date Range Picker -->
+          <DateRangePicker
+            v-model:startDate="startDate"
+            v-model:endDate="endDate"
+          />
 
           <!-- Step 2: Quantity Control -->
           <div class="flex items-center justify-between bg-stone-50 dark:bg-stone-900/80 border border-theme-border rounded-2xl px-3.5 sm:px-4 py-2.5 min-w-0 gap-2">
