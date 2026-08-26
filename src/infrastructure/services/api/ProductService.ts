@@ -68,7 +68,7 @@ export class ProductService {
     }
 
     const realRes = await apiClient.get<ProductRawDto[]>(`${API_ENDPOINTS.PRODUCTS.LIST}${queryStr}`)
-    if (realRes.status === 'success' && Array.isArray(realRes.data) && realRes.data.length > 0) {
+    if (realRes.status === 'success' && Array.isArray(realRes.data)) {
       return realRes
     }
 

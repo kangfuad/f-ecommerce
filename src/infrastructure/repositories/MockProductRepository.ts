@@ -218,7 +218,7 @@ export class MockProductRepository implements IProductRepository {
 
     try {
       const response = await ProductService.getProducts()
-      if (response.status === 'success' && Array.isArray(response.data) && response.data.length > 0) {
+      if (response.status === 'success' && Array.isArray(response.data)) {
         this.productsCache = response.data.map(
           (raw: ProductRawDto) =>
             new Product({
@@ -228,7 +228,7 @@ export class MockProductRepository implements IProductRepository {
               dailyRate: raw.dailyRate,
               marketValue: raw.marketValue || raw.dailyRate * 10,
               depositAmount: raw.depositAmount || 0,
-              images: raw.images || [],
+              images: raw.images && raw.images.length > 0 ? raw.images : (raw.primaryImage ? [raw.primaryImage] : []),
               description: raw.description,
               specs: raw.specs || {},
               includedItems: raw.includedItems || [],

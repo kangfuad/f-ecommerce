@@ -29,7 +29,7 @@ export class FaqService {
 
     // 1. Try real API
     const realRes = await apiClient.get<FaqDto[]>(API_ENDPOINTS.FAQS.LIST)
-    if (realRes.status === 'success' && Array.isArray(realRes.data) && realRes.data.length > 0) {
+    if (realRes.status === 'success' && Array.isArray(realRes.data)) {
       this.cachedFaqs = realRes.data
       return realRes
     }

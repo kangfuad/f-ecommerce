@@ -26,7 +26,7 @@ export class CategoryService {
 
     // 1. Try real API
     const realRes = await apiClient.get<CategoryDto[]>(API_ENDPOINTS.CATEGORIES.LIST)
-    if (realRes.status === 'success' && Array.isArray(realRes.data) && realRes.data.length > 0) {
+    if (realRes.status === 'success' && Array.isArray(realRes.data)) {
       this.cachedCategories = realRes.data.map((c) => ({
         ...c,
         label: c.label || c.name || c.id,
