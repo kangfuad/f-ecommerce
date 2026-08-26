@@ -46,65 +46,20 @@ export class OrderService {
    * Fetch all bookings for tenant (merging real API / local data)
    */
   public static async getOrders(status: string = 'ALL'): Promise<ApiResponse<OrderDto[]>> {
-    // 1. Try real API
+    // 1. Fetch real API from PostgreSQL backend
     const realRes = await apiClient.get<OrderDto[]>(`${API_ENDPOINTS.ORDERS.MY_ORDERS}?status=${status}`)
     if (realRes.status === 'success' && Array.isArray(realRes.data)) {
       return realRes
     }
 
-    // 2. Fallback to local mock data & runtime localStorage bookings
-    try {
-      const response = await apiClient.get<OrderDto[]>(API_ENDPOINTS.LOCAL_MOCKS.ORDERS)
-      const baseOrders = response.data || []
-
-      const localRaw = typeof localStorage !== 'undefined' ? localStorage.getItem(LOCAL_ORDERS_STORAGE_KEY) : null
-      let localOrders: OrderDto[] = []
-      if (localRaw) {
-        try {
-          localOrders = JSON.parse(localRaw)
-        } catch {
-          localOrders = []
-        }
-      }
-
-      const combinedMap = new Map<string, OrderDto>()
-      baseOrders.forEach((o) => combinedMap.set(o.id, o))
-      localOrders.forEach((o) => combinedMap.set(o.id, o))
-
-      let allOrders = Array.from(combinedMap.values()).sort(
-        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      )
-
-      if (status && status !== 'ALL') {
-        if (status === 'PENDING') {
-          allOrders = allOrders.filter((o) => o.lifecycleStatus === 'PENDING_CONFIRMATION')
-        } else if (status === 'ACTIVE') {
-          allOrders = allOrders.filter((o) => o.lifecycleStatus === 'CONFIRMED' || o.lifecycleStatus === 'ACTIVE_RENTAL')
-        } else if (status === 'COMPLETED') {
-          allOrders = allOrders.filter((o) => o.lifecycleStatus === 'COMPLETED')
-        } else if (status === 'REJECTED') {
-          allOrders = allOrders.filter((o) => o.lifecycleStatus === 'REJECTED')
-        }
-      }
-
-      return {
-        status: 'success',
-        data: allOrders,
-        message: 'Daftar booking berhasil dimuat',
-      }
-    } catch (error) {
-      console.error('[OrderService.getOrders] Error:', error)
-      return {
-        status: 'error',
-        data: [],
-        message: 'Gagal memuat daftar pesanan booking.',
-      }
+    // 2. Return clean empty data when database has no orders
+    return {
+      status: 'success',
+      data: [],
+      message: 'Tidak ada riwayat pesanan sewa aktif.',
     }
   }
 
-  /**
-   * Get single booking by ID
-   */
   public static async getOrderById(orderId: string): Promise<ApiResponse<OrderDto | null>> {
     // 1. Try real API
     const realRes = await apiClient.get<OrderDto>(API_ENDPOINTS.ORDERS.DETAIL(orderId))

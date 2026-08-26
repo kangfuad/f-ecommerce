@@ -37,6 +37,7 @@ export interface AuthUserDto {
   providerStoreName?: string
   avatarUrl?: string
   savedAddresses?: SavedAddress[]
+  reputation?: any
 }
 
 export interface AuthResultDto {

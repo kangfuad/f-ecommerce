@@ -1,6 +1,7 @@
 import { shallowRef, ref, computed } from 'vue'
 import { UserProfile } from '@/domain/entities/UserProfile'
 import { AuthService } from '@/infrastructure/services/api'
+import { useToast } from './useToast'
 
 const AUTH_STORAGE_KEY = 'epunyasewa_auth_user'
 const AUTH_TOKEN_KEY = 'epunyasewa_auth_token'
@@ -14,6 +15,7 @@ const authError = ref<string | null>(null)
 const isInitialized = ref(false)
 
 export function useAuth() {
+  const { showToast } = useToast()
   function initAuth() {
     if (isInitialized.value) return
     isInitialized.value = true
@@ -64,34 +66,64 @@ export function useAuth() {
         throw new Error('Silakan masukkan email atau nomor WhatsApp Anda.')
       }
 
-      // Hit AuthService hitting /data/auth-user.json
+      // Hit Backend Auth API
       const response = await AuthService.loginWithCredentials(emailOrPhone.trim(), password)
       
       if (response.status === 'success' && response.data) {
         const { user, token } = response.data
         const loggedUser = new UserProfile({
-          id: user.id || `user_${Date.now()}`,
+          id: user.id || ('usr_' + Date.now()),
           fullName: user.fullName || emailOrPhone,
+          displayName: user.displayName || user.fullName || emailOrPhone,
           email: user.email || emailOrPhone,
           phone: user.phone || '081234567890',
+          emergencyContactName: user.emergencyContactName,
+          emergencyPhone: user.emergencyPhone,
+          emergencyRelation: user.emergencyRelation,
+          profession: user.profession,
+          companyOrStudio: user.companyOrStudio,
+          socialMediaInstagram: user.socialMediaInstagram,
+          city: user.city,
+          provinceId: user.provinceId,
+          provinceName: user.provinceName,
+          regencyId: user.regencyId,
+          regencyName: user.regencyName,
+          districtId: user.districtId,
+          districtName: user.districtName,
+          villageId: user.villageId,
+          villageName: user.villageName,
+          address: user.address,
+          postalCode: user.postalCode,
+          bio: user.bio,
           isKycVerified: user.isKycVerified ?? true,
+          kycStatus: user.kycStatus || 'VERIFIED',
+          idType: user.idType || 'KTP',
+          idNumber: user.idNumber,
           hasProviderStore: user.hasProviderStore !== undefined ? user.hasProviderStore : true,
           providerStoreName: user.providerStoreName || 'CinemaTech Rental Jakarta',
           memberTier: 'VERIFIED_GOLD',
-          rentalCount: 1,
+          rentalCount: 0,
           joinedAt: new Date(),
+          savedAddresses: user.savedAddresses,
+          reputation: user.reputation,
         })
 
         currentUser.value = loggedUser
         localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(loggedUser))
-        localStorage.setItem(AUTH_TOKEN_KEY, token)
+        localStorage.removeItem('epunyasewa_my_bookings_list')
+
+        showToast({
+          type: 'success',
+          title: 'Berhasil Masuk!',
+          message: ('Selamat datang kembali, ' + loggedUser.fullName + '!'),
+        })
+
         closeAuthModal()
       } else {
-        throw new Error(response.message || 'Gagal masuk akun.')
+        throw new Error(response.message || 'Kombinasi email dan kata sandi tidak cocok.')
       }
     } catch (err: any) {
-      authError.value = err.message || 'Gagal masuk akun. Periksa kembali kredensial Anda.'
-      throw err
+      authError.value = err.message || 'Gagal masuk ke akun. Silakan coba kembali.'
     } finally {
       isLoading.value = false
     }
