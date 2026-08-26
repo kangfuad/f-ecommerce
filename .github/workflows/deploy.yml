@@ -70,7 +70,7 @@ jobs:
             echo "=========================================="
 
             # 1. Target directory configuration (fallback to /var/www/epunyasewa)
-            TARGET_DIR="${{ secrets.VPS_TARGET_DIR || '/var/www/epunyasewa' }}"
+            TARGET_DIR="${{ secrets.VPS_TARGET_DIR || '/var/www/epunyasewa/f-ecommerce' }}"
             
             if [ ! -d "$TARGET_DIR" ]; then
               echo "⚠️ Target directory $TARGET_DIR does not exist. Creating..."
