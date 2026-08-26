@@ -862,3 +862,29 @@ erDiagram
   ]
 }
 ```
+
+---
+
+### MODUL 6: MEDIA & FILE UPLOAD
+
+#### 6.1 Upload Berkas ke Server Lokal (PDF / Gambar)
+* **Endpoint:** `POST /api/v1/storage/upload`
+* **Headers:** `Authorization: Bearer <TOKEN>`, `Content-Type: multipart/form-data`
+* **Deskripsi:** Mengunggah berkas PDF (Surat Perjanjian Sewa, Kwitansi Bill) atau Gambar langsung ke penyimpanan lokal server (`/uploads`) dan mengembalikan URL publik.
+* **Payload (`multipart/form-data`):**
+  * `file` (File binary: `.pdf`, `.jpg`, `.jpeg`, `.png`, `.webp`, max 10MB)
+* **Respon (Success - 200 OK):**
+```json
+{
+  "status": "success",
+  "message": "Berkas berhasil disimpan di server lokal.",
+  "data": {
+    "filename": "agreements-1724673600000-891234.pdf",
+    "originalName": "surat_perjanjian_sewa_ttd.pdf",
+    "mimeType": "application/pdf",
+    "size": 245120,
+    "url": "http://localhost:3000/uploads/agreements/agreements-1724673600000-891234.pdf"
+  }
+}
+```
+
