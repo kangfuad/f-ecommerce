@@ -275,16 +275,20 @@ export class OrderService {
    * Provider action: Get timeline orders
    */
   public static async getProviderOrders(): Promise<ApiResponse<OrderDto[]>> {
-    const realRes = await apiClient.get<OrderDto[]>(API_ENDPOINTS.PROVIDER_ORDERS.TIMELINE)
-    if (realRes.status === 'success' && Array.isArray(realRes.data)) {
-      return realRes
+    const realRes = await apiClient.get<any>(API_ENDPOINTS.PROVIDER_ORDERS.TIMELINE)
+    if (realRes.status === 'success' && realRes.data) {
+      const list = Array.isArray(realRes.data)
+        ? realRes.data
+        : (Array.isArray(realRes.data.orders) ? realRes.data.orders : [])
+      return {
+        status: 'success',
+        data: list,
+        message: realRes.message || 'Data timeline penyedia berhasil diambil.',
+      }
     }
     return this.getOrders('ALL')
   }
 
-  /**
-   * Provider action: Accept booking request -> changes status to CONFIRMED
-   */
   public static async acceptBooking(orderId: string, note?: string): Promise<ApiResponse<OrderDto>> {
     // 1. Try real API
     const realRes = await apiClient.put<OrderDto>(API_ENDPOINTS.PROVIDER_ORDERS.CONFIRM(orderId), { note })

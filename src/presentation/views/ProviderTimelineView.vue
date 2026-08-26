@@ -57,7 +57,7 @@ const billFileInputRef = ref<HTMLInputElement | null>(null)
 async function fetchOrders() {
   isLoading.value = true
   try {
-    const res = await OrderService.getOrders()
+    const res = await OrderService.getProviderOrders()
     orders.value = res.data || []
   } catch (err) {
     console.error(err)
