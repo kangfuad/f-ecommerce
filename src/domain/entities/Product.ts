@@ -22,6 +22,13 @@ export interface ProductProps {
   isFeatured?: boolean
   isPopular?: boolean
   badgeText?: string
+  provider?: {
+    id: string
+    name: string
+    phone?: string
+    rating?: number
+    isVerified?: boolean
+  }
 }
 
 /**
@@ -46,6 +53,13 @@ export class Product {
   public readonly isFeatured: boolean
   public readonly isPopular: boolean
   public readonly badgeText?: string
+  public readonly provider?: {
+    id: string
+    name: string
+    phone?: string
+    rating?: number
+    isVerified?: boolean
+  }
 
   constructor(props: ProductProps) {
     this.id = props.id
@@ -66,6 +80,7 @@ export class Product {
     this.isFeatured = props.isFeatured ?? false
     this.isPopular = props.isPopular ?? false
     this.badgeText = props.badgeText
+    this.provider = props.provider
   }
 
   public get primaryImage(): string {

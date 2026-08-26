@@ -31,6 +31,7 @@ export class MockProductRepository implements IProductRepository {
               isFeatured: raw.isFeatured,
               isPopular: raw.isPopular,
               badgeText: raw.badgeText,
+              provider: raw.provider,
             })
         )
       }
@@ -120,6 +121,7 @@ export class MockProductRepository implements IProductRepository {
           isFeatured: raw.isFeatured,
           isPopular: raw.isPopular,
           badgeText: raw.badgeText,
+          provider: raw.provider,
         })
       }
     } catch (e) {

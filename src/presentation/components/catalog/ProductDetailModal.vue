@@ -36,9 +36,18 @@ const emit = defineEmits<{
 const activeImageIndex = ref(0)
 const showShareModal = ref(false)
 const { addToCart, isLoading: isAddingToCart } = useCart()
-const { isLoggedIn, openLoginModal } = useAuth()
+const { currentUser, isLoggedIn, openLoginModal } = useAuth()
 const { openLightbox } = useImageLightbox()
 const { showToast } = useToast()
+
+const isOwnProduct = computed(() => {
+  if (!isLoggedIn.value || !currentUser.value) return false
+  const userStoreId = (currentUser.value as any)?.providerStoreId || (currentUser.value as any)?.storeId
+  if (userStoreId && props.product?.provider?.id && userStoreId === props.product.provider.id) {
+    return true
+  }
+  return false
+})
 
 // Lock background page scroll when modal is open
 useBodyScrollLock(() => !!props.product)
@@ -110,6 +119,14 @@ const {
 async function handleAddToCart() {
   if (!isLoggedIn.value) {
     openLoginModal()
+    return
+  }
+  if (isOwnProduct.value) {
+    showToast({
+      type: 'warning',
+      title: 'Unit Toko Anda Sendiri',
+      message: 'Anda tidak dapat menyewa unit perlengkapan dari toko milik Anda sendiri.',
+    })
     return
   }
   if (!props.product || !currentBooking.value) return
@@ -336,9 +353,15 @@ async function handleAddToCart() {
             <span class="break-words min-w-0">{{ calculationError }}</span>
           </div>
 
+          <!-- Own Product Notice -->
+          <div v-if="isOwnProduct" class="p-3.5 rounded-2xl bg-amber-500/10 dark:bg-amber-500/20 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs font-bold flex items-center gap-2.5">
+            <IconShieldCheck :size="18" class="shrink-0 text-amber-600 dark:text-amber-400" />
+            <span>Unit ini adalah inventaris toko sewa milik Anda sendiri (Tidak dapat disewa oleh diri sendiri).</span>
+          </div>
+
           <!-- Live Price Breakdown -->
           <RentalPriceBreakdown
-            v-if="currentBooking"
+            v-if="currentBooking && !isOwnProduct"
             :booking="currentBooking"
           />
 
@@ -346,13 +369,13 @@ async function handleAddToCart() {
           <BaseButton
             @click="handleAddToCart"
             :loading="isAddingToCart"
-            :disabled="!currentBooking"
-            variant="primary"
+            :disabled="!currentBooking || isOwnProduct"
+            :variant="isOwnProduct ? 'secondary' : 'primary'"
             size="lg"
-            class="w-full cursor-pointer shadow-md text-xs sm:text-sm font-black flex items-center justify-between px-4 sm:px-5 py-3"
+            class="w-full shadow-md text-xs sm:text-sm font-black flex items-center justify-between px-4 sm:px-5 py-3"
           >
-            <span class="truncate">Ajukan Booking Unit</span>
-            <span v-if="currentBooking" class="font-mono text-xs sm:text-sm font-black shrink-0 ml-2">
+            <span class="truncate">{{ isOwnProduct ? 'Unit Inventaris Toko Anda Sendiri' : 'Ajukan Booking Unit' }}</span>
+            <span v-if="currentBooking && !isOwnProduct" class="font-mono text-xs sm:text-sm font-black shrink-0 ml-2">
               {{ currentBooking.netRentalPrice.format() }}
             </span>
           </BaseButton>
