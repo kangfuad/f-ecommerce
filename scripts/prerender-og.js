@@ -41,7 +41,7 @@ function runPrerender() {
     if (!product || !product.id) continue
 
     const pageTitle = `Sewa ${product.name} (Rp ${Number(product.dailyRate).toLocaleString('id-ID')}/hari) — e-punyasewa`
-    const pageDesc = `${product.name} — ${product.description.slice(0, 150)}... Bebas Deposit Rp 0 Member KYC & Garansi QC 100% di e-punyasewa.`
+    const pageDesc = `Sewa ${product.name} tarif Rp ${Number(product.dailyRate).toLocaleString('id-ID')}/hari di e-punyasewa. ${product.description.slice(0, 120)}... Reservasi unit mudah, cepat & transaksi transparan.`
     const imageUrl = product.images?.[0] || product.primaryImage || '/og-image.png'
     const fullImageUrl = imageUrl.startsWith('http') ? imageUrl : `${siteOrigin}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`
     const productUrl = `${siteOrigin}/produk/${product.id}`

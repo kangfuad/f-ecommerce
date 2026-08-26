@@ -435,7 +435,7 @@ onUnmounted(() => {
                 <p class="font-bold text-xs text-theme-primary">{{ currentUser.fullName }}</p>
                 <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
                   <IconCheck :size="10" class="stroke-[3]" />
-                  <span>Bebas Deposit Member</span>
+                  <span>Akun Terverifikasi</span>
                 </span>
               </div>
             </div>

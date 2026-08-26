@@ -214,7 +214,7 @@ export class UserProfile {
   public get kycBadge(): { label: string; classes: string } {
     if (this.isKycVerified || this.kycStatus === 'VERIFIED') {
       return {
-        label: 'Terverifikasi (Bebas Deposit)',
+        label: 'Penyewa Terverifikasi',
         classes: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30',
       }
     }

@@ -29,7 +29,7 @@ const shareUrl = computed(() => {
 
 const shareMessage = computed(() => {
   if (!props.product) return ''
-  return `Sewa ${props.product.name} (${formatRupiah(props.product.dailyRate.amount)}/hari) di e-punyasewa. Bebas Deposit Rp 0 Member KYC & Garansi QC 100%!`
+  return `Sewa ${props.product.name} (${formatRupiah(props.product.dailyRate.amount)}/hari) di e-punyasewa. Reservasi unit mudah, cepat & transaksi transparan!`
 })
 
 const canNativeShare = computed(() => {
@@ -158,9 +158,9 @@ async function triggerNativeShare() {
 
       <!-- Mini Product Preview Card -->
       <div class="flex items-center gap-3 p-3 rounded-2xl bg-stone-50 dark:bg-stone-900 border border-theme-border">
-        <div class="w-14 h-14 rounded-xl overflow-hidden bg-stone-200 dark:bg-stone-800 shrink-0 border border-theme-border/60">
+        <div class="w-14 h-14 rounded-xl overflow-hidden bg-stone-200 dark:bg-stone-800 shrink-0 border border-theme-border">
           <img
-            :src="product.images?.[0] || product.primaryImage"
+            :src="product.primaryImage"
             :alt="product.name"
             class="w-full h-full object-cover"
           />
@@ -174,7 +174,7 @@ async function triggerNativeShare() {
               {{ formatRupiah(product.dailyRate.amount) }}<span class="text-[10px] font-normal text-stone-500">/hari</span>
             </span>
             <span class="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-bold text-[9px] border border-emerald-500/30">
-              Bebas Deposit
+              Unit Terverifikasi
             </span>
           </div>
         </div>

@@ -9,9 +9,9 @@ export interface MetaTagsOptions {
 }
 
 const DEFAULT_META: MetaTagsOptions = {
-  title: 'e-punyasewa — Platform Sewa & Rental Perlengkapan Modern',
+  title: 'e-punyasewa — Platform Informasi & Reservasi Sewa Perlengkapan Modern',
   description:
-    'Sewa kamera sinema, drone DJI, laptop/gadget, perlengkapan outdoor camping, dan audio sound system dengan mudah, bebas deposit member KYC, dan garansi unit QC 100% di e-punyasewa.',
+    'Platform reservasi & informasi sewa kamera sinema, drone, gadget/laptop, audio visual, perlengkapan outdoor & event terlengkap di Indonesia. Booking mudah dengan transaksi langsung yang transparan.',
   image: '/og-image.png',
   type: 'website',
 }

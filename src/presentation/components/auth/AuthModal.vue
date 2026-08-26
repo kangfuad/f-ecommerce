@@ -241,9 +241,9 @@ async function handleQuickDemoLogin() {
           <div class="bg-forest/10 dark:bg-forest/20 border border-forest/30 rounded-2xl p-3 flex items-start gap-2.5">
             <IconShieldCheck :size="18" class="text-forest dark:text-forest-glow shrink-0 mt-0.5" />
             <div>
-              <p class="text-xs font-extrabold text-forest dark:text-forest-glow">Keuntungan Member</p>
+              <p class="text-xs font-extrabold text-forest dark:text-forest-glow">Platform Sewa Terpercaya</p>
               <p class="text-[11px] text-stone-600 dark:text-stone-300 mt-0.5">
-                Verifikasi identitas (KYC) dan nikmati jaminan sewa <strong>Bebas Deposit 100%</strong>.
+                Daftar akun untuk kemudahan booking unit, jadwal temu, dan transaksi langsung yang transparan.
               </p>
             </div>
           </div>
@@ -300,7 +300,7 @@ async function handleQuickDemoLogin() {
             size="md"
             class="w-full mt-2"
           >
-            Daftar & Klaim Bebas Deposit
+            Daftar Akun Baru
           </BaseButton>
 
           <!-- Divider -->

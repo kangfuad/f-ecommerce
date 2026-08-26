@@ -60,7 +60,7 @@ watch(selectedProductForModal, (product) => {
   if (product) {
     updateMetaTags({
       title: `${product.name} (Sewa Rp ${product.dailyRate.amount.toLocaleString('id-ID')}/hari)`,
-      description: `${product.name} — ${product.description.slice(0, 140)}... Bebas deposit Rp 0 member KYC di e-punyasewa.`,
+      description: `Sewa ${product.name} tarif Rp ${product.dailyRate.amount.toLocaleString('id-ID')}/hari di e-punyasewa. ${product.description.slice(0, 120)}... Reservasi unit mudah & transaksi transparan.`,
       image: product.images?.[0] || product.primaryImage,
       url: `/katalog?produk=${product.id}`,
       type: 'product',

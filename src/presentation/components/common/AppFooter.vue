@@ -53,7 +53,7 @@ import { IconLogo, IconLocation } from '@/presentation/components/icons'
               <router-link to="/bantuan" class="hover:text-forest-soft transition font-medium">Pusat Bantuan & FAQ Prosedur</router-link>
             </li>
             <li>
-              <router-link to="/profil" class="hover:text-forest-soft transition font-medium">Verifikasi Identitas (Bebas Deposit)</router-link>
+              <router-link to="/profil" class="hover:text-forest-soft transition font-medium">Profil & Identitas Pengguna</router-link>
             </li>
           </ul>
           <div class="space-y-1 text-xs text-stone-400 font-light pt-1 border-t border-stone-800/80">

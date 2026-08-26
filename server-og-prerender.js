@@ -76,7 +76,7 @@ export function handleSocialMetaMiddleware(req, res, next) {
     const fullImageUrl = imageUrl.startsWith('http') ? imageUrl : `${siteOrigin}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`
 
     const pageTitle = `Sewa ${product.name} (Rp ${product.dailyRate.toLocaleString('id-ID')}/hari) — e-punyasewa`
-    const pageDesc = `${product.name} — ${product.description.slice(0, 150)}... Fasilitas Bebas Deposit Rp 0 Member KYC di e-punyasewa.`
+    const pageDesc = `Sewa ${product.name} tarif Rp ${product.dailyRate.toLocaleString('id-ID')}/hari di e-punyasewa. ${product.description.slice(0, 120)}... Reservasi unit mudah, cepat & transaksi transparan.`
 
     // 3. Inject Dynamic Open Graph & Twitter Meta Tags for Social Crawler
     html = html.replace(/<title>.*?<\/title>/i, `<title>${pageTitle}</title>`)

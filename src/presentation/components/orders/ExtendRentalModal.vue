@@ -121,12 +121,8 @@ async function handleConfirm() {
       <!-- Calculation Breakdown -->
       <div class="p-3.5 rounded-2xl bg-forest/10 border border-forest/25 space-y-1.5 text-xs">
         <div class="flex items-center justify-between text-stone-600 dark:text-stone-400">
-          <span>Tarif Tambahan ({{ selectedDays }} Hari untuk {{ order.items.length }} Unit):</span>
+          <span>Tarif Tambahan ({{ selectedDays }} Hari):</span>
           <span class="font-bold text-theme-primary">{{ formatRupiah(additionalFee) }}</span>
-        </div>
-        <div class="flex items-center justify-between text-stone-600 dark:text-stone-400">
-          <span>Biaya Deposit Tambahan:</span>
-          <span class="font-bold text-emerald-600 dark:text-emerald-400">Rp 0 (Bebas Deposit)</span>
         </div>
         <div class="pt-2 border-t border-forest/20 flex items-center justify-between font-black text-sm text-forest dark:text-forest-glow">
           <span>Total Biaya Tambahan:</span>

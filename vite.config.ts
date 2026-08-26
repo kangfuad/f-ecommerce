@@ -13,9 +13,9 @@ export default defineConfig({
       includeAssets: ['favicon.ico', 'favicon.svg', 'apple-touch-icon.png', 'icons.svg', 'data/*.json'],
       manifest: {
         id: '/',
-        name: 'e-punyasewa — Platform Sewa & Rental Perlengkapan Modern',
+        name: 'e-punyasewa — Platform Informasi & Reservasi Sewa Perlengkapan Modern',
         short_name: 'e-punyasewa',
-        description: 'Platform Sewa & Rental Perlengkapan Modern Terlengkap di Indonesia. Bebas Deposit Member KYC & Garansi QC 100%.',
+        description: 'Platform reservasi & informasi sewa kamera sinema, drone, gadget/laptop, audio visual, perlengkapan outdoor & event terlengkap di Indonesia. Booking mudah dengan transaksi langsung yang transparan.',
         theme_color: '#14261B',
         background_color: '#0c140f',
         display: 'standalone',
@@ -69,9 +69,9 @@ export default defineConfig({
             icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }],
           },
           {
-            name: 'Profil & KYC',
+            name: 'Profil Pengguna',
             short_name: 'Profil',
-            description: 'Akses status Bebas Deposit dan keanggotaan Anda',
+            description: 'Akses data identitas, domisili, dan ulasan reputasi Anda',
             url: '/profil',
             icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }],
           },
