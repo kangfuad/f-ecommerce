@@ -4,13 +4,12 @@ import { useCart } from '@/presentation/composables/useCart'
 import { useBodyScrollLock } from '@/presentation/composables/useBodyScrollLock'
 import CartItemRow from './CartItemRow.vue'
 import BaseButton from '../common/BaseButton.vue'
-import { APP_CONFIG } from '@/core/config/app.config'
-import { formatRupiah } from '@/core/utils/currency'
 import {
   IconCartBag,
   IconClose,
-  IconCheck,
   IconShieldCheck,
+  IconCalendarDate,
+  IconLocation,
 } from '@/presentation/components/icons'
 
 const router = useRouter()
@@ -20,10 +19,6 @@ const {
   isCartOpen,
   totalItemCount,
   subtotalRental,
-  totalDeposit,
-  isEligibleForFreeDelivery,
-  estimatedDeliveryFee,
-  grandTotal,
   updateQuantity,
   updateItemDates,
   removeItem,
@@ -41,7 +36,7 @@ async function handleUpdateDates(id: string, start: string, end: string) {
   }
 }
 
-function handleProceedToCheckout() {
+function handleProceedToBooking() {
   closeCart()
   router.push('/checkout')
 }
@@ -70,8 +65,8 @@ function handleProceedToCheckout() {
             <IconCartBag :size="18" />
           </div>
           <div>
-            <h2 class="font-bold text-base text-theme-primary">Keranjang Sewa</h2>
-            <p class="text-xs text-theme-muted">{{ totalItemCount }} unit dipilih</p>
+            <h2 class="font-bold text-base text-theme-primary">Daftar Booking Sewa</h2>
+            <p class="text-xs text-theme-muted">{{ totalItemCount }} unit perlengkapan dipilih</p>
           </div>
         </div>
 
@@ -84,26 +79,12 @@ function handleProceedToCheckout() {
         </button>
       </div>
 
-      <!-- Free Delivery Progress Tracker -->
-      <div class="bg-stone-50 dark:bg-stone-900 border-b border-theme-border px-5 py-3 text-xs">
-        <div class="flex items-center justify-between font-semibold text-theme-muted mb-1.5">
-          <span v-if="isEligibleForFreeDelivery" class="text-forest dark:text-forest-glow font-bold flex items-center gap-1.5">
-            <IconCheck :size="14" class="text-forest dark:text-forest-glow" />
-            <span>Gratis Pengiriman Aktif</span>
-          </span>
-          <span v-else class="text-theme-muted">
-            Sewa {{ formatRupiah(APP_CONFIG.RENTAL.FREE_DELIVERY_THRESHOLD - subtotalRental.amount) }} lagi untuk Gratis Ongkir
-          </span>
-          <span class="font-extrabold text-forest dark:text-forest-glow">
-            {{ Math.min(100, Math.round((subtotalRental.amount / APP_CONFIG.RENTAL.FREE_DELIVERY_THRESHOLD) * 100)) }}%
-          </span>
-        </div>
-        <div class="w-full bg-stone-200 dark:bg-stone-800 rounded-full h-1.5 overflow-hidden">
-          <div
-            class="bg-theme-cta h-full rounded-full transition-all duration-500"
-            :style="{ width: `${Math.min(100, (subtotalRental.amount / APP_CONFIG.RENTAL.FREE_DELIVERY_THRESHOLD) * 100)}%` }"
-          ></div>
-        </div>
+      <!-- Info Banner: Direct Booking Notice -->
+      <div class="bg-emerald-50 dark:bg-emerald-950/40 border-b border-emerald-500/20 px-5 py-2.5 text-xs text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
+        <IconCalendarDate :size="14" class="shrink-0 text-emerald-600 dark:text-emerald-400" />
+        <span class="text-[11px] leading-tight">
+          Reservasi unit sewa online. Transaksi & serah terima dilakukan saat jadwal temu.
+        </span>
       </div>
 
       <!-- Content (Items list or empty state) -->
@@ -113,7 +94,7 @@ function handleProceedToCheckout() {
             <IconCartBag :size="28" />
           </div>
           <div>
-            <p class="font-bold text-sm text-theme-primary">Keranjang Sewa Kosong</p>
+            <p class="font-bold text-sm text-theme-primary">Daftar Booking Masih Kosong</p>
             <p class="text-xs text-theme-muted mt-1">Pilih perlengkapan dan tentukan tanggal sewa Anda.</p>
           </div>
           <BaseButton @click="closeCart" variant="primary" size="sm">
@@ -133,41 +114,35 @@ function handleProceedToCheckout() {
         </div>
       </div>
 
-      <!-- Footer / Order Summary -->
+      <!-- Footer / Booking Estimation Summary -->
       <div v-if="cartItems.length > 0" class="p-5 bg-theme-card border-t border-theme-border space-y-3">
         <div class="space-y-1.5 text-xs text-theme-muted">
           <div class="flex justify-between">
-            <span>Subtotal Biaya Sewa</span>
-            <span class="font-bold text-theme-primary">{{ subtotalRental.format() }}</span>
+            <span>Estimasi Biaya Sewa</span>
+            <span class="font-bold text-theme-primary font-mono text-sm">{{ subtotalRental.format() }}</span>
           </div>
-          <div class="flex justify-between">
-            <span>Total Deposit (100% Refundable)</span>
-            <span class="font-bold text-theme-primary">{{ totalDeposit.format() }}</span>
-          </div>
-          <div class="flex justify-between">
-            <span>Ongkos Kirim / Kurir</span>
-            <span v-if="isEligibleForFreeDelivery" class="font-bold text-forest dark:text-forest-glow">GRATIS</span>
-            <span v-else class="font-bold text-theme-primary">{{ estimatedDeliveryFee.format() }}</span>
+          <div class="flex justify-between text-[11px] text-stone-500">
+            <span>Metode Pembayaran</span>
+            <span class="font-semibold text-theme-primary">Direct Settlement (Saat Serah Terima)</span>
           </div>
           <div class="flex justify-between pt-2 border-t border-theme-border text-sm font-extrabold text-theme-primary">
-            <span>Total Pembayaran</span>
-            <span class="text-forest dark:text-forest-glow text-base font-black">{{ grandTotal.format() }}</span>
+            <span>Estimasi Total Sewa</span>
+            <span class="text-forest dark:text-forest-glow text-base font-black font-mono">{{ subtotalRental.format() }}</span>
           </div>
         </div>
 
         <BaseButton
-          @click="handleProceedToCheckout"
+          @click="handleProceedToBooking"
           variant="primary"
           size="lg"
           class="w-full cursor-pointer shadow-md text-xs sm:text-sm font-black"
         >
-          <span>Lanjut ke Pembayaran</span>
-          <span class="truncate">({{ grandTotal.format() }})</span>
+          <span>Lanjut ke Pengajuan Booking</span>
         </BaseButton>
 
         <div class="flex items-center justify-center gap-1.5 text-[10px] text-theme-muted">
           <IconShieldCheck :size="13" class="text-forest dark:text-forest-glow shrink-0" />
-          <span>Pembayaran Terenkripsi & Jaminan Refund Deposit Otomatis</span>
+          <span>Tanpa Tagihan In-App • Konfirmasi Jadwal & Lokasi Langsung</span>
         </div>
       </div>
     </div>

@@ -358,8 +358,8 @@ async function handleAddToCart() {
             size="lg"
             class="w-full cursor-pointer shadow-md text-xs sm:text-sm font-black"
           >
-            <span>Tambahkan ke Keranjang</span>
-            <span v-if="currentBooking" class="truncate">({{ currentBooking.totalCheckoutAmount.format() }})</span>
+            <span>Masukkan ke Daftar Booking</span>
+            <span v-if="currentBooking" class="truncate">({{ currentBooking.netRentalPrice.format() }})</span>
           </BaseButton>
         </div>
       </div>

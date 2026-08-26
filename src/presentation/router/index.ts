@@ -5,6 +5,7 @@ import CheckoutView from '../views/CheckoutView.vue'
 import OrderSuccessView from '../views/OrderSuccessView.vue'
 import MyOrdersView from '../views/MyOrdersView.vue'
 import ProfileView from '../views/ProfileView.vue'
+import ProviderTimelineView from '../views/ProviderTimelineView.vue'
 import HelpCenterView from '../views/HelpCenterView.vue'
 import NotFoundView from '../views/NotFoundView.vue'
 
@@ -29,6 +30,10 @@ const routes = [
     component: CheckoutView,
   },
   {
+    path: '/booking',
+    redirect: '/checkout',
+  },
+  {
     path: '/pembayaran',
     redirect: '/checkout',
   },
@@ -42,6 +47,11 @@ const routes = [
     name: 'my-orders',
     component: MyOrdersView,
     meta: { requiresAuth: true },
+  },
+  {
+    path: '/timeline-penyedia',
+    name: 'provider-timeline',
+    component: ProviderTimelineView,
   },
   {
     path: '/riwayat-sewa',

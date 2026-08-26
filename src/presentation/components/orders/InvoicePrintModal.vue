@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { OrderDto } from '@/infrastructure/services/api/OrderService'
 import { formatRupiah } from '@/core/utils/currency'
 import { IconClose, IconCheck, IconShieldCheck, IconLogo } from '@/presentation/components/icons'
 
@@ -25,14 +24,14 @@ function handlePrint() {
     <!-- Backdrop (hidden on print) -->
     <div @click="emit('close')" class="fixed inset-0 bg-black/65 backdrop-blur-sm transition-opacity print-hide"></div>
 
-    <!-- Modal Card Container (Adapts seamlessly to Light/Dark Mode on screen, and White on Print) -->
-    <div id="printable-invoice-modal-card" class="relative bg-theme-card text-theme-primary rounded-3xl max-w-2xl w-full max-h-[92vh] my-auto overflow-y-auto custom-scrollbar shadow-2xl border border-theme-border z-10 animate-fade-up p-5 sm:p-8 space-y-6 print:bg-white print:text-stone-950 print:border-none print:shadow-none">
+    <!-- Modal Card Container -->
+    <div id="printable-invoice-modal-card" class="relative bg-theme-card text-theme-primary rounded-3xl max-w-3xl w-full max-h-[92vh] my-auto overflow-y-auto custom-scrollbar shadow-2xl border border-theme-border z-10 animate-fade-up p-5 sm:p-8 space-y-6 print:bg-white print:text-stone-950 print:border-none print:shadow-none">
       
       <!-- Top Action Bar (hidden on print) -->
       <div class="flex items-center justify-between border-b border-theme-border pb-4 print-hide">
         <div class="flex items-center gap-2">
           <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[10px] font-black border border-emerald-500/30">
-            INVOICE RESMI
+            FORM PERJANJIAN SEWA RESMI
           </span>
           <span class="text-xs text-stone-500 dark:text-stone-400 font-mono">#{{ order.id }}</span>
         </div>
@@ -46,7 +45,7 @@ function handlePrint() {
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
             </svg>
-            <span>Cetak / Unduh PDF</span>
+            <span>Cetak / Simpan PDF</span>
           </button>
 
           <button
@@ -59,90 +58,99 @@ function handlePrint() {
         </div>
       </div>
 
-      <!-- Printable Invoice Area -->
-      <div id="printable-invoice" class="space-y-6 text-xs text-theme-primary print:text-stone-800">
+      <!-- Printable Agreement Document Area -->
+      <div id="printable-invoice" class="space-y-5 text-xs text-theme-primary print:text-stone-800 leading-relaxed">
         
-        <!-- Company & Invoice Header -->
-        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 border-b border-theme-border print:border-stone-200 pb-5">
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 border-b border-theme-border print:border-stone-200 pb-4">
           <div class="space-y-1">
             <div class="flex items-center gap-2.5">
-              <!-- Official Brand Logo -->
-              <div class="w-9 h-9 rounded-xl bg-[#244E33] dark:bg-emerald-500 text-white dark:text-stone-950 flex items-center justify-center shadow-xs shrink-0 print:bg-[#244E33] print:text-white">
-                <IconLogo :size="20" />
+              <div class="w-8 h-8 rounded-xl bg-[#244E33] text-white flex items-center justify-center shadow-xs shrink-0 print:bg-[#244E33] print:text-white">
+                <IconLogo :size="18" />
               </div>
-              <h2 class="font-display text-xl font-black text-theme-primary print:text-stone-950">e-punyasewa</h2>
+              <h2 class="font-display text-lg font-black text-theme-primary print:text-stone-950">e-punyasewa</h2>
             </div>
-            <p class="text-stone-500 dark:text-stone-400 print:text-stone-500 text-[11px] leading-relaxed">
-              PT Punya Sewa Indonesia<br />
-              Jl. Senopati Raya No. 45, Kebayoran Baru, Jakarta Selatan<br />
-              support@e-punyasewa.id • +62 812-3456-7890
+            <p class="text-stone-500 dark:text-stone-400 print:text-stone-500 text-[10px] leading-tight">
+              Platform Sewa & Rental Perlengkapan Modern Terlengkap di Indonesia<br />
+              PT Punya Sewa Indonesia • support@e-punyasewa.id
             </p>
           </div>
 
-          <div class="text-left sm:text-right space-y-1">
-            <h3 class="font-mono font-black text-base text-theme-primary print:text-stone-950">INVOICE SEWA</h3>
-            <p class="font-mono font-bold text-forest dark:text-forest-glow print:text-emerald-700">INV-EPS-{{ order.id }}</p>
-            <p class="text-stone-500 dark:text-stone-400 print:text-stone-500 text-[11px]">Tanggal: {{ order.createdAt }}</p>
-            <span
-              :class="[
-                'inline-block px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase mt-1 border',
-                order.paymentStatus === 'PAID'
-                  ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 print:bg-emerald-100 print:text-emerald-800 print:border-emerald-300'
-                  : 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/30 print:bg-amber-100 print:text-amber-800 print:border-amber-300'
-              ]"
-            >
-              {{ order.paymentStatus === 'PAID' ? 'LUNAS (TERVERIFIKASI)' : 'MENUNGGU PEMBAYARAN' }}
-            </span>
+          <div class="text-left sm:text-right space-y-0.5">
+            <h3 class="font-black text-sm text-theme-primary print:text-stone-950 uppercase tracking-wide">
+              SURAT PERJANJIAN SEWA & SERAH TERIMA
+            </h3>
+            <p class="font-mono font-bold text-forest dark:text-forest-glow print:text-emerald-700">NO. DOKUMEN: SP-EPS-{{ order.id }}</p>
+            <p class="text-stone-500 dark:text-stone-400 print:text-stone-500 text-[10px]">Tanggal Booking: {{ order.createdAt ? new Date(order.createdAt).toLocaleDateString('id-ID', { dateStyle: 'long' }) : '-' }}</p>
           </div>
         </div>
 
-        <!-- Renter & Shipping Information -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-stone-50 dark:bg-stone-900/80 border border-theme-border print:bg-stone-50 print:border-stone-200">
+        <!-- Identity Section: Pihak Pertama (Penyedia) & Pihak Kedua (Penyewa) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-2xl bg-stone-50 dark:bg-stone-900/80 border border-theme-border print:bg-stone-50 print:border-stone-200">
+          <!-- Pihak Pertama -->
           <div class="space-y-1">
-            <span class="text-stone-400 dark:text-stone-500 font-bold uppercase text-[10px] block">Informasi Penyewa:</span>
-            <p class="font-black text-theme-primary print:text-stone-950 text-sm">{{ order.customer?.fullName }}</p>
-            <p class="text-stone-600 dark:text-stone-300 print:text-stone-600">{{ order.customer?.phone }}</p>
-            <p class="text-stone-500 dark:text-stone-400 print:text-stone-500 text-[11px]">{{ order.customer?.email }}</p>
+            <span class="text-[10px] text-stone-500 dark:text-stone-400 uppercase font-black tracking-wider block">
+              PIHAK PERTAMA (PENYEDIA SEWA):
+            </span>
+            <p class="font-extrabold text-theme-primary print:text-stone-900 text-xs">{{ order.provider?.name || 'CinemaTech Rental Jakarta' }}</p>
+            <p class="text-stone-600 dark:text-stone-300 print:text-stone-600 text-[11px]">{{ order.provider?.address || 'Jl. Gandaria 1 No. 12, Kebayoran Baru, Jakarta Selatan' }}</p>
+            <p class="text-stone-500 text-[11px]">Kontak / WA: {{ order.provider?.phone || '0811-9876-5432' }}</p>
           </div>
 
-          <div class="space-y-1">
-            <span class="text-stone-400 dark:text-stone-500 font-bold uppercase text-[10px] block">Jadwal & Metode Pengiriman:</span>
-            <p class="font-bold text-theme-primary print:text-stone-950">
-              {{ order.items[0]?.startDate }} s/d {{ order.items[0]?.endDate }} ({{ order.items[0]?.rentalDays || 1 }} Hari)
-            </p>
-            <p class="text-stone-600 dark:text-stone-300 print:text-stone-600 font-medium">
-              {{ order.customer?.deliveryMethod === 'DELIVERY' ? 'Kurir Dedicated e-punyasewa' : 'Ambil Sendiri di Hub Rental' }}
-            </p>
-            <p class="text-stone-500 dark:text-stone-400 print:text-stone-500 text-[11px] line-clamp-1">
-              {{ order.customer?.deliveryAddress || order.customer?.pickupHub || 'Hub Rental Jakarta' }}
-            </p>
+          <!-- Pihak Kedua -->
+          <div class="space-y-1 sm:border-l sm:border-theme-border sm:pl-3 print:border-stone-200">
+            <span class="text-[10px] text-stone-500 dark:text-stone-400 uppercase font-black tracking-wider block">
+              PIHAK KEDUA (PENYEWA / TENANT):
+            </span>
+            <p class="font-extrabold text-theme-primary print:text-stone-900 text-xs">{{ order.customer?.fullName || '-' }}</p>
+            <p class="text-stone-600 dark:text-stone-300 print:text-stone-600 text-[11px]">{{ order.customer?.deliveryAddress || 'Sesuai Data Domisili Terverifikasi' }}</p>
+            <p class="text-stone-500 text-[11px]">No. Telepon / WA: {{ order.customer?.phone || '-' }} • Email: {{ order.customer?.email || '-' }}</p>
+          </div>
+        </div>
+
+        <!-- Meetup & Transaction Schedule Info -->
+        <div class="p-3.5 rounded-2xl bg-emerald-500/5 dark:bg-emerald-950/20 border border-emerald-500/20 print:bg-stone-50 print:border-stone-200 space-y-1.5">
+          <span class="text-[10px] font-black text-emerald-800 dark:text-emerald-300 print:text-stone-800 uppercase tracking-wider block">
+            JADWAL & TEMPAT SERAH TERIMA TRANSAKSI:
+          </span>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px]">
+            <div>
+              <span class="text-stone-500 block text-[10px]">Waktu Temu:</span>
+              <strong class="text-theme-primary print:text-stone-900">{{ order.meetup?.scheduleDate || '-' }} • {{ order.meetup?.scheduleTime || '-' }}</strong>
+            </div>
+            <div class="sm:col-span-2">
+              <span class="text-stone-500 block text-[10px]">Lokasi Serah Terima:</span>
+              <strong class="text-theme-primary print:text-stone-900">{{ order.meetup?.locationName || '-' }}</strong>
+              <p class="text-[10px] text-stone-500">{{ order.meetup?.locationAddress || '' }}</p>
+            </div>
           </div>
         </div>
 
         <!-- Items Table -->
-        <div class="overflow-x-auto">
+        <div>
+          <span class="text-[10px] font-black text-stone-500 uppercase tracking-wider block mb-1.5">
+            RINCIAN UNIT PERLENGKAPAN SEWA:
+          </span>
           <table class="w-full text-left border-collapse">
             <thead>
-              <tr class="border-b-2 border-theme-border print:border-stone-200 text-stone-400 dark:text-stone-500 uppercase text-[10px] font-black">
-                <th class="py-2.5 px-2">No</th>
-                <th class="py-2.5 px-2">Perlengkapan Sewa</th>
-                <th class="py-2.5 px-2 text-center">Jml</th>
-                <th class="py-2.5 px-2 text-center">Durasi</th>
-                <th class="py-2.5 px-2 text-right">Tarif / Hari</th>
-                <th class="py-2.5 px-2 text-right">Subtotal</th>
+              <tr class="border-b border-theme-border print:border-stone-200 text-stone-400 dark:text-stone-400 text-[10px] uppercase font-bold">
+                <th class="py-1.5">Item Perlengkapan</th>
+                <th class="py-1.5 text-center">Qty</th>
+                <th class="py-1.5 text-center">Durasi</th>
+                <th class="py-1.5 text-right">Tarif / Hari</th>
+                <th class="py-1.5 text-right">Total Estimasi</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-theme-border/60 print:divide-stone-100">
-              <tr v-for="(item, idx) in order.items" :key="idx" class="text-theme-primary print:text-stone-800">
-                <td class="py-3 px-2 font-mono text-stone-400">{{ Number(idx) + 1 }}</td>
-                <td class="py-3 px-2">
-                  <strong class="font-bold block text-theme-primary print:text-stone-950">{{ item.productName }}</strong>
-                  <span class="text-[10px] text-stone-500 dark:text-stone-400 print:text-stone-500 font-normal">Kondisi: Siap Pakai (QC Tested 100%)</span>
+            <tbody class="divide-y divide-theme-border print:divide-stone-200 text-[11px]">
+              <tr v-for="(item, idx) in order.items" :key="idx" class="print:text-stone-900">
+                <td class="py-2 pr-2">
+                  <p class="font-extrabold text-theme-primary print:text-stone-950">{{ item.productName }}</p>
+                  <p class="text-[10px] text-stone-500">Periode: {{ item.startDate }} s/d {{ item.endDate }}</p>
                 </td>
-                <td class="py-3 px-2 text-center font-bold">{{ item.quantity }}x</td>
-                <td class="py-3 px-2 text-center text-stone-600 dark:text-stone-300 print:text-stone-600">{{ item.rentalDays }} Hari</td>
-                <td class="py-3 px-2 text-right font-mono">{{ formatRupiah(item.dailyRate) }}</td>
-                <td class="py-3 px-2 text-right font-mono font-bold text-theme-primary print:text-stone-950">
+                <td class="py-2 text-center font-mono">{{ item.quantity }}</td>
+                <td class="py-2 text-center font-mono">{{ item.rentalDays }} Hari</td>
+                <td class="py-2 text-right font-mono">{{ formatRupiah(item.dailyRate) }}</td>
+                <td class="py-2 text-right font-mono font-bold text-forest dark:text-forest-glow print:text-stone-950">
                   {{ formatRupiah(item.totalAmount) }}
                 </td>
               </tr>
@@ -150,42 +158,64 @@ function handlePrint() {
           </table>
         </div>
 
-        <!-- Financial Summary Breakdown -->
-        <div class="border-t-2 border-theme-border print:border-stone-200 pt-4 flex flex-col sm:flex-row justify-between gap-4">
-          <div class="space-y-1.5 max-w-xs">
-            <div class="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300 print:text-emerald-800 font-bold text-[11px] p-2 rounded-xl bg-emerald-500/10 dark:bg-emerald-950/40 print:bg-emerald-50 border border-emerald-500/30 print:border-emerald-200">
-              <IconCheck :size="12" class="stroke-[3] text-emerald-600 dark:text-emerald-400" />
-              <span>Bebas Deposit Rp 0 (Member KYC)</span>
-            </div>
-            <p class="text-[10px] text-stone-400 dark:text-stone-500 print:text-stone-400">
-              Metode Pembayaran: <strong class="text-theme-primary print:text-stone-700 uppercase">{{ order.paymentMethod || 'QRIS Instant' }}</strong>
-            </p>
+        <!-- Price Summary & Settlement Notice -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pt-2 border-t border-theme-border print:border-stone-200">
+          <div class="text-[10px] text-stone-500 space-y-0.5 max-w-sm">
+            <p class="font-bold text-theme-primary print:text-stone-900">Keterangan Pembayaran:</p>
+            <p>Biaya sewa dibayarkan langsung secara tunai/transfer saat serah terima unit di lokasi.</p>
           </div>
-
-          <div class="space-y-1.5 sm:w-64">
-            <div class="flex justify-between text-stone-600 dark:text-stone-300 print:text-stone-600">
-              <span>Subtotal Sewa Unit:</span>
-              <span class="font-mono font-medium">{{ formatRupiah(order.pricing?.subtotalRental || 0) }}</span>
-            </div>
-            <div v-if="order.pricing?.deliveryFee" class="flex justify-between text-stone-600 dark:text-stone-300 print:text-stone-600">
-              <span>Biaya Pengantaran:</span>
-              <span class="font-mono font-medium">{{ formatRupiah(order.pricing.deliveryFee) }}</span>
-            </div>
-            <div class="flex justify-between text-emerald-700 dark:text-emerald-400 print:text-emerald-700 font-semibold">
-              <span>Jaminan Deposit:</span>
-              <span class="font-mono">Rp 0</span>
-            </div>
-            <div class="flex justify-between text-theme-primary print:text-stone-950 font-black text-sm border-t border-theme-border print:border-stone-200 pt-2">
-              <span>Total Pembayaran:</span>
-              <span class="font-mono text-forest dark:text-forest-glow print:text-emerald-700">{{ formatRupiah(order.pricing?.grandTotal || 0) }}</span>
+          <div class="w-full sm:w-64 space-y-1 text-right">
+            <div class="flex justify-between text-theme-primary print:text-stone-950 font-black text-sm pt-1 border-t border-theme-border print:border-stone-300">
+              <span>Total Biaya Sewa:</span>
+              <span class="font-mono text-forest dark:text-forest-glow print:text-emerald-700">
+                {{ formatRupiah(order.pricing?.grandTotal || order.pricing?.subtotalRental || 0) }}
+              </span>
             </div>
           </div>
         </div>
 
-        <!-- Footer Notes & Legal Verification -->
-        <div class="border-t border-theme-border print:border-stone-200 pt-4 text-[10px] text-stone-400 dark:text-stone-500 print:text-stone-400 text-center leading-relaxed">
-          <p>Dokumen ini adalah bukti transaksi dan sewa resmi yang diterbitkan secara elektronik oleh sistem e-punyasewa.</p>
-          <p>Terima kasih atas kepercayaan Anda menyewa perlengkapan modern bersama e-punyasewa.</p>
+        <!-- 5 Clauses T&C -->
+        <div class="p-3 rounded-2xl bg-stone-50 dark:bg-stone-900/60 border border-theme-border print:bg-stone-50 print:border-stone-200 space-y-1 text-[9.5px] leading-relaxed text-stone-600 dark:text-stone-300 print:text-stone-600">
+          <p class="font-bold text-theme-primary print:text-stone-900 uppercase">KLAUSUL SYARAT & KETENTUAN (T&C) SEWA RESMI:</p>
+          <ol class="list-decimal pl-4 space-y-0.5">
+            <li>Unit diserahkan dalam kondisi fisik dan fungsi normal setelah dilakukan uji fungsi (QC) bersama di lokasi.</li>
+            <li>Penyewa wajib menjaga keutuhan, kebersihan, dan keselamatan unit selama seluruh masa sewa berlangsung.</li>
+            <li>Kerusakan akibat kelalaian operasional (jatuh, air, korsleting) menjadi tanggung jawab penuh penyewa sesuai biaya servis resmi.</li>
+            <li>Pengembalian unit wajib tepat waktu sesuai jadwal. Keterlambatan tanpa konfirmasi dikenakan tarif prorata harian normal.</li>
+            <li>Surat perjanjian ini sah dan mengikat secara hukum bagi kedua belah pihak sejak ditandatangani.</li>
+          </ol>
+        </div>
+
+        <!-- Signature Boxes -->
+        <div class="grid grid-cols-2 gap-6 pt-3 text-center text-xs">
+          <!-- Pihak Pertama Signature -->
+          <div class="space-y-10">
+            <p class="text-[10px] text-stone-500 font-bold uppercase">PIHAK PERTAMA (PENYEDIA SEWA)</p>
+            <div class="h-16 flex items-center justify-center">
+              <span v-if="order.signedAgreementUrl" class="text-[10px] text-emerald-600 font-bold italic">[Tertanda Tangan Resmi]</span>
+              <span v-else class="text-[10px] text-stone-400 italic">(Tanda Tangan / Cap)</span>
+            </div>
+            <div class="border-t border-stone-400 dark:border-stone-600 pt-1">
+              <p class="font-extrabold text-theme-primary print:text-stone-900">{{ order.provider?.name || 'CinemaTech Rental Jakarta' }}</p>
+            </div>
+          </div>
+
+          <!-- Pihak Kedua Signature -->
+          <div class="space-y-10">
+            <p class="text-[10px] text-stone-500 font-bold uppercase">PIHAK KEDUA (PENYEWA / TENANT)</p>
+            <div class="h-16 flex items-center justify-center">
+              <span v-if="order.signedAgreementUrl" class="text-[10px] text-emerald-600 font-bold italic">[Tertanda Tangan Resmi]</span>
+              <span v-else class="text-[10px] text-stone-400 italic">(Tanda Tangan / Paraf)</span>
+            </div>
+            <div class="border-t border-stone-400 dark:border-stone-600 pt-1">
+              <p class="font-extrabold text-theme-primary print:text-stone-900">{{ order.customer?.fullName || '-' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer Notice -->
+        <div class="border-t border-theme-border print:border-stone-200 pt-3 text-[9px] text-stone-400 text-center leading-relaxed">
+          <p>Dokumen bukti sewa dan kesepakatan resmi diterbitkan secara elektronik oleh platform e-punyasewa.</p>
         </div>
 
       </div>
@@ -195,65 +225,29 @@ function handlePrint() {
 
 <style>
 @media print {
-  @page {
-    size: A4 portrait;
-    margin: 10mm 15mm;
-  }
-
-  /* Hide entire background app & all elements by default */
-  html, body {
-    background: #ffffff !important;
-    background-color: #ffffff !important;
-    color: #1c1917 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    height: auto !important;
-    min-height: 0 !important;
-    overflow: visible !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-
   body * {
     visibility: hidden !important;
   }
-
-  /* Hide app header, footer, floating buttons, toasts, pwa banners */
-  header,
-  footer,
-  nav,
-  aside,
-  .floating-theme-toggle,
-  .pwa-install-prompt,
-  .pwa-offline-banner,
-  .toast-container,
-  .print-hide {
-    display: none !important;
-    visibility: hidden !important;
-  }
-
-  /* Make ONLY the printable invoice modal and its children visible */
   #printable-invoice-modal-card,
   #printable-invoice-modal-card * {
     visibility: visible !important;
   }
-
   #printable-invoice-modal-card {
     position: absolute !important;
     left: 0 !important;
     top: 0 !important;
     width: 100% !important;
     max-width: 100% !important;
-    height: auto !important;
-    max-height: none !important;
     margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
+    padding: 20px !important;
     background: #ffffff !important;
     color: #1c1917 !important;
-    z-index: 999999 !important;
-    overflow: visible !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+  }
+  .print-hide {
+    display: none !important;
   }
 }
 </style>

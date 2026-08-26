@@ -356,9 +356,21 @@ onUnmounted(() => {
                 >
                   <div class="flex items-center gap-2">
                     <IconDeliveryTruck :size="14" class="text-forest dark:text-forest-glow" />
-                    <span>Pesanan & Riwayat Rental</span>
+                    <span>Booking & Pesanan Saya</span>
                   </div>
                   <span class="text-xs text-stone-400">→</span>
+                </router-link>
+
+                <router-link
+                  to="/timeline-penyedia"
+                  @click="userMenuOpen = false"
+                  class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 transition cursor-pointer"
+                >
+                  <div class="flex items-center gap-2">
+                    <IconCalendarDate :size="14" class="text-emerald-600 dark:text-emerald-400" />
+                    <span>Panel Penyedia Sewa</span>
+                  </div>
+                  <span class="text-xs text-emerald-600 font-bold">Baru</span>
                 </router-link>
 
                 <router-link
@@ -445,13 +457,25 @@ onUnmounted(() => {
           <router-link
             to="/pesanan-saya"
             @click="mobileMenuOpen = false"
-            class="flex items-center justify-between p-3 rounded-2xl bg-forest/10 border border-forest/20 text-xs font-bold text-forest dark:text-forest-glow"
+            class="flex items-center justify-between p-3 rounded-2xl bg-stone-100 dark:bg-stone-800 text-xs font-bold text-theme-primary"
           >
             <div class="flex items-center gap-2">
               <IconDeliveryTruck :size="16" />
-              <span>Pesanan & Riwayat Rental</span>
+              <span>Booking & Pesanan Saya</span>
             </div>
             <span>→</span>
+          </router-link>
+
+          <router-link
+            to="/timeline-penyedia"
+            @click="mobileMenuOpen = false"
+            class="flex items-center justify-between p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-xs font-bold text-emerald-700 dark:text-emerald-300"
+          >
+            <div class="flex items-center gap-2">
+              <IconCalendarDate :size="16" class="text-emerald-600 dark:text-emerald-400" />
+              <span>Panel Penyedia Sewa</span>
+            </div>
+            <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-500/20">Penyedia</span>
           </router-link>
 
           <router-link

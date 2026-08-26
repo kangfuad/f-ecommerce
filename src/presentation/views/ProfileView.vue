@@ -40,7 +40,7 @@ const {
 const { showToast } = useToast()
 
 // Active Tab
-const activeTab = ref<'account' | 'kyc' | 'addresses'>('account')
+const activeTab = ref<'account' | 'kyc' | 'addresses' | 'reviews'>('account')
 
 // Dynamic Tiers Data
 const memberTiers = ref<MemberTierDto[]>([])
@@ -563,6 +563,19 @@ function handleAddAddressSubmit() {
           >
             <IconLocation :size="14" />
             <span>Buku Alamat Pengiriman ({{ currentUser.savedAddresses.length }})</span>
+          </button>
+
+          <button
+            @click="activeTab = 'reviews'"
+            :class="[
+              'px-4 py-2 rounded-full text-xs font-bold transition cursor-pointer border shrink-0 flex items-center gap-1.5 whitespace-nowrap',
+              activeTab === 'reviews'
+                ? 'bg-forest text-white border-forest shadow-sm'
+                : 'border-theme-border bg-theme-card text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
+            ]"
+          >
+            <IconStar :size="14" class="text-amber-500" />
+            <span>Reputasi & Ulasan Penyewa (5.0 ⭐)</span>
           </button>
         </div>
 
@@ -1292,6 +1305,100 @@ function handleAddAddressSubmit() {
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- TAB 4: Reputasi & Ulasan Penyewa dari Penyedia Sewa -->
+        <div v-if="activeTab === 'reviews'" class="space-y-6 animate-fade-up">
+          
+          <!-- Reputation Score Banner -->
+          <div class="p-6 rounded-3xl bg-theme-card border border-theme-border shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+            <div class="space-y-1">
+              <span class="text-[10px] font-black uppercase tracking-wider text-forest dark:text-forest-glow">
+                Skor Kredibilitas & Reputasi Penyewa
+              </span>
+              <div class="flex items-center gap-3">
+                <span class="text-3xl sm:text-4xl font-black font-mono text-theme-primary">5.0</span>
+                <div>
+                  <div class="flex text-amber-500 text-sm">
+                    <span>⭐⭐⭐⭐⭐</span>
+                  </div>
+                  <p class="text-[11px] text-stone-500 font-bold">100% Ulasan Positif dari 8 Transaksi</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Trust Badges -->
+            <div class="flex flex-wrap gap-2">
+              <span class="px-3 py-1.5 rounded-2xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-xs font-extrabold border border-emerald-500/30 flex items-center gap-1.5">
+                <IconCheck :size="12" class="stroke-[3]" />
+                <span>Pengembalian Tepat Waktu (100%)</span>
+              </span>
+              <span class="px-3 py-1.5 rounded-2xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-xs font-extrabold border border-emerald-500/30 flex items-center gap-1.5">
+                <IconCheck :size="12" class="stroke-[3]" />
+                <span>Unit Sangat Terawat</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Reviews List from Providers -->
+          <div class="space-y-4">
+            <h3 class="font-extrabold text-sm text-theme-primary">Ulasan Terbaru dari Penyedia Sewa:</h3>
+
+            <!-- Review 1 -->
+            <div class="p-5 rounded-3xl bg-theme-card border border-theme-border shadow-xs space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-2xl bg-[#244E33] text-white font-black flex items-center justify-center text-xs">
+                    CT
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-xs sm:text-sm text-theme-primary">CinemaTech Rental Jakarta</h4>
+                    <p class="text-[10px] text-stone-500">Sewa: Sony FX3 Cinema Line Kit • 27 Agustus 2026</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1 bg-amber-500/10 px-2.5 py-1 rounded-full text-amber-600 dark:text-amber-400 font-black text-xs">
+                  <IconStar :size="12" />
+                  <span>5.0</span>
+                </div>
+              </div>
+              <p class="text-xs text-stone-600 dark:text-stone-300 italic leading-relaxed">
+                "Penyewa sangat profesional dan ramah! Semua unit kamera dan aksesoris dikembalikan tepat waktu dalam kondisi sangat rapi, bersih, dan lengkap tanpa ada cacat sedikitpun."
+              </p>
+              <div class="flex flex-wrap gap-1.5 pt-1">
+                <span class="text-[10px] px-2 py-0.5 rounded-md bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400">Kerapian: 5/5</span>
+                <span class="text-[10px] px-2 py-0.5 rounded-md bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400">Ketepatan Waktu: 5/5</span>
+                <span class="text-[10px] px-2 py-0.5 rounded-md bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400">Komunikasi: 5/5</span>
+              </div>
+            </div>
+
+            <!-- Review 2 -->
+            <div class="p-5 rounded-3xl bg-theme-card border border-theme-border shadow-xs space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-2xl bg-sky-700 text-white font-black flex items-center justify-center text-xs">
+                    SD
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-xs sm:text-sm text-theme-primary">SkyDrone Pro Equipment</h4>
+                    <p class="text-[10px] text-stone-500">Sewa: DJI Mavic 3 Pro Cine • 25 Agustus 2026</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1 bg-amber-500/10 px-2.5 py-1 rounded-full text-amber-600 dark:text-amber-400 font-black text-xs">
+                  <IconStar :size="12" />
+                  <span>5.0</span>
+                </div>
+              </div>
+              <p class="text-xs text-stone-600 dark:text-stone-300 italic leading-relaxed">
+                "Serah terima di lokasi GBK Senayan berjalan sangat lancar. Pilot drone berpengalaman dan unit drone dijaga dengan sangat baik. Sangat direkomendasikan untuk penyedia sewa lain!"
+              </p>
+              <div class="flex flex-wrap gap-1.5 pt-1">
+                <span class="text-[10px] px-2 py-0.5 rounded-md bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400">Kerapian: 5/5</span>
+                <span class="text-[10px] px-2 py-0.5 rounded-md bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400">Ketepatan Waktu: 5/5</span>
+              </div>
+            </div>
+
+          </div>
+
         </div>
 
       </div>

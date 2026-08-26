@@ -53,19 +53,12 @@ export function useCart() {
     return Money.from(total)
   })
 
-  const isEligibleForFreeDelivery = computed(
-    () => subtotalRental.value.amount >= APP_CONFIG.RENTAL.FREE_DELIVERY_THRESHOLD
-  )
+  const isEligibleForFreeDelivery = computed(() => false)
 
-  const estimatedDeliveryFee = computed(() => {
-    if (isEligibleForFreeDelivery.value) {
-      return Money.zero()
-    }
-    return Money.from(APP_CONFIG.RENTAL.DEFAULT_DELIVERY_FEE)
-  })
+  const estimatedDeliveryFee = computed(() => Money.zero())
 
   const grandTotal = computed(() => {
-    return subtotalRental.value.add(totalDeposit.value).add(estimatedDeliveryFee.value)
+    return subtotalRental.value
   })
 
   function triggerCartAnimation(productName?: string) {
