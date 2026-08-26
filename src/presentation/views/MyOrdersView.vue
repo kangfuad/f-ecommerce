@@ -319,19 +319,19 @@ function handleReviewSubmitted(updated: OrderDto) {
     </main>
 
     <!-- Modal Tenant T&C Notice -->
-    <div v-if="selectedOrderForTnc" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div v-if="selectedOrderForTnc" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
       <div @click="selectedOrderForTnc = null" class="fixed inset-0 bg-black/70 backdrop-blur-sm"></div>
-      <div class="relative bg-theme-card rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-theme-border z-10 space-y-4">
+      <div class="relative bg-theme-card rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-theme-border z-10 space-y-4 my-auto max-h-[90vh] overflow-y-auto custom-scrollbar">
         <div class="flex items-center justify-between pb-3 border-b border-theme-border">
-          <h3 class="font-extrabold text-base text-theme-primary">Syarat & Ketentuan Sewa (T&C)</h3>
+          <h3 class="font-extrabold text-sm sm:text-base text-theme-primary">Syarat & Ketentuan Sewa (T&C)</h3>
           <button @click="selectedOrderForTnc = null" class="w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-400">
             <IconClose :size="14" />
           </button>
         </div>
 
-        <div class="p-4 rounded-2xl bg-stone-50 dark:bg-stone-900 border border-theme-border space-y-2 text-xs leading-relaxed text-stone-600 dark:text-stone-300">
-          <p class="font-bold text-theme-primary uppercase text-[11px]">Klausul Resmi Penyewaan:</p>
-          <ol class="list-decimal pl-4 space-y-1.5 text-[11px]">
+        <div class="p-3.5 sm:p-4 rounded-2xl bg-stone-50 dark:bg-stone-900 border border-theme-border space-y-2 text-xs leading-relaxed text-stone-600 dark:text-stone-300">
+          <p class="font-bold text-theme-primary uppercase text-[10.5px] sm:text-[11px]">KLAUSUL RESMI PENYEWAAN:</p>
+          <ol class="list-decimal pl-4 space-y-1.5 text-[10.5px] sm:text-[11px]">
             <li>Unit diserahkan dalam kondisi fisik dan fungsi normal setelah dilakukan uji fungsi (QC) bersama saat serah terima di lokasi.</li>
             <li>Pelunasan biaya sewa diselesaikan langsung saat serah terima unit di lokasi yang disepakati.</li>
             <li>Penyewa bertanggung jawab penuh atas kebersihan, keamanan, dan keutuhan unit selama seluruh masa sewa berlangsung.</li>
@@ -341,7 +341,9 @@ function handleReviewSubmitted(updated: OrderDto) {
         </div>
 
         <div class="flex justify-end pt-1">
-          <button @click="selectedOrderForTnc = null" class="px-5 py-2 rounded-xl bg-[#244E33] text-white text-xs font-bold">Mengerti</button>
+          <button @click="selectedOrderForTnc = null" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#244E33] hover:bg-[#1B3B26] text-white text-xs font-bold transition cursor-pointer">
+            Saya Mengerti
+          </button>
         </div>
       </div>
     </div>
@@ -356,11 +358,11 @@ function handleReviewSubmitted(updated: OrderDto) {
     />
 
     <!-- Modal View Uploaded Bill & Signed Agreement -->
-    <div v-if="selectedOrderForBill" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div v-if="selectedOrderForBill" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
       <div @click="selectedOrderForBill = null" class="fixed inset-0 bg-black/70 backdrop-blur-sm"></div>
-      <div class="relative bg-theme-card rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-theme-border z-10 space-y-4">
+      <div class="relative bg-theme-card rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-theme-border z-10 space-y-4 my-auto max-h-[90vh] overflow-y-auto custom-scrollbar">
         <div class="flex items-center justify-between pb-2 border-b border-theme-border">
-          <h3 class="font-extrabold text-base text-theme-primary">Berkas Sewa Bertandatangan & Kwitansi Bill</h3>
+          <h3 class="font-extrabold text-sm sm:text-base text-theme-primary">Berkas Sewa Bertandatangan & Kwitansi Bill</h3>
           <button @click="selectedOrderForBill = null" class="w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-400">
             <IconClose :size="14" />
           </button>
@@ -384,7 +386,9 @@ function handleReviewSubmitted(updated: OrderDto) {
         </div>
 
         <div class="flex justify-end pt-2">
-          <button @click="selectedOrderForBill = null" class="px-5 py-2 rounded-xl bg-[#244E33] text-white text-xs font-bold">Tutup</button>
+          <button @click="selectedOrderForBill = null" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#244E33] hover:bg-[#1B3B26] text-white text-xs font-bold transition cursor-pointer">
+            Tutup
+          </button>
         </div>
       </div>
     </div>
