@@ -331,7 +331,7 @@ onUnmounted(() => {
                 <p class="text-[10px] text-stone-500 truncate">{{ currentUser.email }}</p>
                 <div class="mt-2 inline-flex items-center gap-1 text-[10px] font-extrabold text-forest dark:text-forest-glow bg-forest/10 px-2 py-0.5 rounded-md border border-forest/20">
                   <IconShieldCheck :size="12" />
-                  <span>Bebas Deposit Member (KYC)</span>
+                  <span>Akun Terverifikasi</span>
                 </div>
               </div>
 
@@ -343,7 +343,7 @@ onUnmounted(() => {
                 >
                   <div class="flex items-center gap-2">
                     <IconUser :size="14" class="text-forest dark:text-forest-glow" />
-                    <span>Profil & Verifikasi KYC</span>
+                    <span>Profil Pengguna</span>
                   </div>
                   <span class="text-xs text-stone-400">→</span>
                 </router-link>
@@ -449,7 +449,7 @@ onUnmounted(() => {
           >
             <div class="flex items-center gap-2">
               <IconUser :size="16" />
-              <span>Profil & Verifikasi KYC</span>
+              <span>Profil Pengguna</span>
             </div>
             <span>→</span>
           </router-link>
