@@ -12,6 +12,8 @@ export interface RentalReviewProps {
   targetName: string
   overallRating: number // 1 - 5
   aspects?: ReviewAspectRating[]
+  tags?: string[]
+  badges?: string[]
   comment: string
   createdAt: Date
 }

@@ -39,11 +39,13 @@ const rejectionReasonInput = ref('')
 const isActionLoading = ref(false)
 
 // File Upload state (Real file handling with Image & PDF support)
+const selectedAgreementFile = ref<File | null>(null)
 const agreementFileName = ref('')
 const agreementFileSize = ref('')
 const agreementFilePreview = ref('')
 const isAgreementPdf = ref(false)
 
+const selectedBillFile = ref<File | null>(null)
 const billFileName = ref('')
 const billFileSize = ref('')
 const billFilePreview = ref('')
@@ -140,6 +142,8 @@ async function confirmReject() {
 // Provider Action: Open Upload Docs Modal
 function openUploadModal(order: OrderDto) {
   selectedOrderForUpload.value = order
+  selectedAgreementFile.value = null
+  selectedBillFile.value = null
   agreementFilePreview.value = order.signedAgreementUrl || ''
   agreementFileName.value = order.signedAgreementUrl ? 'Surat_Perjanjian_Sewa_Bertandatangan.jpg' : ''
   isAgreementPdf.value = false
@@ -159,6 +163,7 @@ function handleAgreementFileSelect(event: Event) {
     return
   }
 
+  selectedAgreementFile.value = file
   agreementFileName.value = file.name
   agreementFileSize.value = `${(file.size / (1024 * 1024)).toFixed(1)} MB`
   isAgreementPdf.value = file.type === 'application/pdf' || file.name.endsWith('.pdf')
@@ -180,6 +185,7 @@ function handleBillFileSelect(event: Event) {
     return
   }
 
+  selectedBillFile.value = file
   billFileName.value = file.name
   billFileSize.value = `${(file.size / (1024 * 1024)).toFixed(1)} MB`
   isBillPdf.value = file.type === 'application/pdf' || file.name.endsWith('.pdf')
@@ -193,7 +199,7 @@ function handleBillFileSelect(event: Event) {
 
 async function saveUploadDocs() {
   if (!selectedOrderForUpload.value) return
-  if (!agreementFilePreview.value && !billFilePreview.value) {
+  if (!agreementFilePreview.value && !billFilePreview.value && !selectedAgreementFile.value && !selectedBillFile.value) {
     showToast({
       type: 'warning',
       title: 'Berkas Belum Dipilih',
@@ -204,12 +210,12 @@ async function saveUploadDocs() {
 
   isActionLoading.value = true
   try {
-    if (agreementFilePreview.value) {
-      await OrderService.uploadSignedAgreement(selectedOrderForUpload.value.id, agreementFilePreview.value)
-    }
-    if (billFilePreview.value) {
-      await OrderService.uploadPaymentBill(selectedOrderForUpload.value.id, billFilePreview.value)
-    }
+    await OrderService.uploadSignedAgreementAndBill(selectedOrderForUpload.value.id, {
+      signedAgreementFile: selectedAgreementFile.value,
+      paymentBillFile: selectedBillFile.value,
+      signedAgreementUrl: agreementFilePreview.value,
+      paymentBillUrl: billFilePreview.value,
+    })
     
     showToast({
       type: 'success',
@@ -218,6 +224,12 @@ async function saveUploadDocs() {
     })
     selectedOrderForUpload.value = null
     await fetchOrders()
+  } catch (err: any) {
+    showToast({
+      type: 'error',
+      title: 'Gagal Menyimpan',
+      message: err.message || 'Terjadi kesalahan saat mengunggah berkas.',
+    })
   } finally {
     isActionLoading.value = false
   }

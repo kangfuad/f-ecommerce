@@ -9,13 +9,14 @@ export interface ProductRawDto {
   name: string
   category: ProductCategory
   dailyRate: number
-  marketValue: number
+  marketValue?: number
   depositAmount: number
   images: string[]
+  primaryImage?: string
   description: string
-  specs: Record<string, string>
+  specs?: Record<string, string>
   includedItems: string[]
-  status: RentalStatus
+  status?: RentalStatus
   condition: ItemCondition
   rating: number
   reviewCount: number
@@ -23,17 +24,59 @@ export interface ProductRawDto {
   isFeatured?: boolean
   isPopular?: boolean
   badgeText?: string
+  stockAvailable?: number
+  provider?: {
+    id: string
+    name: string
+    phone?: string
+    rating?: number
+    isVerified?: boolean
+  }
+}
+
+export interface ProductFilterQuery {
+  category?: string
+  search?: string
+  minPrice?: number
+  maxPrice?: number
+  condition?: string
+  location?: string
+  sortBy?: string
+  page?: number
+  limit?: number
 }
 
 export class ProductService {
   private static cachedProducts: ProductRawDto[] | null = null
 
-  public static async getProducts(): Promise<ApiResponse<ProductRawDto[]>> {
-    if (this.cachedProducts) {
+  public static async getProducts(filter?: ProductFilterQuery): Promise<ApiResponse<ProductRawDto[]>> {
+    // 1. Try real API with query parameters
+    let queryStr = ''
+    if (filter) {
+      const params = new URLSearchParams()
+      if (filter.category) params.append('category', filter.category)
+      if (filter.search) params.append('search', filter.search)
+      if (filter.minPrice !== undefined) params.append('minPrice', String(filter.minPrice))
+      if (filter.maxPrice !== undefined) params.append('maxPrice', String(filter.maxPrice))
+      if (filter.condition) params.append('condition', filter.condition)
+      if (filter.location) params.append('location', filter.location)
+      if (filter.sortBy) params.append('sortBy', filter.sortBy)
+      if (filter.page) params.append('page', String(filter.page))
+      if (filter.limit) params.append('limit', String(filter.limit))
+      queryStr = `?${params.toString()}`
+    }
+
+    const realRes = await apiClient.get<ProductRawDto[]>(`/products${queryStr}`)
+    if (realRes.status === 'success' && Array.isArray(realRes.data) && realRes.data.length > 0) {
+      return realRes
+    }
+
+    // 2. Fallback to local json data
+    if (this.cachedProducts && !filter?.search && !filter?.category) {
       return {
         status: 'success',
         data: this.cachedProducts,
-        message: 'Products retrieved from cache',
+        message: 'Products retrieved from local cache',
       }
     }
 
@@ -44,14 +87,21 @@ export class ProductService {
     return response
   }
 
-  public static async getProductById(id: string): Promise<ApiResponse<ProductRawDto | null>> {
+  public static async getProductById(idOrSlug: string): Promise<ApiResponse<ProductRawDto | null>> {
+    // 1. Try real backend API
+    const realRes = await apiClient.get<ProductRawDto>(`/products/${idOrSlug}`)
+    if (realRes.status === 'success' && realRes.data) {
+      return realRes
+    }
+
+    // 2. Fallback to local json data
     const productsResponse = await this.getProducts()
-    if (productsResponse.status === 'success') {
-      const found = productsResponse.data.find((p) => p.id === id) || null
+    if (productsResponse.status === 'success' && Array.isArray(productsResponse.data)) {
+      const found = productsResponse.data.find((p) => p.id === idOrSlug || (p as any).slug === idOrSlug) || null
       return {
         status: 'success',
         data: found,
-        message: found ? `Product ${id} retrieved successfully!` : `Product ${id} not found`,
+        message: found ? `Product ${idOrSlug} retrieved successfully!` : `Product ${idOrSlug} not found`,
       }
     }
     return {

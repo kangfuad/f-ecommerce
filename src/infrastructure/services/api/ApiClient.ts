@@ -1,10 +1,55 @@
 import type { ApiResponse } from './ApiResponse'
 
+export const AUTH_TOKEN_KEY = 'epunyasewa_auth_token'
+
 export class ApiClient {
   private readonly baseUrl: string
 
-  constructor(baseUrl: string = '') {
-    this.baseUrl = baseUrl
+  constructor(baseUrl?: string) {
+    const envBaseUrl = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env.VITE_API_BASE_URL : ''
+    this.baseUrl = baseUrl !== undefined ? baseUrl : (envBaseUrl || '')
+  }
+
+  /**
+   * Get auth token from localStorage if available
+   */
+  private getAuthToken(): string | null {
+    if (typeof localStorage === 'undefined') return null
+    return localStorage.getItem(AUTH_TOKEN_KEY)
+  }
+
+  /**
+   * Compose standard headers including optional JWT Authorization header
+   */
+  private getHeaders(customHeaders?: HeadersInit, isFormData: boolean = false): Record<string, string> {
+    const headers: Record<string, string> = {
+      Accept: 'application/json',
+    }
+
+    if (!isFormData) {
+      headers['Content-Type'] = 'application/json'
+    }
+
+    const token = this.getAuthToken()
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`
+    }
+
+    if (customHeaders) {
+      if (customHeaders instanceof Headers) {
+        customHeaders.forEach((val, key) => {
+          headers[key] = val
+        })
+      } else if (Array.isArray(customHeaders)) {
+        customHeaders.forEach(([key, val]) => {
+          headers[key] = val
+        })
+      } else {
+        Object.assign(headers, customHeaders)
+      }
+    }
+
+    return headers
   }
 
   public async get<T>(endpoint: string, options?: RequestInit): Promise<ApiResponse<T>> {
@@ -12,11 +57,7 @@ export class ApiClient {
     try {
       const response = await fetch(url, {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          ...(options?.headers || {}),
-        },
+        headers: this.getHeaders(options?.headers),
         ...options,
       })
 
@@ -25,23 +66,9 @@ export class ApiClient {
       }
 
       const json: any = await response.json()
-      if (Array.isArray(json)) {
-        return {
-          status: 'success',
-          data: json as T,
-          message: 'Data retrieved successfully',
-        }
-      }
-      if (json && typeof json === 'object' && ('status' in json || 'data' in json)) {
-        return json as ApiResponse<T>
-      }
-      return {
-        status: 'success',
-        data: json as T,
-        message: 'Data retrieved successfully',
-      }
+      return this.normalizeResponse<T>(json)
     } catch (error: any) {
-      console.error(`[ApiClient GET ${endpoint}] Error:`, error)
+      console.warn(`[ApiClient GET ${endpoint}]`, error.message || error)
       return {
         status: 'error',
         data: null as unknown as T,
@@ -55,23 +82,21 @@ export class ApiClient {
     try {
       const response = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          ...(options?.headers || {}),
-        },
-        body: body ? JSON.stringify(body) : undefined,
+        headers: this.getHeaders(options?.headers),
+        body: body !== undefined ? JSON.stringify(body) : undefined,
         ...options,
       })
 
       if (!response.ok) {
-        throw new Error(`HTTP Error ${response.status}: ${response.statusText}`)
+        const errorJson = await response.json().catch(() => null)
+        const errMsg = errorJson?.message || `HTTP Error ${response.status}: ${response.statusText}`
+        throw new Error(errMsg)
       }
 
-      const json: ApiResponse<T> = await response.json()
-      return json
+      const json: any = await response.json()
+      return this.normalizeResponse<T>(json)
     } catch (error: any) {
-      console.error(`[ApiClient POST ${endpoint}] Error:`, error)
+      console.warn(`[ApiClient POST ${endpoint}]`, error.message || error)
       return {
         status: 'error',
         data: null as unknown as T,
@@ -80,10 +105,150 @@ export class ApiClient {
     }
   }
 
-  private resolveUrl(endpoint: string): string {
+  public async put<T>(endpoint: string, body?: any, options?: RequestInit): Promise<ApiResponse<T>> {
+    const url = this.resolveUrl(endpoint)
+    try {
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: this.getHeaders(options?.headers),
+        body: body !== undefined ? JSON.stringify(body) : undefined,
+        ...options,
+      })
+
+      if (!response.ok) {
+        const errorJson = await response.json().catch(() => null)
+        const errMsg = errorJson?.message || `HTTP Error ${response.status}: ${response.statusText}`
+        throw new Error(errMsg)
+      }
+
+      const json: any = await response.json()
+      return this.normalizeResponse<T>(json)
+    } catch (error: any) {
+      console.warn(`[ApiClient PUT ${endpoint}]`, error.message || error)
+      return {
+        status: 'error',
+        data: null as unknown as T,
+        message: error.message || 'Gagal memperbarui data di server',
+      }
+    }
+  }
+
+  public async patch<T>(endpoint: string, body?: any, options?: RequestInit): Promise<ApiResponse<T>> {
+    const url = this.resolveUrl(endpoint)
+    try {
+      const response = await fetch(url, {
+        method: 'PATCH',
+        headers: this.getHeaders(options?.headers),
+        body: body !== undefined ? JSON.stringify(body) : undefined,
+        ...options,
+      })
+
+      if (!response.ok) {
+        const errorJson = await response.json().catch(() => null)
+        const errMsg = errorJson?.message || `HTTP Error ${response.status}: ${response.statusText}`
+        throw new Error(errMsg)
+      }
+
+      const json: any = await response.json()
+      return this.normalizeResponse<T>(json)
+    } catch (error: any) {
+      console.warn(`[ApiClient PATCH ${endpoint}]`, error.message || error)
+      return {
+        status: 'error',
+        data: null as unknown as T,
+        message: error.message || 'Gagal memperbarui sebagian data',
+      }
+    }
+  }
+
+  public async delete<T>(endpoint: string, options?: RequestInit): Promise<ApiResponse<T>> {
+    const url = this.resolveUrl(endpoint)
+    try {
+      const response = await fetch(url, {
+        method: 'DELETE',
+        headers: this.getHeaders(options?.headers),
+        ...options,
+      })
+
+      if (!response.ok) {
+        const errorJson = await response.json().catch(() => null)
+        const errMsg = errorJson?.message || `HTTP Error ${response.status}: ${response.statusText}`
+        throw new Error(errMsg)
+      }
+
+      const json: any = await response.json()
+      return this.normalizeResponse<T>(json)
+    } catch (error: any) {
+      console.warn(`[ApiClient DELETE ${endpoint}]`, error.message || error)
+      return {
+        status: 'error',
+        data: null as unknown as T,
+        message: error.message || 'Gagal menghapus data dari server',
+      }
+    }
+  }
+
+  /**
+   * Post multipart/form-data for file uploads (e.g. signed agreements, receipts)
+   */
+  public async postFormData<T>(endpoint: string, formData: FormData, options?: RequestInit): Promise<ApiResponse<T>> {
+    const url = this.resolveUrl(endpoint)
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: this.getHeaders(options?.headers, true), // Do not set Content-Type, browser will set boundary automatically
+        body: formData,
+        ...options,
+      })
+
+      if (!response.ok) {
+        const errorJson = await response.json().catch(() => null)
+        const errMsg = errorJson?.message || `HTTP Error ${response.status}: ${response.statusText}`
+        throw new Error(errMsg)
+      }
+
+      const json: any = await response.json()
+      return this.normalizeResponse<T>(json)
+    } catch (error: any) {
+      console.warn(`[ApiClient FormData ${endpoint}]`, error.message || error)
+      return {
+        status: 'error',
+        data: null as unknown as T,
+        message: error.message || 'Gagal mengunggah berkas ke server',
+      }
+    }
+  }
+
+  private normalizeResponse<T>(json: any): ApiResponse<T> {
+    if (json && typeof json === 'object') {
+      if ('status' in json && 'data' in json) {
+        return json as ApiResponse<T>
+      }
+      if ('data' in json) {
+        return {
+          status: 'success',
+          data: json.data as T,
+          message: json.message || 'Sukses',
+          meta: json.meta,
+        }
+      }
+    }
+    return {
+      status: 'success',
+      data: json as T,
+      message: 'Sukses',
+    }
+  }
+
+  public resolveUrl(endpoint: string): string {
     if (endpoint.startsWith('http://') || endpoint.startsWith('https://')) {
       return endpoint
     }
+    // Local static data requests bypass base url
+    if (endpoint.startsWith('/data/') || endpoint.startsWith('data/')) {
+      return endpoint.startsWith('/') ? endpoint : `/${endpoint}`
+    }
+
     const cleanBase = this.baseUrl.replace(/\/$/, '')
     const cleanEndpoint = endpoint.replace(/^\//, '')
     return cleanBase ? `${cleanBase}/${cleanEndpoint}` : `/${cleanEndpoint}`

@@ -153,7 +153,12 @@ export function useAuth() {
         throw new Error('Semua data pendaftaran wajib diisi.')
       }
 
-      const response = await AuthService.loginWithCredentials(email.trim(), password)
+      const response = await AuthService.register({
+        fullName: fullName.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
+        password,
+      })
       if (response.status === 'success' && response.data) {
         const newUser = new UserProfile({
           id: `user_${Date.now()}`,

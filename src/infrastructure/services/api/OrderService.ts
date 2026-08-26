@@ -42,14 +42,20 @@ const LOCAL_ORDERS_STORAGE_KEY = 'epunyasewa_my_bookings_list'
 
 export class OrderService {
   /**
-   * Fetch all bookings merging public/data/orders.json and localStorage additions
+   * Fetch all bookings for tenant (merging real API / local data)
    */
-  public static async getOrders(): Promise<ApiResponse<OrderDto[]>> {
+  public static async getOrders(status: string = 'ALL'): Promise<ApiResponse<OrderDto[]>> {
+    // 1. Try real API
+    const realRes = await apiClient.get<OrderDto[]>(`/orders/my-orders?status=${status}`)
+    if (realRes.status === 'success' && Array.isArray(realRes.data) && realRes.data.length > 0) {
+      return realRes
+    }
+
+    // 2. Fallback to local mock data & runtime localStorage bookings
     try {
       const response = await apiClient.get<OrderDto[]>('/data/orders.json')
       const baseOrders = response.data || []
 
-      // Read local custom orders created during runtime booking
       const localRaw = typeof localStorage !== 'undefined' ? localStorage.getItem(LOCAL_ORDERS_STORAGE_KEY) : null
       let localOrders: OrderDto[] = []
       if (localRaw) {
@@ -60,14 +66,25 @@ export class OrderService {
         }
       }
 
-      // Merge unique by ID, prioritising local edits
       const combinedMap = new Map<string, OrderDto>()
       baseOrders.forEach((o) => combinedMap.set(o.id, o))
       localOrders.forEach((o) => combinedMap.set(o.id, o))
 
-      const allOrders = Array.from(combinedMap.values()).sort(
+      let allOrders = Array.from(combinedMap.values()).sort(
         (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       )
+
+      if (status && status !== 'ALL') {
+        if (status === 'PENDING') {
+          allOrders = allOrders.filter((o) => o.lifecycleStatus === 'PENDING_CONFIRMATION')
+        } else if (status === 'ACTIVE') {
+          allOrders = allOrders.filter((o) => o.lifecycleStatus === 'CONFIRMED' || o.lifecycleStatus === 'ACTIVE_RENTAL')
+        } else if (status === 'COMPLETED') {
+          allOrders = allOrders.filter((o) => o.lifecycleStatus === 'COMPLETED')
+        } else if (status === 'REJECTED') {
+          allOrders = allOrders.filter((o) => o.lifecycleStatus === 'REJECTED')
+        }
+      }
 
       return {
         status: 'success',
@@ -88,6 +105,13 @@ export class OrderService {
    * Get single booking by ID
    */
   public static async getOrderById(orderId: string): Promise<ApiResponse<OrderDto | null>> {
+    // 1. Try real API
+    const realRes = await apiClient.get<OrderDto>(`/orders/${orderId}`)
+    if (realRes.status === 'success' && realRes.data) {
+      return realRes
+    }
+
+    // 2. Fallback to local
     const res = await this.getOrders()
     const found = (res.data || []).find((o) => o.id === orderId) || null
     return {
@@ -101,9 +125,16 @@ export class OrderService {
    * Submit new booking request (Status: PENDING_CONFIRMATION)
    */
   public static async submitBooking(dto: CreateBookingDto): Promise<ApiResponse<OrderDto>> {
+    // 1. Try real backend API
+    const realRes = await apiClient.post<OrderDto>('/bookings', dto)
+    if (realRes.status === 'success' && realRes.data) {
+      this.saveOrderLocally(realRes.data)
+      return realRes
+    }
+
+    // 2. Fallback mock generation
     const id = `EPS-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.floor(1000 + Math.random() * 9000)}`
     
-    // Default provider assignment if none specified
     const defaultProvider: ProviderInfo = dto.provider || {
       id: 'prv_cinematech_jkt',
       name: 'CinemaTech Rental Jakarta',
@@ -134,105 +165,20 @@ export class OrderService {
   }
 
   /**
-   * Provider action: Accept booking request -> changes status to CONFIRMED
-   */
-  public static async acceptBooking(orderId: string, note?: string): Promise<ApiResponse<OrderDto>> {
-    const res = await this.getOrderById(orderId)
-    if (!res.data) {
-      return { status: 'error', data: null as any, message: 'Booking tidak ditemukan' }
-    }
-
-    const updated: OrderDto = {
-      ...res.data,
-      lifecycleStatus: 'CONFIRMED',
-      confirmedAt: new Date().toISOString(),
-      bookingNotes: note ? `${res.data.bookingNotes || ''} [Catatan Penyedia: ${note}]` : res.data.bookingNotes,
-    }
-
-    this.saveOrderLocally(updated)
-
-    return {
-      status: 'success',
-      data: updated,
-      message: 'Booking berhasil diterima. Jadwal & lokasi telah dikonfirmasi.',
-    }
-  }
-
-  /**
-   * Provider action: Reject booking request -> changes status to REJECTED
-   */
-  public static async rejectBooking(orderId: string, reason: string): Promise<ApiResponse<OrderDto>> {
-    const res = await this.getOrderById(orderId)
-    if (!res.data) {
-      return { status: 'error', data: null as any, message: 'Booking tidak ditemukan' }
-    }
-
-    const updated: OrderDto = {
-      ...res.data,
-      lifecycleStatus: 'REJECTED',
-      rejectionReason: reason,
-    }
-
-    this.saveOrderLocally(updated)
-
-    return {
-      status: 'success',
-      data: updated,
-      message: 'Booking telah ditolak.',
-    }
-  }
-
-  /**
-   * Provider action: Upload signed agreement form photo/PDF
-   */
-  public static async uploadSignedAgreement(orderId: string, agreementUrl: string): Promise<ApiResponse<OrderDto>> {
-    const res = await this.getOrderById(orderId)
-    if (!res.data) {
-      return { status: 'error', data: null as any, message: 'Booking tidak ditemukan' }
-    }
-
-    const updated: OrderDto = {
-      ...res.data,
-      signedAgreementUrl: agreementUrl,
-      lifecycleStatus: res.data.lifecycleStatus === 'CONFIRMED' ? 'ACTIVE_RENTAL' : res.data.lifecycleStatus,
-    }
-
-    this.saveOrderLocally(updated)
-
-    return {
-      status: 'success',
-      data: updated,
-      message: 'Surat perjanjian sewa bertandatangan berhasil diunggah.',
-    }
-  }
-
-  /**
-   * Provider action: Upload payment bill/receipt photo
-   */
-  public static async uploadPaymentBill(orderId: string, billUrl: string): Promise<ApiResponse<OrderDto>> {
-    const res = await this.getOrderById(orderId)
-    if (!res.data) {
-      return { status: 'error', data: null as any, message: 'Booking tidak ditemukan' }
-    }
-
-    const updated: OrderDto = {
-      ...res.data,
-      paymentBillUrl: billUrl,
-    }
-
-    this.saveOrderLocally(updated)
-
-    return {
-      status: 'success',
-      data: updated,
-      message: 'Bukti tagihan pembayaran (Bill) berhasil diunggah.',
-    }
-  }
-
-  /**
    * Extend rental duration for an active order
    */
-  public static async extendRental(orderId: string, additionalDays: number): Promise<ApiResponse<OrderDto>> {
+  public static async extendRental(orderId: string, additionalDays: number, notes?: string): Promise<ApiResponse<OrderDto>> {
+    // 1. Try real API
+    const realRes = await apiClient.post<OrderDto>(`/orders/${orderId}/extend`, {
+      additionalDays,
+      notes: notes || 'Perpanjangan durasi masa sewa',
+    })
+    if (realRes.status === 'success' && realRes.data) {
+      this.saveOrderLocally(realRes.data)
+      return realRes
+    }
+
+    // 2. Fallback local update
     const res = await this.getOrderById(orderId)
     if (!res.data) {
       return { status: 'error', data: null as any, message: 'Booking tidak ditemukan' }
@@ -279,36 +225,24 @@ export class OrderService {
   }
 
   /**
-   * Complete rental after offline handover and return
-   */
-  public static async completeRental(orderId: string): Promise<ApiResponse<OrderDto>> {
-    const res = await this.getOrderById(orderId)
-    if (!res.data) {
-      return { status: 'error', data: null as any, message: 'Booking tidak ditemukan' }
-    }
-
-    const updated: OrderDto = {
-      ...res.data,
-      lifecycleStatus: 'COMPLETED',
-      completedAt: new Date().toISOString(),
-    }
-
-    this.saveOrderLocally(updated)
-
-    return {
-      status: 'success',
-      data: updated,
-      message: 'Masa sewa telah selesai dan transaksi ditutup.',
-    }
-  }
-
-  /**
    * Submit User (Tenant) review for Provider
    */
   public static async submitUserReview(
     orderId: string,
     review: Omit<RentalReviewProps, 'id' | 'orderId' | 'authorRole' | 'createdAt'>
   ): Promise<ApiResponse<OrderDto>> {
+    // 1. Try real API
+    const realRes = await apiClient.post<OrderDto>(`/orders/${orderId}/review`, {
+      rating: review.overallRating,
+      comment: review.comment,
+      tags: review.tags || [],
+    })
+    if (realRes.status === 'success' && realRes.data) {
+      this.saveOrderLocally(realRes.data)
+      return realRes
+    }
+
+    // 2. Fallback local update
     const res = await this.getOrderById(orderId)
     if (!res.data) {
       return { status: 'error', data: null as any, message: 'Booking tidak ditemukan' }
@@ -337,12 +271,198 @@ export class OrderService {
   }
 
   /**
+   * Provider action: Get timeline orders
+   */
+  public static async getProviderOrders(): Promise<ApiResponse<OrderDto[]>> {
+    const realRes = await apiClient.get<OrderDto[]>('/provider/orders')
+    if (realRes.status === 'success' && Array.isArray(realRes.data)) {
+      return realRes
+    }
+    return this.getOrders('ALL')
+  }
+
+  /**
+   * Provider action: Accept booking request -> changes status to CONFIRMED
+   */
+  public static async acceptBooking(orderId: string, note?: string): Promise<ApiResponse<OrderDto>> {
+    // 1. Try real API
+    const realRes = await apiClient.put<OrderDto>(`/provider/orders/${orderId}/confirm`, { note })
+    if (realRes.status === 'success' && realRes.data) {
+      this.saveOrderLocally(realRes.data)
+      return realRes
+    }
+
+    // 2. Fallback local update
+    const res = await this.getOrderById(orderId)
+    if (!res.data) {
+      return { status: 'error', data: null as any, message: 'Booking tidak ditemukan' }
+    }
+
+    const updated: OrderDto = {
+      ...res.data,
+      lifecycleStatus: 'CONFIRMED',
+      confirmedAt: new Date().toISOString(),
+      bookingNotes: note ? `${res.data.bookingNotes || ''} [Catatan Penyedia: ${note}]` : res.data.bookingNotes,
+    }
+
+    this.saveOrderLocally(updated)
+
+    return {
+      status: 'success',
+      data: updated,
+      message: 'Booking berhasil diterima. Jadwal & lokasi telah dikonfirmasi.',
+    }
+  }
+
+  /**
+   * Provider action: Reject booking request -> changes status to REJECTED
+   */
+  public static async rejectBooking(orderId: string, reason: string): Promise<ApiResponse<OrderDto>> {
+    // 1. Try real API
+    const realRes = await apiClient.put<OrderDto>(`/provider/orders/${orderId}/reject`, { reason })
+    if (realRes.status === 'success' && realRes.data) {
+      this.saveOrderLocally(realRes.data)
+      return realRes
+    }
+
+    // 2. Fallback local update
+    const res = await this.getOrderById(orderId)
+    if (!res.data) {
+      return { status: 'error', data: null as any, message: 'Booking tidak ditemukan' }
+    }
+
+    const updated: OrderDto = {
+      ...res.data,
+      lifecycleStatus: 'REJECTED',
+      rejectionReason: reason,
+    }
+
+    this.saveOrderLocally(updated)
+
+    return {
+      status: 'success',
+      data: updated,
+      message: 'Booking telah ditolak.',
+    }
+  }
+
+  /**
+   * Provider action: Upload signed agreement form & payment bill (multipart/form-data)
+   */
+  public static async uploadSignedAgreementAndBill(
+    orderId: string,
+    params: {
+      signedAgreementFile?: File | null
+      paymentBillFile?: File | null
+      signedAgreementUrl?: string
+      paymentBillUrl?: string
+      notes?: string
+    }
+  ): Promise<ApiResponse<OrderDto>> {
+    // 1. Try real multipart/form-data API upload if files are present
+    if (params.signedAgreementFile || params.paymentBillFile) {
+      const formData = new FormData()
+      if (params.signedAgreementFile) {
+        formData.append('signedAgreementFile', params.signedAgreementFile)
+      }
+      if (params.paymentBillFile) {
+        formData.append('paymentBillFile', params.paymentBillFile)
+      }
+      if (params.notes) {
+        formData.append('notes', params.notes)
+      }
+
+      const realRes = await apiClient.postFormData<OrderDto>(`/provider/orders/${orderId}/upload-documents`, formData)
+      if (realRes.status === 'success' && realRes.data) {
+        this.saveOrderLocally(realRes.data)
+        return realRes
+      }
+    }
+
+    // 2. Fallback local update (with base64 / URL strings)
+    const res = await this.getOrderById(orderId)
+    if (!res.data) {
+      return { status: 'error', data: null as any, message: 'Booking tidak ditemukan' }
+    }
+
+    const updated: OrderDto = {
+      ...res.data,
+      signedAgreementUrl: params.signedAgreementUrl || res.data.signedAgreementUrl,
+      paymentBillUrl: params.paymentBillUrl || res.data.paymentBillUrl,
+      lifecycleStatus: res.data.lifecycleStatus === 'CONFIRMED' ? 'ACTIVE_RENTAL' : res.data.lifecycleStatus,
+    }
+
+    this.saveOrderLocally(updated)
+
+    return {
+      status: 'success',
+      data: updated,
+      message: 'Surat perjanjian sewa dan bukti bill berhasil disimpan.',
+    }
+  }
+
+  /**
+   * Legacy string upload methods for backward compatibility
+   */
+  public static async uploadSignedAgreement(orderId: string, agreementUrl: string): Promise<ApiResponse<OrderDto>> {
+    return this.uploadSignedAgreementAndBill(orderId, { signedAgreementUrl: agreementUrl })
+  }
+
+  public static async uploadPaymentBill(orderId: string, billUrl: string): Promise<ApiResponse<OrderDto>> {
+    return this.uploadSignedAgreementAndBill(orderId, { paymentBillUrl: billUrl })
+  }
+
+  /**
+   * Complete rental after offline handover and return
+   */
+  public static async completeRental(orderId: string): Promise<ApiResponse<OrderDto>> {
+    // 1. Try real API
+    const realRes = await apiClient.put<OrderDto>(`/provider/orders/${orderId}/complete`)
+    if (realRes.status === 'success' && realRes.data) {
+      this.saveOrderLocally(realRes.data)
+      return realRes
+    }
+
+    // 2. Fallback local update
+    const res = await this.getOrderById(orderId)
+    if (!res.data) {
+      return { status: 'error', data: null as any, message: 'Booking tidak ditemukan' }
+    }
+
+    const updated: OrderDto = {
+      ...res.data,
+      lifecycleStatus: 'COMPLETED',
+      completedAt: new Date().toISOString(),
+    }
+
+    this.saveOrderLocally(updated)
+
+    return {
+      status: 'success',
+      data: updated,
+      message: 'Masa sewa telah selesai dan transaksi ditutup.',
+    }
+  }
+
+  /**
    * Submit Provider review for User (Tenant)
    */
   public static async submitProviderReview(
     orderId: string,
     review: Omit<RentalReviewProps, 'id' | 'orderId' | 'authorRole' | 'createdAt'>
   ): Promise<ApiResponse<OrderDto>> {
+    // 1. Try real API
+    const realRes = await apiClient.post<OrderDto>(`/provider/orders/${orderId}/review-tenant`, {
+      rating: review.overallRating,
+      comment: review.comment,
+      badges: review.tags || [],
+    })
+    if (realRes.status === 'success' && realRes.data) {
+      this.saveOrderLocally(realRes.data)
+      return realRes
+    }
+
+    // 2. Fallback local update
     const res = await this.getOrderById(orderId)
     if (!res.data) {
       return { status: 'error', data: null as any, message: 'Booking tidak ditemukan' }

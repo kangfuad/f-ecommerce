@@ -3,7 +3,7 @@ import type { ApiResponse } from './ApiResponse'
 
 export interface FaqDto {
   id: string
-  category: 'PROSEDUR' | 'DEPOSIT' | 'ASURANSI' | 'PENGANTARAN'
+  category: 'PROSEDUR' | 'TRANSAKSI' | 'KEAMANAN' | 'DEPOSIT' | 'ASURANSI' | 'PENGANTARAN'
   categoryLabel: string
   question: string
   answer: string
@@ -26,6 +26,14 @@ export class FaqService {
       }
     }
 
+    // 1. Try real API
+    const realRes = await apiClient.get<FaqDto[]>('/faqs')
+    if (realRes.status === 'success' && Array.isArray(realRes.data) && realRes.data.length > 0) {
+      this.cachedFaqs = realRes.data
+      return realRes
+    }
+
+    // 2. Fallback to local json
     const response = await apiClient.get<FaqDto[]>('/data/faq.json')
     if (response.status === 'success' && Array.isArray(response.data)) {
       this.cachedFaqs = response.data
