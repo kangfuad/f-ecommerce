@@ -5,7 +5,7 @@ import { Money } from '@/domain/value-objects/Money'
 import { TOKENS } from '@/infrastructure/di/tokens'
 import { DIContainer } from '@/infrastructure/di/container'
 import type { AddToCartInput } from '@/application/use-cases/ManageCartUseCase'
-import { APP_CONFIG } from '@/core/config/app.config'
+import { CartService } from '@/infrastructure/services/api'
 import { isWishlistOpen } from './useWishlist'
 
 import { useAuth } from './useAuth'
@@ -88,6 +88,9 @@ export function useCart() {
     cartError.value = null
     try {
       cartItems.value = await manageCartUseCase.getCartItems()
+      if (isLoggedIn.value) {
+        CartService.getCart().catch((e) => console.warn('Failed to fetch remote cart:', e))
+      }
     } catch (err: any) {
       cartError.value = err.message || 'Gagal memuat keranjang sewa'
     } finally {
@@ -111,6 +114,16 @@ export function useCart() {
     try {
       cartItems.value = await manageCartUseCase.addToCart(input)
       
+      // Sync with Backend Database API
+      const startStr = (input.startDate instanceof Date ? input.startDate : new Date(input.startDate)).toISOString().slice(0, 10)
+      const endStr = (input.endDate instanceof Date ? input.endDate : new Date(input.endDate)).toISOString().slice(0, 10)
+      CartService.addItem({
+        productId: input.productId,
+        quantity: input.quantity,
+        startDate: startStr,
+        endDate: endStr,
+      }).catch((e) => console.warn('Cart API sync failed:', e))
+
       // Trigger non-intrusive animation and toast instead of forced drawer opening
       triggerCartAnimation(productName)
 
@@ -155,6 +168,9 @@ export function useCart() {
   async function updateQuantity(cartItemId: string, newQuantity: number) {
     try {
       cartItems.value = await manageCartUseCase.updateItemQuantity(cartItemId, newQuantity)
+      if (isLoggedIn.value) {
+        CartService.updateItem(cartItemId, { quantity: newQuantity }).catch((e) => console.warn('Cart API update failed:', e))
+      }
     } catch (err: any) {
       cartError.value = err.message || 'Gagal memperbarui kuantitas'
     }
@@ -165,6 +181,11 @@ export function useCart() {
     cartError.value = null
     try {
       cartItems.value = await manageCartUseCase.updateItemDates(cartItemId, startDate, endDate)
+      if (isLoggedIn.value) {
+        const startStr = (startDate instanceof Date ? startDate : new Date(startDate)).toISOString().slice(0, 10)
+        const endStr = (endDate instanceof Date ? endDate : new Date(endDate)).toISOString().slice(0, 10)
+        CartService.updateItem(cartItemId, { startDate: startStr, endDate: endStr }).catch((e) => console.warn('Cart API update failed:', e))
+      }
     } catch (err: any) {
       cartError.value = err.message || 'Gagal memperbarui tanggal sewa'
       throw err
@@ -176,6 +197,9 @@ export function useCart() {
   async function removeItem(cartItemId: string) {
     try {
       cartItems.value = await manageCartUseCase.removeFromCart(cartItemId)
+      if (isLoggedIn.value) {
+        CartService.removeItem(cartItemId).catch((e) => console.warn('Cart API remove failed:', e))
+      }
     } catch (err: any) {
       cartError.value = err.message || 'Gagal menghapus item dari keranjang'
     }
@@ -187,6 +211,9 @@ export function useCart() {
         await manageCartUseCase.removeFromCart(item.id)
       }
       cartItems.value = []
+      if (isLoggedIn.value) {
+        CartService.clearCart().catch((e) => console.warn('Cart API clear failed:', e))
+      }
     } catch (err: any) {
       console.warn('Failed to clear cart:', err)
     }
@@ -197,6 +224,9 @@ export function useCart() {
       for (const item of [...cartItems.value]) {
         if (productIds.includes(item.product.id)) {
           await manageCartUseCase.removeFromCart(item.id)
+          if (isLoggedIn.value) {
+            CartService.removeItem(item.id).catch((e) => console.warn('Cart API remove failed:', e))
+          }
         }
       }
       cartItems.value = await manageCartUseCase.getCartItems()

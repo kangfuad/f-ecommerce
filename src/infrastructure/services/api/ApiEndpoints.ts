@@ -25,6 +25,18 @@ export const API_ENDPOINTS = {
   PROVIDER_STORES: {
     DETAIL: (idOrSlug: string) => `/provider-stores/${idOrSlug}`,
   },
+  CART: {
+    GET_CART: '/cart',
+    ADD_ITEM: '/cart/items',
+    UPDATE_ITEM: (itemId: string) => `/cart/items/${itemId}`,
+    REMOVE_ITEM: (itemId: string) => `/cart/items/${itemId}`,
+    CLEAR_CART: '/cart',
+  },
+  FAVORITES: {
+    LIST: '/favorites',
+    TOGGLE: '/favorites/toggle',
+    REMOVE: (productId: string) => `/favorites/${productId}`,
+  },
   BOOKINGS: {
     SUBMIT: '/bookings',
   },

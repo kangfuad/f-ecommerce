@@ -1,8 +1,9 @@
-import { shallowRef, ref, computed } from 'vue'
+import { shallowRef, ref, computed, watch } from 'vue'
 import { LocalStorageAdapter } from '@/infrastructure/storage/LocalStorageAdapter'
 import { APP_CONFIG } from '@/core/config/app.config'
 import { DIContainer } from '@/infrastructure/di/container'
 import { Product } from '@/domain/entities/Product'
+import { FavoriteService } from '@/infrastructure/services/api'
 import { useAuth } from './useAuth'
 import { useToast } from './useToast'
 
@@ -17,6 +18,20 @@ let isProductsLoaded = false
 export function useWishlist() {
   const { isLoggedIn, openLoginModal } = useAuth()
   const { showToast } = useToast()
+
+  async function syncFavoritesFromApi() {
+    if (!isLoggedIn.value) return
+    try {
+      const res = await FavoriteService.getFavorites()
+      if (res.status === 'success' && Array.isArray(res.data)) {
+        const ids = res.data.map((f) => f.productId)
+        wishlistIds.value = ids
+        LocalStorageAdapter.setItem(APP_CONFIG.STORAGE_KEYS.WISHLIST, ids)
+      }
+    } catch (e) {
+      console.warn('Failed to sync favorites from API:', e)
+    }
+  }
 
   async function loadProductsIfNeeded() {
     if (!isProductsLoaded || allProducts.value.length === 0) {
@@ -38,7 +53,7 @@ export function useWishlist() {
     return wishlistIds.value.includes(productId)
   }
 
-  function toggleWishlist(productId: string): boolean {
+  async function toggleWishlist(productId: string): Promise<boolean> {
     if (!isLoggedIn.value) {
       showToast({
         type: 'warning',
@@ -49,21 +64,40 @@ export function useWishlist() {
       return false
     }
 
+    // 1. Optimistic local update
     const index = wishlistIds.value.indexOf(productId)
+    let added = false
     if (index > -1) {
       wishlistIds.value.splice(index, 1)
+      added = false
     } else {
       wishlistIds.value.push(productId)
+      added = true
     }
     LocalStorageAdapter.setItem(APP_CONFIG.STORAGE_KEYS.WISHLIST, wishlistIds.value)
-    return isWishlisted(productId)
+
+    // 2. Sync with Database API
+    try {
+      await FavoriteService.toggleFavorite(productId)
+    } catch (e) {
+      console.warn('Failed to toggle favorite on server:', e)
+    }
+
+    return added
   }
 
-  function removeWishlist(productId: string): void {
+  async function removeWishlist(productId: string): Promise<void> {
     const index = wishlistIds.value.indexOf(productId)
     if (index > -1) {
       wishlistIds.value.splice(index, 1)
       LocalStorageAdapter.setItem(APP_CONFIG.STORAGE_KEYS.WISHLIST, wishlistIds.value)
+    }
+    if (isLoggedIn.value) {
+      try {
+        await FavoriteService.removeFavorite(productId)
+      } catch (e) {
+        console.warn('Failed to remove favorite on server:', e)
+      }
     }
   }
 
@@ -74,6 +108,9 @@ export function useWishlist() {
 
   function openWishlist(): void {
     loadProductsIfNeeded()
+    if (isLoggedIn.value) {
+      syncFavoritesFromApi()
+    }
     isWishlistOpen.value = true
   }
 
@@ -83,6 +120,16 @@ export function useWishlist() {
 
   // Pre-fetch products
   loadProductsIfNeeded()
+
+  watch(
+    isLoggedIn,
+    (loggedIn) => {
+      if (loggedIn) {
+        syncFavoritesFromApi()
+      }
+    },
+    { immediate: true }
+  )
 
   return {
     wishlistIds,
