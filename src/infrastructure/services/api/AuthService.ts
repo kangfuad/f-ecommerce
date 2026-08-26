@@ -32,6 +32,8 @@ export interface AuthUserDto {
   idNumber?: string
   initials: string
   membershipTier?: 'SILVER' | 'GOLD' | 'PLATINUM'
+  hasProviderStore?: boolean
+  providerStoreName?: string
   avatarUrl?: string
   savedAddresses?: SavedAddress[]
 }

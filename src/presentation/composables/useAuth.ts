@@ -22,10 +22,14 @@ export function useAuth() {
       const saved = localStorage.getItem(AUTH_STORAGE_KEY)
       if (saved) {
         const parsed = JSON.parse(saved)
-        currentUser.value = new UserProfile({
+        const userObj = new UserProfile({
           ...parsed,
+          hasProviderStore: parsed.hasProviderStore !== undefined ? parsed.hasProviderStore : true,
+          providerStoreName: parsed.providerStoreName || 'CinemaTech Rental Jakarta',
           joinedAt: new Date(parsed.joinedAt),
         })
+        currentUser.value = userObj
+        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(userObj))
       }
     } catch {
       currentUser.value = null
@@ -71,6 +75,8 @@ export function useAuth() {
           email: user.email || emailOrPhone,
           phone: user.phone || '081234567890',
           isKycVerified: user.isKycVerified ?? true,
+          hasProviderStore: user.hasProviderStore !== undefined ? user.hasProviderStore : true,
+          providerStoreName: user.providerStoreName || 'CinemaTech Rental Jakarta',
           memberTier: 'VERIFIED_GOLD',
           rentalCount: 1,
           joinedAt: new Date(),
@@ -118,6 +124,8 @@ export function useAuth() {
           kycStatus: 'VERIFIED',
           idType: 'KTP',
           idNumber: user.idNumber,
+          hasProviderStore: user.hasProviderStore !== undefined ? user.hasProviderStore : true,
+          providerStoreName: user.providerStoreName || 'CinemaTech Rental Jakarta',
           memberTier: 'VERIFIED_GOLD',
           rentalCount: 5,
           joinedAt: new Date('2026-01-15'),
