@@ -282,49 +282,57 @@ function handleReviewSubmitted(updated: OrderDto) {
         <!-- Main Provider Dashboard View -->
         <template v-else>
           <!-- Header Banner -->
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-3xl bg-theme-card border border-theme-border shadow-xs">
-            <div class="space-y-1">
-              <div class="flex items-center gap-2">
-                <span class="px-2.5 py-0.5 rounded-full bg-[#244E33] text-white text-[10px] font-black uppercase">
-                  Panel Mitra Penyedia Sewa
-                </span>
-                <span class="text-xs text-stone-500 font-mono">{{ currentUser?.providerStoreName || 'Mitra Penyedia Resmi' }}</span>
-              </div>
-              <h1 class="font-display text-2xl font-extrabold text-theme-primary">
-                Timeline & Kelola Booking Penyedia
-              </h1>
-              <p class="text-xs text-stone-500 max-w-xl">
-                Terima atau tolak pengajuan sewa, cetak form surat perjanjian sewa resmi, dan unggah foto/PDF berkas bertandatangan beserta bukti tagihan pembayaran (bill) setelah serah terima selesai.
-              </p>
-            </div>
+          <div class="p-4 sm:p-6 md:p-8 rounded-3xl bg-theme-card border border-theme-border shadow-xs space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div class="space-y-2 min-w-0">
+                <!-- Badges Row -->
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="px-2.5 py-0.5 rounded-full bg-[#244E33] dark:bg-emerald-500 text-white dark:text-stone-950 text-[10px] font-black uppercase tracking-wider shrink-0">
+                    Panel Mitra Penyedia Sewa
+                  </span>
+                  <span class="px-2.5 py-0.5 rounded-full bg-forest/10 dark:bg-forest/20 text-forest dark:text-forest-glow text-[11px] font-bold border border-forest/20 truncate max-w-[200px] sm:max-w-xs">
+                    {{ currentUser?.providerStoreName || 'Mitra Penyedia Resmi' }}
+                  </span>
+                </div>
 
-            <!-- Quick link to User View -->
-            <div class="flex items-center gap-2">
-              <router-link
-                to="/pesanan-saya"
-                class="px-4 py-2 rounded-2xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-xs font-bold text-theme-primary transition"
-              >
-                Lihat Sebagai Penyewa (User)
-              </router-link>
+                <!-- Title & Description -->
+                <h1 class="font-display text-xl sm:text-2xl md:text-3xl font-black text-theme-primary leading-tight">
+                  Timeline & Kelola Booking Penyedia
+                </h1>
+                <p class="text-xs text-stone-500 max-w-2xl leading-relaxed">
+                  Terima atau tolak booking, cetak form perjanjian sewa resmi, dan unggah berkas bertandatangan beserta bukti bill pembayaran setelah serah terima unit.
+                </p>
+              </div>
+
+              <!-- Quick Link Button to Tenant View -->
+              <div class="shrink-0 pt-1 sm:pt-0">
+                <router-link
+                  to="/pesanan-saya"
+                  class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-xs font-bold text-theme-primary transition shadow-xs"
+                >
+                  <span>Mode Penyewa (User)</span>
+                  <span class="text-xs text-stone-400">→</span>
+                </router-link>
+              </div>
             </div>
           </div>
 
-          <!-- Metric Counter Tabs -->
-          <div class="grid grid-cols-3 gap-3 sm:gap-4">
+          <!-- Metric Counter Tabs (Responsive 3 Tabs) -->
+          <div class="grid grid-cols-3 gap-2 sm:gap-4">
             <button
               type="button"
               @click="activeTab = 'PENDING'"
               :class="[
-                'p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between',
+                'p-2.5 sm:p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between min-w-0',
                 activeTab === 'PENDING'
                   ? 'bg-amber-500/10 border-amber-500/40 ring-2 ring-amber-500/20'
                   : 'bg-theme-card border-theme-border hover:border-stone-400'
               ]"
             >
-              <span class="text-xs font-bold text-amber-700 dark:text-amber-400">Permintaan Masuk</span>
-              <div class="flex items-baseline justify-between mt-2">
-                <span class="text-2xl font-black font-mono text-theme-primary">{{ pendingOrders.length }}</span>
-                <span class="text-[10px] text-stone-400 font-bold">Perlu Konfirmasi</span>
+              <span class="text-[11px] sm:text-xs font-extrabold text-amber-700 dark:text-amber-400 truncate block">Permintaan Masuk</span>
+              <div class="flex items-baseline justify-between mt-1 sm:mt-2">
+                <span class="text-xl sm:text-2xl font-black font-mono text-theme-primary">{{ pendingOrders.length }}</span>
+                <span class="hidden sm:inline text-[10px] text-stone-400 font-bold">Perlu Konfirmasi</span>
               </div>
             </button>
 
@@ -332,16 +340,16 @@ function handleReviewSubmitted(updated: OrderDto) {
               type="button"
               @click="activeTab = 'ACTIVE'"
               :class="[
-                'p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between',
+                'p-2.5 sm:p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between min-w-0',
                 activeTab === 'ACTIVE'
                   ? 'bg-emerald-500/10 border-emerald-500/40 ring-2 ring-emerald-500/20'
                   : 'bg-theme-card border-theme-border hover:border-stone-400'
               ]"
             >
-              <span class="text-xs font-bold text-emerald-700 dark:text-emerald-300">Pesanan Aktif</span>
-              <div class="flex items-baseline justify-between mt-2">
-                <span class="text-2xl font-black font-mono text-theme-primary">{{ activeOrders.length }}</span>
-                <span class="text-[10px] text-stone-400 font-bold">Siap / Berjalan</span>
+              <span class="text-[11px] sm:text-xs font-extrabold text-emerald-700 dark:text-emerald-300 truncate block">Pesanan Aktif</span>
+              <div class="flex items-baseline justify-between mt-1 sm:mt-2">
+                <span class="text-xl sm:text-2xl font-black font-mono text-theme-primary">{{ activeOrders.length }}</span>
+                <span class="hidden sm:inline text-[10px] text-stone-400 font-bold">Siap / Berjalan</span>
               </div>
             </button>
 
@@ -349,16 +357,16 @@ function handleReviewSubmitted(updated: OrderDto) {
               type="button"
               @click="activeTab = 'COMPLETED'"
               :class="[
-                'p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between',
+                'p-2.5 sm:p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between min-w-0',
                 activeTab === 'COMPLETED'
                   ? 'bg-stone-500/10 border-stone-500/40 ring-2 ring-stone-500/20'
                   : 'bg-theme-card border-theme-border hover:border-stone-400'
               ]"
             >
-              <span class="text-xs font-bold text-stone-600 dark:text-stone-300">Riwayat Selesai</span>
-              <div class="flex items-baseline justify-between mt-2">
-                <span class="text-2xl font-black font-mono text-theme-primary">{{ completedOrders.length }}</span>
-                <span class="text-[10px] text-stone-400 font-bold">Ditutup</span>
+              <span class="text-[11px] sm:text-xs font-extrabold text-stone-600 dark:text-stone-300 truncate block">Riwayat Selesai</span>
+              <div class="flex items-baseline justify-between mt-1 sm:mt-2">
+                <span class="text-xl sm:text-2xl font-black font-mono text-theme-primary">{{ completedOrders.length }}</span>
+                <span class="hidden sm:inline text-[10px] text-stone-400 font-bold">Ditutup</span>
               </div>
             </button>
           </div>
