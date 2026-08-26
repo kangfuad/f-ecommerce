@@ -1,4 +1,5 @@
 import { apiClient } from './ApiClient'
+import { API_ENDPOINTS } from './ApiEndpoints'
 import type { ApiResponse } from './ApiResponse'
 import type { ProductCategory } from '@/domain/enums/ProductCategory'
 import type { RentalStatus } from '@/domain/enums/RentalStatus'
@@ -66,7 +67,7 @@ export class ProductService {
       queryStr = `?${params.toString()}`
     }
 
-    const realRes = await apiClient.get<ProductRawDto[]>(`/products${queryStr}`)
+    const realRes = await apiClient.get<ProductRawDto[]>(`${API_ENDPOINTS.PRODUCTS.LIST}${queryStr}`)
     if (realRes.status === 'success' && Array.isArray(realRes.data) && realRes.data.length > 0) {
       return realRes
     }
@@ -80,7 +81,7 @@ export class ProductService {
       }
     }
 
-    const response = await apiClient.get<ProductRawDto[]>('/data/products.json')
+    const response = await apiClient.get<ProductRawDto[]>(API_ENDPOINTS.LOCAL_MOCKS.PRODUCTS)
     if (response.status === 'success' && Array.isArray(response.data)) {
       this.cachedProducts = response.data
     }
@@ -89,7 +90,7 @@ export class ProductService {
 
   public static async getProductById(idOrSlug: string): Promise<ApiResponse<ProductRawDto | null>> {
     // 1. Try real backend API
-    const realRes = await apiClient.get<ProductRawDto>(`/products/${idOrSlug}`)
+    const realRes = await apiClient.get<ProductRawDto>(API_ENDPOINTS.PRODUCTS.DETAIL(idOrSlug))
     if (realRes.status === 'success' && realRes.data) {
       return realRes
     }

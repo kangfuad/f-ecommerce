@@ -1,4 +1,5 @@
 import { apiClient } from './ApiClient'
+import { API_ENDPOINTS } from './ApiEndpoints'
 import type { ApiResponse } from './ApiResponse'
 
 export interface ProvinceDto {
@@ -55,7 +56,7 @@ export class RegionService {
 
   public static async getProvinces(search?: string): Promise<ApiResponse<ProvinceDto[]>> {
     // 1. Try real API
-    const realRes = await apiClient.get<ProvinceDto[]>(`/regions/provinces${search ? `?search=${encodeURIComponent(search)}` : ''}`)
+    const realRes = await apiClient.get<ProvinceDto[]>(`${API_ENDPOINTS.REGIONS.PROVINCES}${search ? `?search=${encodeURIComponent(search)}` : ''}`)
     if (realRes.status === 'success' && Array.isArray(realRes.data) && realRes.data.length > 0) {
       return realRes
     }
@@ -64,7 +65,7 @@ export class RegionService {
     if (this.cachedProvinces && this.cachedProvinces.length > 0) {
       return { status: 'success', data: this.cachedProvinces, message: 'Provinces from cache' }
     }
-    const res: any = await apiClient.get<ProvinceDto[]>('/data/master-wilayah/provinces.json')
+    const res: any = await apiClient.get<ProvinceDto[]>(API_ENDPOINTS.LOCAL_MOCKS.PROVINCES)
     if (res && res.status === 'success' && Array.isArray(res.data)) {
       this.cachedProvinces = res.data
       return res
@@ -79,7 +80,7 @@ export class RegionService {
   public static async getRegencies(provinceId?: string, search?: string): Promise<ApiResponse<RegencyDto[]>> {
     // 1. Try real API
     if (provinceId) {
-      const realRes = await apiClient.get<RegencyDto[]>(`/regions/provinces/${provinceId}/regencies${search ? `?search=${encodeURIComponent(search)}` : ''}`)
+      const realRes = await apiClient.get<RegencyDto[]>(`${API_ENDPOINTS.REGIONS.REGENCIES_BY_PROVINCE(provinceId)}${search ? `?search=${encodeURIComponent(search)}` : ''}`)
       if (realRes.status === 'success' && Array.isArray(realRes.data) && realRes.data.length > 0) {
         return realRes
       }
@@ -87,7 +88,7 @@ export class RegionService {
 
     // 2. Fallback to local
     if (!this.cachedRegencies) {
-      const res: any = await apiClient.get<RegencyDto[]>('/data/master-wilayah/regencies.json')
+      const res: any = await apiClient.get<RegencyDto[]>(API_ENDPOINTS.LOCAL_MOCKS.REGENCIES)
       if (res && res.status === 'success' && Array.isArray(res.data)) {
         this.cachedRegencies = res.data
       } else if (Array.isArray(res)) {
@@ -106,7 +107,7 @@ export class RegionService {
   public static async getDistricts(regencyId?: string, search?: string): Promise<ApiResponse<DistrictDto[]>> {
     // 1. Try real API
     if (regencyId) {
-      const realRes = await apiClient.get<DistrictDto[]>(`/regions/regencies/${regencyId}/districts${search ? `?search=${encodeURIComponent(search)}` : ''}`)
+      const realRes = await apiClient.get<DistrictDto[]>(`${API_ENDPOINTS.REGIONS.DISTRICTS_BY_REGENCY(regencyId)}${search ? `?search=${encodeURIComponent(search)}` : ''}`)
       if (realRes.status === 'success' && Array.isArray(realRes.data) && realRes.data.length > 0) {
         return realRes
       }
@@ -114,7 +115,7 @@ export class RegionService {
 
     // 2. Fallback to local
     if (!this.cachedDistricts) {
-      const res: any = await apiClient.get<DistrictDto[]>('/data/master-wilayah/districts.json')
+      const res: any = await apiClient.get<DistrictDto[]>(API_ENDPOINTS.LOCAL_MOCKS.DISTRICTS)
       if (res && res.status === 'success' && Array.isArray(res.data)) {
         this.cachedDistricts = res.data
       } else if (Array.isArray(res)) {
@@ -133,7 +134,7 @@ export class RegionService {
   public static async getVillages(districtId?: string, search?: string): Promise<ApiResponse<VillageDto[]>> {
     // 1. Try real API
     if (districtId) {
-      const realRes = await apiClient.get<VillageDto[]>(`/regions/districts/${districtId}/villages${search ? `?search=${encodeURIComponent(search)}` : ''}`)
+      const realRes = await apiClient.get<VillageDto[]>(`${API_ENDPOINTS.REGIONS.VILLAGES_BY_DISTRICT(districtId)}${search ? `?search=${encodeURIComponent(search)}` : ''}`)
       if (realRes.status === 'success' && Array.isArray(realRes.data) && realRes.data.length > 0) {
         return realRes
       }
@@ -141,7 +142,7 @@ export class RegionService {
 
     // 2. Fallback to local
     if (!this.cachedVillages) {
-      const res: any = await apiClient.get<VillageDto[]>('/data/master-wilayah/villages.json')
+      const res: any = await apiClient.get<VillageDto[]>(API_ENDPOINTS.LOCAL_MOCKS.VILLAGES)
       if (res && res.status === 'success' && Array.isArray(res.data)) {
         this.cachedVillages = res.data
       } else if (Array.isArray(res)) {

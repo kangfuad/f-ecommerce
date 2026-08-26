@@ -1,4 +1,5 @@
 import { apiClient } from './ApiClient'
+import { API_ENDPOINTS } from './ApiEndpoints'
 import type { ApiResponse } from './ApiResponse'
 
 export interface CategoryDto {
@@ -24,7 +25,7 @@ export class CategoryService {
     }
 
     // 1. Try real API
-    const realRes = await apiClient.get<CategoryDto[]>('/categories')
+    const realRes = await apiClient.get<CategoryDto[]>(API_ENDPOINTS.CATEGORIES.LIST)
     if (realRes.status === 'success' && Array.isArray(realRes.data) && realRes.data.length > 0) {
       this.cachedCategories = realRes.data.map((c) => ({
         ...c,
@@ -38,7 +39,7 @@ export class CategoryService {
     }
 
     // 2. Fallback to local json
-    const response = await apiClient.get<CategoryDto[]>('/data/categories.json')
+    const response = await apiClient.get<CategoryDto[]>(API_ENDPOINTS.LOCAL_MOCKS.CATEGORIES)
     if (response.status === 'success' && Array.isArray(response.data)) {
       this.cachedCategories = response.data
     }

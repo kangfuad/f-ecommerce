@@ -1,4 +1,5 @@
 import { apiClient, AUTH_TOKEN_KEY } from './ApiClient'
+import { API_ENDPOINTS } from './ApiEndpoints'
 import type { ApiResponse } from './ApiResponse'
 import type { SavedAddress } from '@/domain/entities/UserProfile'
 
@@ -60,7 +61,7 @@ export class AuthService {
     password?: string
   ): Promise<ApiResponse<AuthResultDto>> {
     // 1. Try real backend API
-    const realRes = await apiClient.post<AuthResultDto>('/auth/login', {
+    const realRes = await apiClient.post<AuthResultDto>(API_ENDPOINTS.AUTH.LOGIN, {
       identifier,
       password: password || 'PasswordRahasia123!',
     })
@@ -72,8 +73,8 @@ export class AuthService {
       return realRes
     }
 
-    // 2. Fallback to local mock data if backend is offline / in development
-    const response = await apiClient.get<AuthResultDto>('/data/auth-user.json')
+    // 2. Fallback to local mock data
+    const response = await apiClient.get<AuthResultDto>(API_ENDPOINTS.LOCAL_MOCKS.AUTH_USER)
     if (response.status === 'success' && response.data) {
       const parts = identifier.split('@')[0].split(/[._-]/)
       const name = parts.map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join(' ') || 'Member Pengguna'
@@ -110,7 +111,7 @@ export class AuthService {
     payload: RegisterPayloadDto
   ): Promise<ApiResponse<AuthResultDto>> {
     // 1. Try real backend API
-    const realRes = await apiClient.post<AuthResultDto>('/auth/register', {
+    const realRes = await apiClient.post<AuthResultDto>(API_ENDPOINTS.AUTH.REGISTER, {
       fullName: payload.fullName,
       email: payload.email,
       phone: payload.phone,
@@ -162,12 +163,12 @@ export class AuthService {
    * Get Current User Profile from API
    */
   public static async getProfile(): Promise<ApiResponse<AuthUserDto>> {
-    const realRes = await apiClient.get<AuthUserDto>('/user/profile')
+    const realRes = await apiClient.get<AuthUserDto>(API_ENDPOINTS.USER.PROFILE)
     if (realRes.status === 'success' && realRes.data) {
       return realRes
     }
     // Fallback to local auth-user
-    const mockRes = await apiClient.get<AuthResultDto>('/data/auth-user.json')
+    const mockRes = await apiClient.get<AuthResultDto>(API_ENDPOINTS.LOCAL_MOCKS.AUTH_USER)
     return {
       status: mockRes.status,
       data: mockRes.data?.user as AuthUserDto,
@@ -179,7 +180,7 @@ export class AuthService {
    * Update User Profile on API
    */
   public static async updateProfile(payload: Partial<AuthUserDto>): Promise<ApiResponse<AuthUserDto>> {
-    const realRes = await apiClient.put<AuthUserDto>('/user/profile', payload)
+    const realRes = await apiClient.put<AuthUserDto>(API_ENDPOINTS.USER.PROFILE, payload)
     if (realRes.status === 'success' && realRes.data) {
       return realRes
     }
@@ -191,7 +192,7 @@ export class AuthService {
   }
 
   public static async loginWithGoogle(): Promise<ApiResponse<AuthResultDto>> {
-    const response = await apiClient.get<AuthResultDto>('/data/auth-user.json')
+    const response = await apiClient.get<AuthResultDto>(API_ENDPOINTS.LOCAL_MOCKS.AUTH_USER)
     if (response.status === 'success' && response.data) {
       if (typeof localStorage !== 'undefined') {
         localStorage.setItem(AUTH_TOKEN_KEY, response.data.token || 'mock_google_jwt')
@@ -215,7 +216,7 @@ export class AuthService {
   }
 
   public static async loginWithApple(): Promise<ApiResponse<AuthResultDto>> {
-    const response = await apiClient.get<AuthResultDto>('/data/auth-user.json')
+    const response = await apiClient.get<AuthResultDto>(API_ENDPOINTS.LOCAL_MOCKS.AUTH_USER)
     if (response.status === 'success' && response.data) {
       if (typeof localStorage !== 'undefined') {
         localStorage.setItem(AUTH_TOKEN_KEY, response.data.token || 'mock_apple_jwt')
@@ -245,6 +246,6 @@ export class AuthService {
   }
 
   public static async refreshToken(): Promise<ApiResponse<AuthResultDto>> {
-    return apiClient.get<AuthResultDto>('/data/auth-user.json')
+    return apiClient.get<AuthResultDto>(API_ENDPOINTS.LOCAL_MOCKS.AUTH_USER)
   }
 }

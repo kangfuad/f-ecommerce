@@ -1,4 +1,5 @@
 import { apiClient } from './ApiClient'
+import { API_ENDPOINTS } from './ApiEndpoints'
 import type { ApiResponse } from './ApiResponse'
 
 export interface FaqDto {
@@ -27,14 +28,14 @@ export class FaqService {
     }
 
     // 1. Try real API
-    const realRes = await apiClient.get<FaqDto[]>('/faqs')
+    const realRes = await apiClient.get<FaqDto[]>(API_ENDPOINTS.FAQS.LIST)
     if (realRes.status === 'success' && Array.isArray(realRes.data) && realRes.data.length > 0) {
       this.cachedFaqs = realRes.data
       return realRes
     }
 
     // 2. Fallback to local json
-    const response = await apiClient.get<FaqDto[]>('/data/faq.json')
+    const response = await apiClient.get<FaqDto[]>(API_ENDPOINTS.LOCAL_MOCKS.FAQS)
     if (response.status === 'success' && Array.isArray(response.data)) {
       this.cachedFaqs = response.data
     }

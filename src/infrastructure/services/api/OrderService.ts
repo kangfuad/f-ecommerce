@@ -1,4 +1,5 @@
 import { apiClient } from './ApiClient'
+import { API_ENDPOINTS } from './ApiEndpoints'
 import type { ApiResponse } from './ApiResponse'
 import type {
   RentalLifecycleStatus,
@@ -46,14 +47,14 @@ export class OrderService {
    */
   public static async getOrders(status: string = 'ALL'): Promise<ApiResponse<OrderDto[]>> {
     // 1. Try real API
-    const realRes = await apiClient.get<OrderDto[]>(`/orders/my-orders?status=${status}`)
+    const realRes = await apiClient.get<OrderDto[]>(`${API_ENDPOINTS.ORDERS.MY_ORDERS}?status=${status}`)
     if (realRes.status === 'success' && Array.isArray(realRes.data) && realRes.data.length > 0) {
       return realRes
     }
 
     // 2. Fallback to local mock data & runtime localStorage bookings
     try {
-      const response = await apiClient.get<OrderDto[]>('/data/orders.json')
+      const response = await apiClient.get<OrderDto[]>(API_ENDPOINTS.LOCAL_MOCKS.ORDERS)
       const baseOrders = response.data || []
 
       const localRaw = typeof localStorage !== 'undefined' ? localStorage.getItem(LOCAL_ORDERS_STORAGE_KEY) : null
@@ -106,7 +107,7 @@ export class OrderService {
    */
   public static async getOrderById(orderId: string): Promise<ApiResponse<OrderDto | null>> {
     // 1. Try real API
-    const realRes = await apiClient.get<OrderDto>(`/orders/${orderId}`)
+    const realRes = await apiClient.get<OrderDto>(API_ENDPOINTS.ORDERS.DETAIL(orderId))
     if (realRes.status === 'success' && realRes.data) {
       return realRes
     }
@@ -126,7 +127,7 @@ export class OrderService {
    */
   public static async submitBooking(dto: CreateBookingDto): Promise<ApiResponse<OrderDto>> {
     // 1. Try real backend API
-    const realRes = await apiClient.post<OrderDto>('/bookings', dto)
+    const realRes = await apiClient.post<OrderDto>(API_ENDPOINTS.BOOKINGS.SUBMIT, dto)
     if (realRes.status === 'success' && realRes.data) {
       this.saveOrderLocally(realRes.data)
       return realRes
@@ -169,7 +170,7 @@ export class OrderService {
    */
   public static async extendRental(orderId: string, additionalDays: number, notes?: string): Promise<ApiResponse<OrderDto>> {
     // 1. Try real API
-    const realRes = await apiClient.post<OrderDto>(`/orders/${orderId}/extend`, {
+    const realRes = await apiClient.post<OrderDto>(API_ENDPOINTS.ORDERS.EXTEND(orderId), {
       additionalDays,
       notes: notes || 'Perpanjangan durasi masa sewa',
     })
@@ -232,7 +233,7 @@ export class OrderService {
     review: Omit<RentalReviewProps, 'id' | 'orderId' | 'authorRole' | 'createdAt'>
   ): Promise<ApiResponse<OrderDto>> {
     // 1. Try real API
-    const realRes = await apiClient.post<OrderDto>(`/orders/${orderId}/review`, {
+    const realRes = await apiClient.post<OrderDto>(API_ENDPOINTS.ORDERS.REVIEW(orderId), {
       rating: review.overallRating,
       comment: review.comment,
       tags: review.tags || [],
@@ -274,7 +275,7 @@ export class OrderService {
    * Provider action: Get timeline orders
    */
   public static async getProviderOrders(): Promise<ApiResponse<OrderDto[]>> {
-    const realRes = await apiClient.get<OrderDto[]>('/provider/orders')
+    const realRes = await apiClient.get<OrderDto[]>(API_ENDPOINTS.PROVIDER_ORDERS.TIMELINE)
     if (realRes.status === 'success' && Array.isArray(realRes.data)) {
       return realRes
     }
@@ -286,7 +287,7 @@ export class OrderService {
    */
   public static async acceptBooking(orderId: string, note?: string): Promise<ApiResponse<OrderDto>> {
     // 1. Try real API
-    const realRes = await apiClient.put<OrderDto>(`/provider/orders/${orderId}/confirm`, { note })
+    const realRes = await apiClient.put<OrderDto>(API_ENDPOINTS.PROVIDER_ORDERS.CONFIRM(orderId), { note })
     if (realRes.status === 'success' && realRes.data) {
       this.saveOrderLocally(realRes.data)
       return realRes
@@ -319,7 +320,7 @@ export class OrderService {
    */
   public static async rejectBooking(orderId: string, reason: string): Promise<ApiResponse<OrderDto>> {
     // 1. Try real API
-    const realRes = await apiClient.put<OrderDto>(`/provider/orders/${orderId}/reject`, { reason })
+    const realRes = await apiClient.put<OrderDto>(API_ENDPOINTS.PROVIDER_ORDERS.REJECT(orderId), { reason })
     if (realRes.status === 'success' && realRes.data) {
       this.saveOrderLocally(realRes.data)
       return realRes
@@ -372,7 +373,7 @@ export class OrderService {
         formData.append('notes', params.notes)
       }
 
-      const realRes = await apiClient.postFormData<OrderDto>(`/provider/orders/${orderId}/upload-documents`, formData)
+      const realRes = await apiClient.postFormData<OrderDto>(API_ENDPOINTS.PROVIDER_ORDERS.UPLOAD_DOCUMENTS(orderId), formData)
       if (realRes.status === 'success' && realRes.data) {
         this.saveOrderLocally(realRes.data)
         return realRes
@@ -402,22 +403,11 @@ export class OrderService {
   }
 
   /**
-   * Legacy string upload methods for backward compatibility
-   */
-  public static async uploadSignedAgreement(orderId: string, agreementUrl: string): Promise<ApiResponse<OrderDto>> {
-    return this.uploadSignedAgreementAndBill(orderId, { signedAgreementUrl: agreementUrl })
-  }
-
-  public static async uploadPaymentBill(orderId: string, billUrl: string): Promise<ApiResponse<OrderDto>> {
-    return this.uploadSignedAgreementAndBill(orderId, { paymentBillUrl: billUrl })
-  }
-
-  /**
    * Complete rental after offline handover and return
    */
   public static async completeRental(orderId: string): Promise<ApiResponse<OrderDto>> {
     // 1. Try real API
-    const realRes = await apiClient.put<OrderDto>(`/provider/orders/${orderId}/complete`)
+    const realRes = await apiClient.put<OrderDto>(API_ENDPOINTS.PROVIDER_ORDERS.COMPLETE(orderId))
     if (realRes.status === 'success' && realRes.data) {
       this.saveOrderLocally(realRes.data)
       return realRes
@@ -452,7 +442,7 @@ export class OrderService {
     review: Omit<RentalReviewProps, 'id' | 'orderId' | 'authorRole' | 'createdAt'>
   ): Promise<ApiResponse<OrderDto>> {
     // 1. Try real API
-    const realRes = await apiClient.post<OrderDto>(`/provider/orders/${orderId}/review-tenant`, {
+    const realRes = await apiClient.post<OrderDto>(API_ENDPOINTS.PROVIDER_ORDERS.REVIEW_TENANT(orderId), {
       rating: review.overallRating,
       comment: review.comment,
       badges: review.tags || [],
