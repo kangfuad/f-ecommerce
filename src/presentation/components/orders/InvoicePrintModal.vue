@@ -28,34 +28,37 @@ function handlePrint() {
     <div id="printable-invoice-modal-card" class="relative bg-theme-card text-theme-primary rounded-3xl max-w-3xl w-full max-h-[92vh] my-auto overflow-y-auto custom-scrollbar shadow-2xl border border-theme-border z-10 animate-fade-up p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 print:bg-white print:text-stone-950 print:border-none print:shadow-none print:p-0">
       
       <!-- Top Action Bar (hidden on print) -->
-      <div class="flex flex-wrap items-center justify-between gap-2.5 border-b border-theme-border pb-3 sm:pb-4 print-hide">
-        <div class="flex items-center gap-2">
-          <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[9px] sm:text-[10px] font-black border border-emerald-500/30 uppercase tracking-wide">
+      <div class="flex items-center justify-between gap-3 border-b border-theme-border pb-3 sm:pb-4 pr-10 print-hide relative">
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[9px] sm:text-[10px] font-black border border-emerald-500/30 uppercase tracking-wide truncate">
             Form Perjanjian Sewa Resmi
           </span>
-          <span class="text-[11px] sm:text-xs text-stone-500 dark:text-stone-400 font-mono">#{{ order.id }}</span>
+          <span class="text-[11px] sm:text-xs text-stone-500 dark:text-stone-400 font-mono shrink-0">#{{ order.id }}</span>
         </div>
 
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 shrink-0">
           <button
             type="button"
             @click="handlePrint"
-            class="px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full bg-[#244E33] hover:bg-[#1B3B26] dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-stone-950 text-xs font-bold transition cursor-pointer shadow-xs flex items-center gap-1.5"
+            class="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-[#244E33] hover:bg-[#1B3B26] dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-stone-950 text-xs font-bold transition cursor-pointer shadow-xs flex items-center gap-1.5 shrink-0"
           >
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
             </svg>
-            <span>Cetak / PDF</span>
-          </button>
-
-          <button
-            type="button"
-            @click="emit('close')"
-            class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 flex items-center justify-center transition cursor-pointer"
-          >
-            <IconClose :size="13" />
+            <span class="hidden sm:inline">Cetak / Simpan PDF</span>
+            <span class="sm:hidden">Cetak</span>
           </button>
         </div>
+
+        <!-- Absolute Close Button at the exact top-right corner of the modal header -->
+        <button
+          type="button"
+          @click="emit('close')"
+          class="absolute top-0 right-0 w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 flex items-center justify-center transition cursor-pointer shrink-0"
+          title="Tutup dialog (Esc)"
+        >
+          <IconClose :size="14" />
+        </button>
       </div>
 
       <!-- Printable Agreement Document Area -->
