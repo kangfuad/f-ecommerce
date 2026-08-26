@@ -10,7 +10,7 @@ export interface AddToCartInput {
   startDate: Date | string
   endDate: Date | string
   quantity: number
-  includeInsurance: boolean
+  includeInsurance?: boolean
 }
 
 /**
@@ -88,7 +88,7 @@ export class ManageCartUseCase {
         startDate: startDateStr,
         endDate: endDateStr,
         quantity: input.quantity,
-        includeInsurance: input.includeInsurance,
+        includeInsurance: input.includeInsurance ?? false,
         createdAt: new Date().toISOString(),
       }
       existingItems.push(newItem)

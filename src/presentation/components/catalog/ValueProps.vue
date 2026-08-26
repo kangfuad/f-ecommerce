@@ -1,31 +1,31 @@
 <script setup lang="ts">
 import {
   IconShieldCheck,
-  IconRefundDeposit,
-  IconInsurance,
-  IconDeliveryTruck,
+  IconCalendarDate,
+  IconCheck,
+  IconStar,
 } from '@/presentation/components/icons'
 
 const valuePillars = [
   {
-    title: 'Unit 100% Terawat & Bersih',
-    desc: 'Setiap unit melalui QC ketat, disinfeksi, dan sensor/lensa dibersihkan sebelum dikirim.',
+    title: 'Katalog Lengkap & Terverifikasi',
+    desc: 'Pilihan unit perlengkapan modern dari berbagai kategori yang terverifikasi dan siap pakai.',
     icon: IconShieldCheck,
   },
   {
-    title: 'Deposit Kembali Cepat',
-    desc: 'Deposit jaminan dikembalikan 100% otomatis maksimal 1x24 jam setelah barang dicek.',
-    icon: IconRefundDeposit,
+    title: 'Direct Booking & Fleksibel',
+    desc: 'Tentukan tanggal sewa, durasi, serta tempat serah terima langsung dengan penyedia.',
+    icon: IconCalendarDate,
   },
   {
-    title: 'Perlindungan Asuransi',
-    desc: 'Tenang berkarya dengan asuransi proteksi kerusakan wajar dan goresan ringan.',
-    icon: IconInsurance,
+    title: 'Form Perjanjian Sewa Resmi',
+    desc: 'Dilengkapi surat perjanjian sewa dan formulir serah terima resmi untuk kenyamanan bersama.',
+    icon: IconCheck,
   },
   {
-    title: 'Pickup & Delivery Fleksibel',
-    desc: 'Pilihan kirim kurir instan ke lokasi atau ambil langsung di 12+ Pickup Point resmi.',
-    icon: IconDeliveryTruck,
+    title: 'Reputasi & Ulasan 2 Arah',
+    desc: 'Sistem rating transparan antara penyewa dan penyedia untuk menjaga standar kualitas layanan.',
+    icon: IconStar,
   },
 ]
 </script>
@@ -40,13 +40,13 @@ const valuePillars = [
           class="flex items-start gap-4 group"
         >
           <div
-            class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-zinc-800 text-sage dark:text-sage-soft border border-theme-border flex items-center justify-center shrink-0 group-hover:bg-theme-cta group-hover:text-theme-cta-text group-hover:border-transparent transition-all duration-300 shadow-sm"
+            class="w-12 h-12 rounded-2xl bg-stone-100 dark:bg-stone-800 text-forest dark:text-forest-glow border border-theme-border flex items-center justify-center shrink-0 group-hover:bg-theme-cta group-hover:text-theme-cta-text group-hover:border-transparent transition-all duration-300 shadow-xs"
           >
             <component :is="item.icon" :size="22" />
           </div>
           <div>
             <h4 class="font-bold text-sm text-theme-primary">{{ item.title }}</h4>
-            <p class="text-xs text-theme-muted mt-1 leading-relaxed">{{ item.desc }}</p>
+            <p class="text-xs text-stone-500 dark:text-stone-400 mt-1 leading-relaxed">{{ item.desc }}</p>
           </div>
         </div>
       </div>

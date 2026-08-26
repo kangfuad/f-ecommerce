@@ -25,17 +25,17 @@ const routes = [
     redirect: (to: any) => ({ path: '/katalog', query: { produk: to.params.slug } }),
   },
   {
-    path: '/checkout',
-    name: 'checkout',
+    path: '/booking',
+    name: 'booking',
     component: CheckoutView,
   },
   {
-    path: '/booking',
-    redirect: '/checkout',
+    path: '/checkout',
+    redirect: '/booking',
   },
   {
     path: '/pembayaran',
-    redirect: '/checkout',
+    redirect: '/booking',
   },
   {
     path: '/order-success/:orderId',

@@ -19,7 +19,7 @@ export function useRentalCalculator(product: () => Product | null) {
   const startDate = ref(defaultStart)
   const endDate = ref(defaultEnd)
   const quantity = ref(1)
-  const includeInsurance = ref(true)
+  const includeInsurance = ref(false)
   const calculationError = ref<string | null>(null)
 
   const currentBooking = computed<RentalBooking | null>(() => {

@@ -14,8 +14,8 @@ import {
   IconCalendarDate,
   IconCheck,
   IconArrowRight,
-  IconBoxPackage,
   IconClock,
+  IconStar,
 } from '@/presentation/components/icons'
 
 const router = useRouter()
@@ -44,6 +44,7 @@ const {
 } = useCheckout()
 
 const showValidationErrors = ref(false)
+const isEditingProfileContact = ref(false)
 
 onMounted(() => {
   initForm()
@@ -121,21 +122,57 @@ async function handleSubmit() {
           <!-- Left Column: Booking Form -->
           <div class="lg:col-span-8 space-y-6">
             
-            <!-- Step 1: Customer Identity -->
+            <!-- Step 1: Customer Identity Profile Card -->
             <div class="p-5 sm:p-6 rounded-3xl bg-theme-card border border-theme-border shadow-xs space-y-4">
               <div class="flex items-center justify-between pb-3 border-b border-theme-border">
                 <div class="flex items-center gap-2.5">
                   <span class="w-6 h-6 rounded-full bg-[#244E33] text-white flex items-center justify-center font-black text-xs">1</span>
-                  <h2 class="font-extrabold text-sm sm:text-base text-theme-primary">Identitas Pemesan (Penyewa)</h2>
+                  <h2 class="font-extrabold text-sm sm:text-base text-theme-primary">Profil Pemesan (Penyewa)</h2>
                 </div>
-                <span v-if="currentUser?.isKycVerified" class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-bold text-[10px] border border-emerald-500/30">
-                  KYC Terverifikasi
-                </span>
+                <button
+                  type="button"
+                  @click="isEditingProfileContact = !isEditingProfileContact"
+                  class="text-xs font-bold text-forest dark:text-forest-glow hover:underline cursor-pointer"
+                >
+                  {{ isEditingProfileContact ? 'Selesai Ubah' : 'Ubah Kontak' }}
+                </button>
               </div>
 
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Sleek Profile Card -->
+              <div class="p-4 rounded-2xl bg-stone-50 dark:bg-stone-900 border border-theme-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-center gap-3.5">
+                  <div class="w-12 h-12 rounded-2xl bg-[#244E33] text-white font-black text-sm flex items-center justify-center shadow-xs shrink-0">
+                    {{ currentUser?.initials || 'AF' }}
+                  </div>
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-2">
+                      <strong class="text-theme-primary text-sm font-extrabold truncate">{{ fullName || currentUser?.fullName || 'Auri Fuad' }}</strong>
+                      <span v-if="currentUser?.isKycVerified" class="px-2 py-0.2 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[9px] font-black shrink-0">
+                        KYC Terverifikasi
+                      </span>
+                    </div>
+                    <p class="text-xs text-stone-500 font-mono mt-0.5 truncate">
+                      {{ phone || currentUser?.phone || '081234567890' }} • {{ email || currentUser?.email || 'auri.fuad@example.com' }}
+                    </p>
+                    <p v-if="currentUser?.profession" class="text-[10px] text-stone-400 mt-0.5 truncate">
+                      {{ currentUser.profession }}
+                    </p>
+                  </div>
+                </div>
+
+                <div class="sm:text-right shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-theme-border">
+                  <span class="text-[10px] text-stone-400 font-bold uppercase block">Skor Reputasi</span>
+                  <span class="text-xs font-black text-amber-500 flex items-center sm:justify-end gap-1">
+                    <IconStar :size="12" />
+                    <span>5.0 (Penyewa Tepercaya)</span>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Editable Inputs (Toggled or Fallback) -->
+              <div v-if="isEditingProfileContact || !isLoggedIn" class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-theme-border">
                 <div>
-                  <label class="block text-xs font-bold text-stone-600 dark:text-stone-300 mb-1.5">Nama Lengkap Sesuai KTP *</label>
+                  <label class="block text-xs font-bold text-stone-600 dark:text-stone-300 mb-1.5">Nama Lengkap *</label>
                   <input
                     v-model="fullName"
                     type="text"
@@ -146,7 +183,7 @@ async function handleSubmit() {
                 </div>
 
                 <div>
-                  <label class="block text-xs font-bold text-stone-600 dark:text-stone-300 mb-1.5">No. WhatsApp / Telepon *</label>
+                  <label class="block text-xs font-bold text-stone-600 dark:text-stone-300 mb-1.5">No. WhatsApp Aktif *</label>
                   <input
                     v-model="phone"
                     type="tel"
@@ -209,7 +246,7 @@ async function handleSubmit() {
                 <label class="block text-xs font-bold text-stone-600 dark:text-stone-300">Pilihan Lokasi Transaksi Serah Terima *</label>
                 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <!-- Studio Penyedia -->
+                  <!-- Hub / Lokasi Penyedia -->
                   <button
                     type="button"
                     @click="setLocationType('PROVIDER_STUDIO')"
@@ -221,8 +258,8 @@ async function handleSubmit() {
                     ]"
                   >
                     <div>
-                      <strong class="text-xs text-theme-primary block">Studio Resmi Penyedia</strong>
-                      <p class="text-[10px] text-stone-500 mt-0.5">Ambil langsung di studio / hub resmi penyedia sewa.</p>
+                      <strong class="text-xs text-theme-primary block">Lokasi / Hub Penyedia</strong>
+                      <p class="text-[10px] text-stone-500 mt-0.5">Ambil langsung di kantor, workshop, atau hub resmi penyedia sewa.</p>
                     </div>
                     <span class="text-[9px] font-black text-forest dark:text-forest-glow">Direkomendasikan</span>
                   </button>
@@ -240,11 +277,11 @@ async function handleSubmit() {
                   >
                     <div>
                       <strong class="text-xs text-theme-primary block">Alamat Domisili Penyewa</strong>
-                      <p class="text-[10px] text-stone-500 mt-0.5">Penyedia mengantarkan unit ke alamat rumah/kantor Anda.</p>
+                      <p class="text-[10px] text-stone-500 mt-0.5">Penyedia mengantarkan unit ke alamat rumah atau kantor Anda.</p>
                     </div>
                   </button>
 
-                  <!-- Titik Temu Khusus / Lokasi Syuting -->
+                  <!-- Titik Temu Khusus / Lokasi Acara -->
                   <button
                     type="button"
                     @click="setLocationType('CUSTOM_MEETUP')"
@@ -256,15 +293,15 @@ async function handleSubmit() {
                     ]"
                   >
                     <div>
-                      <strong class="text-xs text-theme-primary block">Titik Temu / Lokasi Syuting</strong>
-                      <p class="text-[10px] text-stone-500 mt-0.5">Janji temu di lokasi produksi atau area publik yang disepakati.</p>
+                      <strong class="text-xs text-theme-primary block">Titik Temu / Lokasi Acara</strong>
+                      <p class="text-[10px] text-stone-500 mt-0.5">Janji temu di titik strategis atau lokasi proyek/acara yang disepakati.</p>
                     </div>
                   </button>
                 </div>
 
                 <!-- Location Address Input -->
                 <div v-if="meetupLocationType === 'PROVIDER_STUDIO'" class="space-y-2 pt-2">
-                  <label class="block text-[11px] font-bold text-stone-500">Pilih Studio Hub:</label>
+                  <label class="block text-[11px] font-bold text-stone-500">Pilih Hub / Titik Penyedia Terdekat:</label>
                   <select
                     v-model="meetupLocationName"
                     @change="(e: any) => {
@@ -299,7 +336,7 @@ async function handleSubmit() {
                 <input
                   v-model="bookingNotes"
                   type="text"
-                  placeholder="Contoh: Kebutuhan syuting di indoor studio SCBD, mohon bawa baterai cadangan."
+                  placeholder="Contoh: Mohon sediakan perlengkapan lengkap dengan hardcase & kabel cadangan."
                   class="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 dark:bg-stone-900 border border-theme-border text-xs focus:ring-2 focus:ring-forest outline-none transition"
                 />
               </div>
@@ -365,16 +402,12 @@ async function handleSubmit() {
                   <span class="font-mono font-bold text-theme-primary">{{ subtotalRental.format() }}</span>
                 </div>
                 <div class="flex justify-between text-[11px]">
-                  <span>Jaminan Deposit:</span>
-                  <span class="font-bold text-emerald-600 dark:text-emerald-400">Bebas Deposit Member KYC</span>
-                </div>
-                <div class="flex justify-between text-[11px]">
-                  <span>Pembayaran:</span>
-                  <span class="font-bold text-theme-primary">Direct (Saat Serah Terima)</span>
+                  <span>Pelunasan:</span>
+                  <span class="font-bold text-theme-primary">Direct Settlement di Lokasi</span>
                 </div>
 
                 <div class="flex justify-between items-center pt-2 border-t border-theme-border text-sm font-extrabold text-theme-primary">
-                  <span>Total Estimasi:</span>
+                  <span>Total Tagihan:</span>
                   <span class="text-forest dark:text-forest-glow text-lg font-black font-mono">
                     {{ subtotalRental.format() }}
                   </span>
@@ -394,10 +427,10 @@ async function handleSubmit() {
               </BaseButton>
 
               <div class="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-[10px] text-emerald-800 dark:text-emerald-300 leading-relaxed">
-                <p class="font-bold mb-0.5">Alur Setelah Kirim Booking:</p>
+                <p class="font-bold mb-0.5">Alur Booking Sederhana:</p>
                 <p>1. Penyedia sewa meninjau & mengonfirmasi jadwal temu Anda.</p>
-                <p>2. Form perjanjian sewa resmi diterbitkan otomatis.</p>
-                <p>3. Serah terima unit, cek QC bersama & pelunasan sewa di lokasi.</p>
+                <p>2. Form perjanjian sewa resmi disiapkan oleh penyedia.</p>
+                <p>3. Serah terima unit, cek fisik bersama & pembayaran di lokasi.</p>
               </div>
 
             </div>

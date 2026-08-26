@@ -102,11 +102,9 @@ const {
   startDate,
   endDate,
   quantity,
-  includeInsurance,
   currentBooking,
   calculationError,
   setQuantity,
-  toggleInsurance,
 } = useRentalCalculator(() => props.product)
 
 async function handleAddToCart() {
@@ -122,7 +120,6 @@ async function handleAddToCart() {
         startDate: startDate.value,
         endDate: endDate.value,
         quantity: quantity.value,
-        includeInsurance: includeInsurance.value,
       },
       false, // Do NOT force open drawer
       props.product.name
@@ -345,21 +342,21 @@ async function handleAddToCart() {
           <RentalPriceBreakdown
             v-if="currentBooking"
             :booking="currentBooking"
-            :includeInsurance="includeInsurance"
-            @toggle-insurance="toggleInsurance"
           />
 
-          <!-- Action Button: Add to Cart -->
+          <!-- Action Button: Booking -->
           <BaseButton
             @click="handleAddToCart"
             :loading="isAddingToCart"
             :disabled="!currentBooking"
             variant="primary"
             size="lg"
-            class="w-full cursor-pointer shadow-md text-xs sm:text-sm font-black"
+            class="w-full cursor-pointer shadow-md text-xs sm:text-sm font-black flex items-center justify-between px-4 sm:px-5 py-3"
           >
-            <span>Masukkan ke Daftar Booking</span>
-            <span v-if="currentBooking" class="truncate">({{ currentBooking.netRentalPrice.format() }})</span>
+            <span class="truncate">Ajukan Booking Unit</span>
+            <span v-if="currentBooking" class="font-mono text-xs sm:text-sm font-black shrink-0 ml-2">
+              {{ currentBooking.netRentalPrice.format() }}
+            </span>
           </BaseButton>
         </div>
       </div>

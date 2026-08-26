@@ -125,9 +125,8 @@ onUnmounted(() => {
         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
         <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
       </span>
-      <span class="hidden sm:inline">Member KYC Terverifikasi: Nikmati</span>
-      <strong class="font-extrabold text-white">Bebas Biaya Deposit 100%</strong>
-      <span class="hidden md:inline">• Pengantaran Instan & Garansi QC Unit</span>
+      <span class="hidden sm:inline">Platform Reservasi & Informasi Sewa Perlengkapan Modern</span>
+      <strong class="font-extrabold text-white">• Transaksi Langsung & Transparan</strong>
     </div>
 
     <!-- Main Navigation Bar -->
@@ -362,6 +361,7 @@ onUnmounted(() => {
                 </router-link>
 
                 <router-link
+                  v-if="currentUser?.hasProviderStore"
                   to="/timeline-penyedia"
                   @click="userMenuOpen = false"
                   class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 transition cursor-pointer"
@@ -370,7 +370,7 @@ onUnmounted(() => {
                     <IconCalendarDate :size="14" class="text-emerald-600 dark:text-emerald-400" />
                     <span>Panel Penyedia Sewa</span>
                   </div>
-                  <span class="text-xs text-emerald-600 font-bold">Baru</span>
+                  <span class="text-xs text-emerald-600 font-bold">Aktif</span>
                 </router-link>
 
                 <router-link
@@ -467,6 +467,7 @@ onUnmounted(() => {
           </router-link>
 
           <router-link
+            v-if="currentUser?.hasProviderStore"
             to="/timeline-penyedia"
             @click="mobileMenuOpen = false"
             class="flex items-center justify-between p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-xs font-bold text-emerald-700 dark:text-emerald-300"

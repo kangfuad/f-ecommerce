@@ -40,13 +40,13 @@ const emit = defineEmits<{
           </div>
 
           <p class="text-stone-300 dark:text-stone-400 text-sm sm:text-base lg:text-base xl:text-lg leading-relaxed max-w-2xl font-light">
-            Kamera sinematik, drone pro, peralatan camping gunung, hingga gadget flagship. Nikmati kebebasan berkarya tanpa beban biaya beli unit baru.
+            Kamera & drone, laptop & gadget, sound system, hingga perlengkapan outdoor & event. Bebas berkarya dan beraktivitas tanpa beban biaya beli unit baru.
           </p>
 
           <!-- Action buttons -->
           <div class="flex flex-wrap gap-3 sm:gap-4 pt-2">
             <BaseButton @click="emit('explore')" variant="primary" size="lg">
-              <span>Sewa Sekarang</span>
+              <span>Eksplorasi Unit Sewa</span>
               <IconArrowRight :size="18" />
             </BaseButton>
 
@@ -59,17 +59,17 @@ const emit = defineEmits<{
           <div class="pt-5 sm:pt-6 border-t border-stone-800 flex flex-wrap items-center gap-5 sm:gap-8 text-stone-300 dark:text-stone-400 text-xs sm:text-sm">
             <div>
               <p class="text-lg sm:text-xl lg:text-2xl font-extrabold text-white">12.500+</p>
-              <p class="text-stone-400 text-[11px] sm:text-xs">Transaksi Sewa Sukses</p>
+              <p class="text-stone-400 text-[11px] sm:text-xs">Reservasi Booking Sukses</p>
             </div>
             <div class="h-8 w-px bg-stone-800"></div>
             <div>
               <p class="text-lg sm:text-xl lg:text-2xl font-extrabold text-white">4.9 / 5.0</p>
-              <p class="text-stone-400 text-[11px] sm:text-xs">Rating Pelanggan Puas</p>
+              <p class="text-stone-400 text-[11px] sm:text-xs">Skor Reputasi Komunitas</p>
             </div>
             <div class="h-8 w-px bg-stone-800"></div>
             <div>
               <p class="text-lg sm:text-xl lg:text-2xl font-extrabold text-white">100%</p>
-              <p class="text-stone-400 text-[11px] sm:text-xs">Deposit Kembali Aman</p>
+              <p class="text-stone-400 text-[11px] sm:text-xs">Transaksi Langsung Aman</p>
             </div>
           </div>
         </div>

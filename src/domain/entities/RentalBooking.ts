@@ -67,11 +67,10 @@ export class RentalBooking {
   }
 
   /**
-   * Insurance fee: feePerDay × days × quantity
+   * Insurance fee (disabled in direct booking model)
    */
   public get insuranceFee(): Money {
-    if (!this.includeInsurance) return Money.zero()
-    return Money.from(APP_CONFIG.RENTAL.INSURANCE_FEE_PER_DAY * this.durationDays * this.quantity)
+    return Money.zero()
   }
 
   /**

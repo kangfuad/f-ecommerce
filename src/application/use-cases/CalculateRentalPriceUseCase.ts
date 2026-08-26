@@ -27,7 +27,7 @@ export class CalculateRentalPriceUseCase {
       product: input.product,
       dateRange,
       quantity: input.quantity ?? 1,
-      includeInsurance: input.includeInsurance ?? true,
+      includeInsurance: input.includeInsurance ?? false,
     })
   }
 }

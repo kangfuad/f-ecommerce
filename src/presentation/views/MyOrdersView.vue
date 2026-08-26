@@ -6,29 +6,28 @@ import { useAuth } from '@/presentation/composables/useAuth'
 import { formatRupiah } from '@/core/utils/currency'
 import AppHeader from '@/presentation/components/common/AppHeader.vue'
 import AppFooter from '@/presentation/components/common/AppFooter.vue'
-import InvoicePrintModal from '@/presentation/components/orders/InvoicePrintModal.vue'
 import RentalReviewModal from '@/presentation/components/orders/RentalReviewModal.vue'
 import type { OrderDto } from '@/infrastructure/services/api/OrderService'
 import {
   IconCalendarDate,
   IconLocation,
   IconCheck,
+  IconClose,
   IconClock,
   IconShieldCheck,
   IconStar,
-  IconChevronDown,
   IconChevronLeft,
   IconChevronRight,
 } from '@/presentation/components/icons'
 
 const router = useRouter()
-const { currentUser, isLoggedIn, openLoginModal } = useAuth()
+const { currentUser, isLoggedIn } = useAuth()
 
 const { orders, filteredOrders, isLoading, selectedTab, loadOrders } = useMyOrders()
 
-const selectedOrderForPrint = ref<OrderDto | null>(null)
 const selectedOrderForReview = ref<OrderDto | null>(null)
 const selectedOrderForBill = ref<OrderDto | null>(null)
+const selectedOrderForTnc = ref<OrderDto | null>(null)
 
 const tabs: { id: OrderStatusFilter; label: string }[] = [
   { id: 'ALL', label: 'Semua Booking' },
@@ -81,17 +80,9 @@ function handleReviewSubmitted(updated: OrderDto) {
               Pesanan & Booking Sewa Saya
             </h1>
             <p class="text-xs sm:text-sm text-stone-500 mt-1 max-w-xl">
-              Pantau konfirmasi penyedia sewa, cek jadwal & lokasi serah terima, unduh form perjanjian sewa resmi, dan berikan ulasan unit.
+              Pantau status konfirmasi penyedia, cek jadwal dan lokasi transaksi serah terima unit, serta beri ulasan setelah masa sewa selesai.
             </p>
           </div>
-
-          <!-- Switch to Provider Mode -->
-          <router-link
-            to="/timeline-penyedia"
-            class="px-4 py-2 rounded-2xl bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/25 text-xs font-black transition shrink-0"
-          >
-            Buka Mode Penyedia Sewa →
-          </router-link>
         </div>
 
         <!-- Filter Tabs -->
@@ -123,7 +114,7 @@ function handleReviewSubmitted(updated: OrderDto) {
           </div>
           <h3 class="font-extrabold text-base text-theme-primary">Belum Ada Pengajuan Booking</h3>
           <p class="text-xs text-stone-500 max-w-sm mx-auto">
-            Jelajahi katalog perlengkapan kami dan pilih unit yang Anda butuhkan untuk produksi atau acara Anda.
+            Jelajahi katalog perlengkapan kami dan pilih unit yang Anda butuhkan untuk kebutuhan atau proyek Anda.
           </p>
           <router-link
             to="/katalog"
@@ -193,7 +184,7 @@ function handleReviewSubmitted(updated: OrderDto) {
               <div class="space-y-1">
                 <span class="text-[10px] text-stone-400 font-bold uppercase tracking-wider block">Penyedia Sewa:</span>
                 <div class="flex items-center gap-2">
-                  <strong class="text-theme-primary text-sm">{{ order.provider?.name || 'CinemaTech Rental Jakarta' }}</strong>
+                  <strong class="text-theme-primary text-sm">{{ order.provider?.name || 'Mitra Penyedia Sewa' }}</strong>
                   <span v-if="order.provider?.rating" class="flex items-center gap-0.5 text-amber-500 font-bold text-xs">
                     <IconStar :size="12" />
                     <span>{{ order.provider.rating }}</span>
@@ -248,23 +239,23 @@ function handleReviewSubmitted(updated: OrderDto) {
               </div>
 
               <div class="flex flex-wrap items-center gap-2">
-                <!-- Button View Agreement Form -->
+                <!-- Button View T&C Notice -->
                 <button
                   type="button"
-                  @click="selectedOrderForPrint = order"
+                  @click="selectedOrderForTnc = order"
                   class="px-3.5 py-1.5 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-xs font-bold text-theme-primary transition cursor-pointer"
                 >
-                  Lihat Form Sewa & T&C
+                  Ketentuan Sewa (T&C)
                 </button>
 
-                <!-- Button View Bill & Signed Docs (if uploaded) -->
+                <!-- Button View Bill & Signed Docs (if uploaded by provider) -->
                 <button
                   v-if="order.paymentBillUrl || order.signedAgreementUrl"
                   type="button"
                   @click="selectedOrderForBill = order"
-                  class="px-3.5 py-1.5 rounded-xl border border-theme-border hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-bold text-theme-primary transition cursor-pointer"
+                  class="px-3.5 py-1.5 rounded-xl border border-emerald-500/40 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-500/20 text-xs font-bold transition cursor-pointer"
                 >
-                  Lihat Bukti Bill & Berkas TTD
+                  Lihat Berkas TTD & Bill
                 </button>
 
                 <!-- Button Review Provider (if completed) -->
@@ -327,12 +318,33 @@ function handleReviewSubmitted(updated: OrderDto) {
       </div>
     </main>
 
-    <!-- Modal Form Sewa Print -->
-    <InvoicePrintModal
-      v-if="selectedOrderForPrint"
-      :order="selectedOrderForPrint"
-      @close="selectedOrderForPrint = null"
-    />
+    <!-- Modal Tenant T&C Notice -->
+    <div v-if="selectedOrderForTnc" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div @click="selectedOrderForTnc = null" class="fixed inset-0 bg-black/70 backdrop-blur-sm"></div>
+      <div class="relative bg-theme-card rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-theme-border z-10 space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-theme-border">
+          <h3 class="font-extrabold text-base text-theme-primary">Syarat & Ketentuan Sewa (T&C)</h3>
+          <button @click="selectedOrderForTnc = null" class="w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-400">
+            <IconClose :size="14" />
+          </button>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-stone-50 dark:bg-stone-900 border border-theme-border space-y-2 text-xs leading-relaxed text-stone-600 dark:text-stone-300">
+          <p class="font-bold text-theme-primary uppercase text-[11px]">Klausul Resmi Penyewaan:</p>
+          <ol class="list-decimal pl-4 space-y-1.5 text-[11px]">
+            <li>Unit diserahkan dalam kondisi fisik dan fungsi normal setelah dilakukan uji fungsi (QC) bersama saat serah terima di lokasi.</li>
+            <li>Pelunasan biaya sewa diselesaikan langsung saat serah terima unit di lokasi yang disepakati.</li>
+            <li>Penyewa bertanggung jawab penuh atas kebersihan, keamanan, dan keutuhan unit selama seluruh masa sewa berlangsung.</li>
+            <li>Pengembalian unit wajib tepat waktu sesuai jadwal. Keterlambatan tanpa konfirmasi dikenakan tarif harian normal.</li>
+            <li>Formulir perjanjian sewa resmi akan disiapkan dan ditandatangani bersama penyedia sewa saat serah terima di lokasi.</li>
+          </ol>
+        </div>
+
+        <div class="flex justify-end pt-1">
+          <button @click="selectedOrderForTnc = null" class="px-5 py-2 rounded-xl bg-[#244E33] text-white text-xs font-bold">Mengerti</button>
+        </div>
+      </div>
+    </div>
 
     <!-- Modal Review Provider -->
     <RentalReviewModal
@@ -347,20 +359,25 @@ function handleReviewSubmitted(updated: OrderDto) {
     <div v-if="selectedOrderForBill" class="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div @click="selectedOrderForBill = null" class="fixed inset-0 bg-black/70 backdrop-blur-sm"></div>
       <div class="relative bg-theme-card rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-theme-border z-10 space-y-4">
-        <h3 class="font-extrabold text-base text-theme-primary">Bukti Bill & Surat Perjanjian Sewa TTD</h3>
-        <p class="text-xs text-stone-500">Dokumen resmi yang diunggah oleh penyedia sewa setelah serah terima unit di lokasi.</p>
+        <div class="flex items-center justify-between pb-2 border-b border-theme-border">
+          <h3 class="font-extrabold text-base text-theme-primary">Berkas Sewa Bertandatangan & Kwitansi Bill</h3>
+          <button @click="selectedOrderForBill = null" class="w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-400">
+            <IconClose :size="14" />
+          </button>
+        </div>
+        <p class="text-xs text-stone-500">Dokumen resmi yang telah diunggah oleh penyedia sewa setelah serah terima unit dan pembayaran selesai.</p>
         
         <div class="space-y-3">
           <div v-if="selectedOrderForBill.signedAgreementUrl" class="space-y-1">
-            <span class="text-xs font-bold block">1. Berkas Surat Perjanjian Sewa Bertandatangan:</span>
-            <div class="h-36 rounded-2xl overflow-hidden border border-theme-border">
+            <span class="text-xs font-bold block">1. Surat Perjanjian Sewa (Bertandatangan):</span>
+            <div class="h-40 rounded-2xl overflow-hidden border border-theme-border">
               <img :src="selectedOrderForBill.signedAgreementUrl" alt="Surat Sewa TTD" class="w-full h-full object-cover" />
             </div>
           </div>
 
           <div v-if="selectedOrderForBill.paymentBillUrl" class="space-y-1">
             <span class="text-xs font-bold block">2. Kwitansi / Bill Pembayaran:</span>
-            <div class="h-36 rounded-2xl overflow-hidden border border-theme-border">
+            <div class="h-40 rounded-2xl overflow-hidden border border-theme-border">
               <img :src="selectedOrderForBill.paymentBillUrl" alt="Bill Pembayaran" class="w-full h-full object-cover" />
             </div>
           </div>

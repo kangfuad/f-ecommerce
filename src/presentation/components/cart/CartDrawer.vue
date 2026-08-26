@@ -38,7 +38,7 @@ async function handleUpdateDates(id: string, start: string, end: string) {
 
 function handleProceedToBooking() {
   closeCart()
-  router.push('/checkout')
+  router.push('/booking')
 }
 </script>
 

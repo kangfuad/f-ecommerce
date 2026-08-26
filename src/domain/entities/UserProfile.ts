@@ -52,6 +52,8 @@ export interface UserProfileProps {
   idPhotoUrl?: string
   selfiePhotoUrl?: string
   memberTier: MemberTier
+  hasProviderStore?: boolean
+  providerStoreName?: string
   rentalCount: number
   joinedAt: Date
   savedAddresses?: SavedAddress[]
@@ -89,6 +91,8 @@ export class UserProfile {
   public readonly idPhotoUrl?: string
   public readonly selfiePhotoUrl?: string
   public readonly memberTier: MemberTier
+  public readonly hasProviderStore: boolean
+  public readonly providerStoreName?: string
   public readonly rentalCount: number
   public readonly joinedAt: Date
   public readonly savedAddresses: SavedAddress[]
@@ -119,12 +123,14 @@ export class UserProfile {
     this.bio = props.bio
     this.avatarUrl = props.avatarUrl
     this.isKycVerified = props.isKycVerified
-    this.kycStatus = props.kycStatus || (props.isKycVerified ? 'VERIFIED' : 'UNVERIFIED')
+    this.kycStatus = props.kycStatus ?? (props.isKycVerified ? 'VERIFIED' : 'UNVERIFIED')
     this.idType = props.idType
     this.idNumber = props.idNumber
     this.idPhotoUrl = props.idPhotoUrl
     this.selfiePhotoUrl = props.selfiePhotoUrl
     this.memberTier = props.memberTier
+    this.hasProviderStore = props.hasProviderStore ?? false
+    this.providerStoreName = props.providerStoreName
     this.rentalCount = props.rentalCount
     this.joinedAt = props.joinedAt
     if ((!props.savedAddresses || props.savedAddresses.length === 0) && props.address && props.city) {

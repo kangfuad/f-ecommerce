@@ -20,7 +20,7 @@ const deliveryAddress = ref('')
 
 // Meetup & Serah Terima State
 const meetupLocationType = ref<MeetupLocationType>('PROVIDER_STUDIO')
-const meetupLocationName = ref('Studio CinemaTech Rental Gandaria')
+const meetupLocationName = ref('Hub Gandaria — Jakarta Selatan')
 const meetupLocationAddress = ref('Jl. Gandaria 1 No. 12, Kebayoran Baru, Jakarta Selatan')
 const meetupScheduleDate = ref('')
 const meetupScheduleTime = ref('09:00 WIB')
@@ -35,20 +35,20 @@ const checkoutError = ref<string | null>(null)
 
 export const DEFAULT_STUDIO_HUBS = [
   {
-    name: 'Studio CinemaTech Rental Gandaria',
+    name: 'Hub Gandaria — Jakarta Selatan',
     address: 'Jl. Gandaria 1 No. 12, Kebayoran Baru, Jakarta Selatan',
   },
   {
-    name: 'Studio SkyDrone BSD Hub (The Breeze)',
-    address: 'The Breeze BSD City Blok L-08, Tangerang Selatan',
+    name: 'Hub BSD City — Tangerang Selatan',
+    address: 'Kawasan BSD Green Office Park Blok B-08, Serpong, Tangerang Selatan',
   },
   {
-    name: 'Studio LightMaster Kemang Hub',
-    address: 'Jl. Kemang Raya No. 34, Jakarta Selatan',
+    name: 'Hub Tanjung Duren — Jakarta Barat',
+    address: 'Jl. Tanjung Duren Barat No. 34, Jakarta Barat',
   },
   {
-    name: 'Studio Pusat SCBD Senayan',
-    address: 'Kawasan SCBD Lot 8, Senayan, Jakarta Pusat',
+    name: 'Hub Dago — Bandung',
+    address: 'Jl. Ir. H. Juanda No. 88, Dago, Kota Bandung',
   },
 ]
 
