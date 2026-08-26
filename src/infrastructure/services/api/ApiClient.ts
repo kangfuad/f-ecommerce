@@ -5,6 +5,7 @@ export const AUTH_TOKEN_KEY = 'epunyasewa_auth_token'
 export class ApiClient {
   private readonly baseUrl: string
   private readonly defaultTimeoutMs = 10000
+  private static inFlightRequests = new Map<string, Promise<ApiResponse<any>>>()
 
   constructor(baseUrl?: string) {
     const envBaseUrl = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env.VITE_API_BASE_URL : ''
@@ -33,7 +34,7 @@ export class ApiClient {
 
     const token = this.getAuthToken()
     if (token) {
-      headers['Authorization'] = `Bearer ${token}`
+      headers['Authorization'] = 'Bearer ' + token
     }
 
     if (customHeaders) {
@@ -55,14 +56,34 @@ export class ApiClient {
 
   private createTimeoutSignal(timeoutMs: number = this.defaultTimeoutMs): { signal: AbortSignal; cleanup: () => void } {
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(new Error(`Request timeout after ${timeoutMs}ms`)), timeoutMs)
+    const timeoutId = setTimeout(() => controller.abort(new Error('Request timeout after ' + timeoutMs + 'ms')), timeoutMs)
     return {
       signal: controller.signal,
       cleanup: () => clearTimeout(timeoutId),
     }
   }
 
+  /**
+   * GET Request with in-flight deduplication and auto-retry on network failure
+   */
   public async get<T>(endpoint: string, options?: RequestInit): Promise<ApiResponse<T>> {
+    const token = this.getAuthToken() || 'anon'
+    const dedupeKey = 'GET:' + endpoint + ':' + token
+
+    if (ApiClient.inFlightRequests.has(dedupeKey)) {
+      return ApiClient.inFlightRequests.get(dedupeKey)! as Promise<ApiResponse<T>>
+    }
+
+    const promise = this.executeWithRetry<T>(() => this.executeGet<T>(endpoint, options))
+      .finally(() => {
+        ApiClient.inFlightRequests.delete(dedupeKey)
+      })
+
+    ApiClient.inFlightRequests.set(dedupeKey, promise)
+    return promise
+  }
+
+  private async executeGet<T>(endpoint: string, options?: RequestInit): Promise<ApiResponse<T>> {
     const url = this.resolveUrl(endpoint)
     const { signal, cleanup } = this.createTimeoutSignal()
     try {
@@ -74,20 +95,36 @@ export class ApiClient {
       })
 
       if (!response.ok) {
-        throw new Error(`HTTP Error ${response.status}: ${response.statusText}`)
+        if (response.status === 401 && typeof localStorage !== 'undefined') {
+          localStorage.removeItem(AUTH_TOKEN_KEY)
+          localStorage.removeItem('epunyasewa_auth_user')
+        }
+        throw new Error('HTTP Error ' + response.status + ': ' + response.statusText)
       }
 
       const json: any = await response.json()
       return this.normalizeResponse<T>(json)
+    } finally {
+      cleanup()
+    }
+  }
+
+  /**
+   * Execute with single auto-retry on network blip
+   */
+  private async executeWithRetry<T>(fn: () => Promise<ApiResponse<T>>, retries = 1): Promise<ApiResponse<T>> {
+    try {
+      return await fn()
     } catch (error: any) {
-      console.warn(`[ApiClient GET ${endpoint}]`, error.message || error)
+      if (retries > 0) {
+        await new Promise((resolve) => setTimeout(resolve, 350))
+        return this.executeWithRetry(fn, retries - 1)
+      }
       return {
         status: 'error',
         data: null as unknown as T,
         message: error.message || 'Gagal memuat data dari server',
       }
-    } finally {
-      cleanup()
     }
   }
 
@@ -104,15 +141,19 @@ export class ApiClient {
       })
 
       if (!response.ok) {
+        if (response.status === 401 && typeof localStorage !== 'undefined') {
+          localStorage.removeItem(AUTH_TOKEN_KEY)
+          localStorage.removeItem('epunyasewa_auth_user')
+        }
         const errorJson = await response.json().catch(() => null)
-        const errMsg = errorJson?.message || `HTTP Error ${response.status}: ${response.statusText}`
+        const errMsg = errorJson?.message || ('HTTP Error ' + response.status + ': ' + response.statusText)
         throw new Error(errMsg)
       }
 
       const json: any = await response.json()
       return this.normalizeResponse<T>(json)
     } catch (error: any) {
-      console.warn(`[ApiClient POST ${endpoint}]`, error.message || error)
+      console.warn('[ApiClient POST ' + endpoint + ']', error.message || error)
       return {
         status: 'error',
         data: null as unknown as T,
@@ -136,15 +177,19 @@ export class ApiClient {
       })
 
       if (!response.ok) {
+        if (response.status === 401 && typeof localStorage !== 'undefined') {
+          localStorage.removeItem(AUTH_TOKEN_KEY)
+          localStorage.removeItem('epunyasewa_auth_user')
+        }
         const errorJson = await response.json().catch(() => null)
-        const errMsg = errorJson?.message || `HTTP Error ${response.status}: ${response.statusText}`
+        const errMsg = errorJson?.message || ('HTTP Error ' + response.status + ': ' + response.statusText)
         throw new Error(errMsg)
       }
 
       const json: any = await response.json()
       return this.normalizeResponse<T>(json)
     } catch (error: any) {
-      console.warn(`[ApiClient PUT ${endpoint}]`, error.message || error)
+      console.warn('[ApiClient PUT ' + endpoint + ']', error.message || error)
       return {
         status: 'error',
         data: null as unknown as T,
@@ -168,19 +213,23 @@ export class ApiClient {
       })
 
       if (!response.ok) {
+        if (response.status === 401 && typeof localStorage !== 'undefined') {
+          localStorage.removeItem(AUTH_TOKEN_KEY)
+          localStorage.removeItem('epunyasewa_auth_user')
+        }
         const errorJson = await response.json().catch(() => null)
-        const errMsg = errorJson?.message || `HTTP Error ${response.status}: ${response.statusText}`
+        const errMsg = errorJson?.message || ('HTTP Error ' + response.status + ': ' + response.statusText)
         throw new Error(errMsg)
       }
 
       const json: any = await response.json()
       return this.normalizeResponse<T>(json)
     } catch (error: any) {
-      console.warn(`[ApiClient PATCH ${endpoint}]`, error.message || error)
+      console.warn('[ApiClient PATCH ' + endpoint + ']', error.message || error)
       return {
         status: 'error',
         data: null as unknown as T,
-        message: error.message || 'Gagal memperbarui sebagian data',
+        message: error.message || 'Gagal memperbarui sebagian data di server',
       }
     } finally {
       cleanup()
@@ -199,15 +248,19 @@ export class ApiClient {
       })
 
       if (!response.ok) {
+        if (response.status === 401 && typeof localStorage !== 'undefined') {
+          localStorage.removeItem(AUTH_TOKEN_KEY)
+          localStorage.removeItem('epunyasewa_auth_user')
+        }
         const errorJson = await response.json().catch(() => null)
-        const errMsg = errorJson?.message || `HTTP Error ${response.status}: ${response.statusText}`
+        const errMsg = errorJson?.message || ('HTTP Error ' + response.status + ': ' + response.statusText)
         throw new Error(errMsg)
       }
 
       const json: any = await response.json()
       return this.normalizeResponse<T>(json)
     } catch (error: any) {
-      console.warn(`[ApiClient DELETE ${endpoint}]`, error.message || error)
+      console.warn('[ApiClient DELETE ' + endpoint + ']', error.message || error)
       return {
         status: 'error',
         data: null as unknown as T,
@@ -218,12 +271,13 @@ export class ApiClient {
     }
   }
 
-  /**
-   * Post multipart/form-data for file uploads (e.g. signed agreements, receipts)
-   */
   public async postFormData<T>(endpoint: string, formData: FormData, options?: RequestInit): Promise<ApiResponse<T>> {
+    return this.upload<T>(endpoint, formData, options)
+  }
+
+  public async upload<T>(endpoint: string, formData: FormData, options?: RequestInit): Promise<ApiResponse<T>> {
     const url = this.resolveUrl(endpoint)
-    const { signal, cleanup } = this.createTimeoutSignal(15000)
+    const { signal, cleanup } = this.createTimeoutSignal(30000)
     try {
       const response = await fetch(url, {
         method: 'POST',
@@ -234,15 +288,19 @@ export class ApiClient {
       })
 
       if (!response.ok) {
+        if (response.status === 401 && typeof localStorage !== 'undefined') {
+          localStorage.removeItem(AUTH_TOKEN_KEY)
+          localStorage.removeItem('epunyasewa_auth_user')
+        }
         const errorJson = await response.json().catch(() => null)
-        const errMsg = errorJson?.message || `HTTP Error ${response.status}: ${response.statusText}`
+        const errMsg = errorJson?.message || ('Upload gagal: HTTP ' + response.status)
         throw new Error(errMsg)
       }
 
       const json: any = await response.json()
       return this.normalizeResponse<T>(json)
     } catch (error: any) {
-      console.warn(`[ApiClient FormData ${endpoint}]`, error.message || error)
+      console.warn('[ApiClient UPLOAD ' + endpoint + ']', error.message || error)
       return {
         status: 'error',
         data: null as unknown as T,
@@ -253,39 +311,24 @@ export class ApiClient {
     }
   }
 
+  private resolveUrl(endpoint: string): string {
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : ('/' + endpoint)
+    if (this.baseUrl) {
+      const cleanBase = this.baseUrl.endsWith('/') ? this.baseUrl.slice(0, -1) : this.baseUrl
+      return cleanBase + cleanEndpoint
+    }
+    return '/api/v1' + cleanEndpoint
+  }
+
   private normalizeResponse<T>(json: any): ApiResponse<T> {
-    if (json && typeof json === 'object') {
-      if ('status' in json && 'data' in json) {
-        return json as ApiResponse<T>
-      }
-      if ('data' in json) {
-        return {
-          status: 'success',
-          data: json.data as T,
-          message: json.message || 'Sukses',
-          meta: json.meta,
-        }
-      }
+    if (json && typeof json === 'object' && 'status' in json) {
+      return json as ApiResponse<T>
     }
     return {
       status: 'success',
       data: json as T,
-      message: 'Sukses',
+      message: 'OK',
     }
-  }
-
-  public resolveUrl(endpoint: string): string {
-    if (endpoint.startsWith('http://') || endpoint.startsWith('https://')) {
-      return endpoint
-    }
-    // Local static data requests bypass base url
-    if (endpoint.startsWith('/data/') || endpoint.startsWith('data/')) {
-      return endpoint.startsWith('/') ? endpoint : `/${endpoint}`
-    }
-
-    const cleanBase = this.baseUrl.replace(/\/$/, '')
-    const cleanEndpoint = endpoint.replace(/^\//, '')
-    return cleanBase ? `${cleanBase}/${cleanEndpoint}` : `/${cleanEndpoint}`
   }
 }
 
