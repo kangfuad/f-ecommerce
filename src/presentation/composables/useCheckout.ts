@@ -175,7 +175,7 @@ export function useCheckout() {
 
       if (res.status === 'success' && res.data) {
         currentOrder.value = new RentalOrder({
-          id: res.data.id,
+          id: res.data.id || (res.data as any).orderId,
           customer: res.data.customer,
           provider: res.data.provider,
           items: res.data.items,
@@ -199,7 +199,13 @@ export function useCheckout() {
         router.push('/pesanan-saya')
         return true
       } else {
-        checkoutError.value = res.message || 'Gagal mengirim pengajuan booking.'
+        const errorMsg = res.message || 'Gagal mengirim pengajuan booking ke server.'
+        checkoutError.value = errorMsg
+        showToast({
+          type: 'error',
+          title: 'Pengajuan Booking Gagal',
+          message: errorMsg,
+        })
         return false
       }
     } catch (e: any) {

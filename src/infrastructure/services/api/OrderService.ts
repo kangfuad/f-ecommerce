@@ -81,44 +81,19 @@ export class OrderService {
    * Submit new booking request (Status: PENDING_CONFIRMATION)
    */
   public static async submitBooking(dto: CreateBookingDto): Promise<ApiResponse<OrderDto>> {
-    // 1. Try real backend API
     const realRes = await apiClient.post<OrderDto>(API_ENDPOINTS.BOOKINGS.SUBMIT, dto)
     if (realRes.status === 'success' && realRes.data) {
       return realRes
     }
-
-    // 2. Fallback mock generation
-    const id = `EPS-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.floor(1000 + Math.random() * 9000)}`
-    
-    const defaultProvider: ProviderInfo = dto.provider || {
-      id: 'prv_cinematech_jkt',
-      name: 'CinemaTech Rental Jakarta',
-      phone: '0811-9876-5432',
-      address: 'Jl. Gandaria 1 No. 12, Kebayoran Baru, Jakarta Selatan',
-      rating: 4.9,
-    }
-
-    const newOrder: OrderDto = {
-      id,
-      createdAt: new Date().toISOString(),
-      lifecycleStatus: 'PENDING_CONFIRMATION',
-      customer: dto.customer,
-      provider: defaultProvider,
-      items: dto.items,
-      pricing: dto.pricing,
-      meetup: dto.meetup,
-      bookingNotes: dto.bookingNotes,
-    }
-
     return {
-      status: 'success',
-      data: newOrder,
-      message: 'Pengajuan booking sewa berhasil dikirim ke penyedia.',
+      status: 'error',
+      data: null as any,
+      message: realRes.message || 'Gagal mengajukan booking sewa. Silakan coba kembali.',
     }
   }
 
   /**
-   * Extend rental duration for an active order
+   * Extend rental duration
    */
   public static async extendRental(orderId: string, additionalDays: number, notes?: string): Promise<ApiResponse<OrderDto>> {
     // 1. Try real API
