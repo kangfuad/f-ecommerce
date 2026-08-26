@@ -39,7 +39,7 @@ export interface CreateBookingDto {
   pricing: OrderPricingBreakdown
 }
 
-const LOCAL_ORDERS_STORAGE_KEY = 'epunyasewa_my_bookings_list'
+
 
 export class OrderService {
   /**
@@ -84,7 +84,6 @@ export class OrderService {
     // 1. Try real backend API
     const realRes = await apiClient.post<OrderDto>(API_ENDPOINTS.BOOKINGS.SUBMIT, dto)
     if (realRes.status === 'success' && realRes.data) {
-      this.saveOrderLocally(realRes.data)
       return realRes
     }
 
@@ -111,8 +110,6 @@ export class OrderService {
       bookingNotes: dto.bookingNotes,
     }
 
-    this.saveOrderLocally(newOrder)
-
     return {
       status: 'success',
       data: newOrder,
@@ -130,7 +127,6 @@ export class OrderService {
       notes: notes || 'Perpanjangan durasi masa sewa',
     })
     if (realRes.status === 'success' && realRes.data) {
-      this.saveOrderLocally(realRes.data)
       return realRes
     }
 
@@ -171,8 +167,6 @@ export class OrderService {
       },
     }
 
-    this.saveOrderLocally(updated)
-
     return {
       status: 'success',
       data: updated,
@@ -194,7 +188,6 @@ export class OrderService {
       tags: review.tags || [],
     })
     if (realRes.status === 'success' && realRes.data) {
-      this.saveOrderLocally(realRes.data)
       return realRes
     }
 
@@ -216,8 +209,6 @@ export class OrderService {
       ...res.data,
       userReview,
     }
-
-    this.saveOrderLocally(updated)
 
     return {
       status: 'success',
@@ -248,7 +239,6 @@ export class OrderService {
     // 1. Try real API
     const realRes = await apiClient.put<OrderDto>(API_ENDPOINTS.PROVIDER_ORDERS.CONFIRM(orderId), { note })
     if (realRes.status === 'success' && realRes.data) {
-      this.saveOrderLocally(realRes.data)
       return realRes
     }
 
@@ -265,8 +255,6 @@ export class OrderService {
       bookingNotes: note ? `${res.data.bookingNotes || ''} [Catatan Penyedia: ${note}]` : res.data.bookingNotes,
     }
 
-    this.saveOrderLocally(updated)
-
     return {
       status: 'success',
       data: updated,
@@ -281,7 +269,6 @@ export class OrderService {
     // 1. Try real API
     const realRes = await apiClient.put<OrderDto>(API_ENDPOINTS.PROVIDER_ORDERS.REJECT(orderId), { reason })
     if (realRes.status === 'success' && realRes.data) {
-      this.saveOrderLocally(realRes.data)
       return realRes
     }
 
@@ -296,8 +283,6 @@ export class OrderService {
       lifecycleStatus: 'REJECTED',
       rejectionReason: reason,
     }
-
-    this.saveOrderLocally(updated)
 
     return {
       status: 'success',
@@ -334,7 +319,6 @@ export class OrderService {
 
       const realRes = await apiClient.postFormData<OrderDto>(API_ENDPOINTS.PROVIDER_ORDERS.UPLOAD_DOCUMENTS(orderId), formData)
       if (realRes.status === 'success' && realRes.data) {
-        this.saveOrderLocally(realRes.data)
         return realRes
       }
     }
@@ -352,8 +336,6 @@ export class OrderService {
       lifecycleStatus: res.data.lifecycleStatus === 'CONFIRMED' ? 'ACTIVE_RENTAL' : res.data.lifecycleStatus,
     }
 
-    this.saveOrderLocally(updated)
-
     return {
       status: 'success',
       data: updated,
@@ -368,7 +350,6 @@ export class OrderService {
     // 1. Try real API
     const realRes = await apiClient.put<OrderDto>(API_ENDPOINTS.PROVIDER_ORDERS.COMPLETE(orderId))
     if (realRes.status === 'success' && realRes.data) {
-      this.saveOrderLocally(realRes.data)
       return realRes
     }
 
@@ -383,8 +364,6 @@ export class OrderService {
       lifecycleStatus: 'COMPLETED',
       completedAt: new Date().toISOString(),
     }
-
-    this.saveOrderLocally(updated)
 
     return {
       status: 'success',
@@ -407,7 +386,6 @@ export class OrderService {
       badges: review.tags || [],
     })
     if (realRes.status === 'success' && realRes.data) {
-      this.saveOrderLocally(realRes.data)
       return realRes
     }
 
@@ -430,32 +408,10 @@ export class OrderService {
       providerReview,
     }
 
-    this.saveOrderLocally(updated)
-
     return {
       status: 'success',
       data: updated,
       message: 'Penilaian reputasi penyewa berhasil dikirim.',
-    }
-  }
-
-  /**
-   * Persist order into localStorage
-   */
-  private static saveOrderLocally(order: OrderDto) {
-    if (typeof localStorage === 'undefined') return
-    try {
-      const raw = localStorage.getItem(LOCAL_ORDERS_STORAGE_KEY)
-      let list: OrderDto[] = raw ? JSON.parse(raw) : []
-      const index = list.findIndex((o) => o.id === order.id)
-      if (index >= 0) {
-        list[index] = order
-      } else {
-        list.unshift(order)
-      }
-      localStorage.setItem(LOCAL_ORDERS_STORAGE_KEY, JSON.stringify(list))
-    } catch (e) {
-      console.warn('[OrderService.saveOrderLocally] Failed to write localStorage:', e)
     }
   }
 }

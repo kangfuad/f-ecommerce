@@ -1,16 +1,11 @@
 import { shallowRef, ref, computed, watch } from 'vue'
-import { LocalStorageAdapter } from '@/infrastructure/storage/LocalStorageAdapter'
-import { APP_CONFIG } from '@/core/config/app.config'
 import { DIContainer } from '@/infrastructure/di/container'
 import { Product } from '@/domain/entities/Product'
 import { FavoriteService } from '@/infrastructure/services/api'
 import { useAuth } from './useAuth'
 import { useToast } from './useToast'
 
-const wishlistIds = ref<string[]>(
-  LocalStorageAdapter.getItem<string[]>(APP_CONFIG.STORAGE_KEYS.WISHLIST, [])
-)
-
+const wishlistIds = ref<string[]>([])
 export const isWishlistOpen = ref(false)
 const allProducts = shallowRef<Product[]>([])
 let isProductsLoaded = false
@@ -24,9 +19,7 @@ export function useWishlist() {
     try {
       const res = await FavoriteService.getFavorites()
       if (res.status === 'success' && Array.isArray(res.data)) {
-        const ids = res.data.map((f) => f.productId)
-        wishlistIds.value = ids
-        LocalStorageAdapter.setItem(APP_CONFIG.STORAGE_KEYS.WISHLIST, ids)
+        wishlistIds.value = res.data.map((f) => f.productId)
       }
     } catch (e) {
       console.warn('Failed to sync favorites from API:', e)
@@ -64,7 +57,7 @@ export function useWishlist() {
       return false
     }
 
-    // 1. Optimistic local update
+    // 1. Optimistic memory update
     const index = wishlistIds.value.indexOf(productId)
     let added = false
     if (index > -1) {
@@ -74,7 +67,6 @@ export function useWishlist() {
       wishlistIds.value.push(productId)
       added = true
     }
-    LocalStorageAdapter.setItem(APP_CONFIG.STORAGE_KEYS.WISHLIST, wishlistIds.value)
 
     // 2. Sync with Database API
     try {
@@ -90,7 +82,6 @@ export function useWishlist() {
     const index = wishlistIds.value.indexOf(productId)
     if (index > -1) {
       wishlistIds.value.splice(index, 1)
-      LocalStorageAdapter.setItem(APP_CONFIG.STORAGE_KEYS.WISHLIST, wishlistIds.value)
     }
     if (isLoggedIn.value) {
       try {
@@ -103,7 +94,6 @@ export function useWishlist() {
 
   function clearWishlist(): void {
     wishlistIds.value = []
-    LocalStorageAdapter.setItem(APP_CONFIG.STORAGE_KEYS.WISHLIST, [])
   }
 
   function openWishlist(): void {
@@ -126,6 +116,8 @@ export function useWishlist() {
     (loggedIn) => {
       if (loggedIn) {
         syncFavoritesFromApi()
+      } else {
+        wishlistIds.value = []
       }
     },
     { immediate: true }

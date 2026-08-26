@@ -16,30 +16,15 @@ export interface FaqDto {
 }
 
 export class FaqService {
-  private static cachedFaqs: FaqDto[] | null = null
 
   public static async getFaqs(): Promise<ApiResponse<FaqDto[]>> {
-    if (this.cachedFaqs) {
-      return {
-        status: 'success',
-        data: this.cachedFaqs,
-        message: 'FAQ retrieved from cache',
-      }
-    }
-
     // 1. Try real API
     const realRes = await apiClient.get<FaqDto[]>(API_ENDPOINTS.FAQS.LIST)
     if (realRes.status === 'success' && Array.isArray(realRes.data)) {
-      this.cachedFaqs = realRes.data
       return realRes
     }
 
-    // 2. Fallback to local json
-    const response = await apiClient.get<FaqDto[]>(API_ENDPOINTS.LOCAL_MOCKS.FAQS)
-    if (response.status === 'success' && Array.isArray(response.data)) {
-      this.cachedFaqs = response.data
-    }
-    return response
+    return apiClient.get<FaqDto[]>(API_ENDPOINTS.LOCAL_MOCKS.FAQS)
   }
 
   public static async getFaqsByCategory(category: string): Promise<ApiResponse<FaqDto[]>> {

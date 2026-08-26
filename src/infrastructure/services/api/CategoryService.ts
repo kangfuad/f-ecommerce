@@ -13,37 +13,22 @@ export interface CategoryDto {
 }
 
 export class CategoryService {
-  private static cachedCategories: CategoryDto[] | null = null
 
   public static async getCategories(): Promise<ApiResponse<CategoryDto[]>> {
-    if (this.cachedCategories) {
-      return {
-        status: 'success',
-        data: this.cachedCategories,
-        message: 'Categories retrieved from cache',
-      }
-    }
-
     // 1. Try real API
     const realRes = await apiClient.get<CategoryDto[]>(API_ENDPOINTS.CATEGORIES.LIST)
     if (realRes.status === 'success' && Array.isArray(realRes.data)) {
-      this.cachedCategories = realRes.data.map((c) => ({
-        ...c,
-        label: c.label || c.name || c.id,
-      }))
       return {
         status: 'success',
-        data: this.cachedCategories,
+        data: realRes.data.map((c) => ({
+          ...c,
+          label: c.label || c.name || c.id,
+        })),
         message: 'Categories retrieved successfully from API',
       }
     }
 
-    // 2. Fallback to local json
-    const response = await apiClient.get<CategoryDto[]>(API_ENDPOINTS.LOCAL_MOCKS.CATEGORIES)
-    if (response.status === 'success' && Array.isArray(response.data)) {
-      this.cachedCategories = response.data
-    }
-    return response
+    return apiClient.get<CategoryDto[]>(API_ENDPOINTS.LOCAL_MOCKS.CATEGORIES)
   }
 
   public static async getCategoryById(id: string): Promise<ApiResponse<CategoryDto | null>> {

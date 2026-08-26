@@ -6,7 +6,6 @@ import { ItemCondition } from '@/domain/enums/ItemCondition'
 import { ProductService, type ProductRawDto } from '../services/api'
 
 export class MockProductRepository implements IProductRepository {
-  private productsCache: Product[] | null = null
 
   private readonly fallbackProducts: Product[] = [
     new Product({
@@ -212,14 +211,10 @@ export class MockProductRepository implements IProductRepository {
   ]
 
   private async fetchProducts(): Promise<Product[]> {
-    if (this.productsCache) {
-      return this.productsCache
-    }
-
     try {
       const response = await ProductService.getProducts()
       if (response.status === 'success' && Array.isArray(response.data)) {
-        this.productsCache = response.data.map(
+        return response.data.map(
           (raw: ProductRawDto) =>
             new Product({
               id: raw.id,
@@ -242,7 +237,6 @@ export class MockProductRepository implements IProductRepository {
               badgeText: raw.badgeText,
             })
         )
-        return this.productsCache
       }
     } catch (e) {
       console.warn('Fallback to local products array:', e)

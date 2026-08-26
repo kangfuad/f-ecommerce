@@ -48,7 +48,6 @@ export interface ProductFilterQuery {
 }
 
 export class ProductService {
-  private static cachedProducts: ProductRawDto[] | null = null
 
   public static async getProducts(filter?: ProductFilterQuery): Promise<ApiResponse<ProductRawDto[]>> {
     // 1. Try real API with query parameters
@@ -73,19 +72,7 @@ export class ProductService {
     }
 
     // 2. Fallback to local json data
-    if (this.cachedProducts && !filter?.search && !filter?.category) {
-      return {
-        status: 'success',
-        data: this.cachedProducts,
-        message: 'Products retrieved from local cache',
-      }
-    }
-
-    const response = await apiClient.get<ProductRawDto[]>(API_ENDPOINTS.LOCAL_MOCKS.PRODUCTS)
-    if (response.status === 'success' && Array.isArray(response.data)) {
-      this.cachedProducts = response.data
-    }
-    return response
+    return apiClient.get<ProductRawDto[]>(API_ENDPOINTS.LOCAL_MOCKS.PRODUCTS)
   }
 
   public static async getProductById(idOrSlug: string): Promise<ApiResponse<ProductRawDto | null>> {
