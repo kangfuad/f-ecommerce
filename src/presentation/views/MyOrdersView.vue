@@ -87,6 +87,23 @@ async function handleConfirmExtension(orderId: string, additionalDays: number) {
     })
   }
 }
+function isPdf(url?: string): boolean {
+  if (!url) return false
+  return url.toLowerCase().includes('.pdf')
+}
+
+function getFileName(url?: string): string {
+  if (!url) return 'Dokumen'
+  try {
+    const clean = url.split('?')[0]
+    const parts = clean.split('/')
+    const last = parts[parts.length - 1]
+    return decodeURIComponent(last.replace(/^[0-9]+_/, ''))
+  } catch {
+    return 'Dokumen_Digital.pdf'
+  }
+}
+
 </script>
 
 <template>
@@ -410,30 +427,110 @@ async function handleConfirmExtension(orderId: string, additionalDays: number) {
       <div class="relative bg-theme-card rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-theme-border z-10 space-y-4 my-auto max-h-[90vh] overflow-y-auto custom-scrollbar">
         <div class="flex items-center justify-between pb-2 border-b border-theme-border">
           <h3 class="font-extrabold text-sm sm:text-base text-theme-primary">Berkas Sewa Bertandatangan & Kwitansi Bill</h3>
-          <button @click="selectedOrderForBill = null" class="w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-400">
+          <button @click="selectedOrderForBill = null" class="w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-400 hover:text-theme-primary transition cursor-pointer">
             <IconClose :size="14" />
           </button>
         </div>
         <p class="text-xs text-stone-500">Dokumen resmi yang telah diunggah oleh penyedia sewa setelah serah terima unit dan pembayaran selesai.</p>
         
-        <div class="space-y-3">
-          <div v-if="selectedOrderForBill.signedAgreementUrl" class="space-y-1">
-            <span class="text-xs font-bold block">1. Surat Perjanjian Sewa (Bertandatangan):</span>
-            <div class="h-40 rounded-2xl overflow-hidden border border-theme-border">
-              <img :src="selectedOrderForBill.signedAgreementUrl" alt="Surat Sewa TTD" class="w-full h-full object-cover" />
+        <div class="space-y-4">
+          <!-- 1. Surat Perjanjian Sewa (Bertandatangan) -->
+          <div v-if="selectedOrderForBill.signedAgreementUrl" class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-extrabold text-theme-primary block">1. Surat Perjanjian Sewa (Bertandatangan):</span>
+              <a
+                :href="selectedOrderForBill.signedAgreementUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-[11px] font-bold text-forest dark:text-forest-glow hover:underline inline-flex items-center gap-1"
+              >
+                <span>Buka Dokumen</span>
+                <span class="text-xs">↗</span>
+              </a>
+            </div>
+
+            <!-- PDF Mode -->
+            <div
+              v-if="isPdf(selectedOrderForBill.signedAgreementUrl)"
+              class="p-4 rounded-2xl bg-stone-50 dark:bg-stone-900 border border-theme-border flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+            >
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-red-500/10 text-red-500 flex items-center justify-center font-black text-xs shrink-0 border border-red-500/20">
+                  PDF
+                </div>
+                <div class="min-w-0">
+                  <p class="font-bold text-xs text-theme-primary truncate max-w-xs sm:max-w-sm">
+                    {{ getFileName(selectedOrderForBill.signedAgreementUrl) }}
+                  </p>
+                  <p class="text-[10px] text-stone-400">Dokumen Digital PDF Resmi</p>
+                </div>
+              </div>
+              <a
+                :href="selectedOrderForBill.signedAgreementUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="px-4 py-2 rounded-xl bg-[#244E33] hover:bg-[#1B3B26] dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white text-xs font-bold transition text-center shrink-0 shadow-xs"
+              >
+                Buka PDF ↗
+              </a>
+            </div>
+
+            <!-- Image Mode -->
+            <div v-else class="rounded-2xl overflow-hidden border border-theme-border bg-stone-100 dark:bg-stone-900 p-1">
+              <img :src="selectedOrderForBill.signedAgreementUrl" alt="Surat Sewa TTD" class="w-full max-h-72 object-contain mx-auto rounded-xl" />
             </div>
           </div>
 
-          <div v-if="selectedOrderForBill.paymentBillUrl" class="space-y-1">
-            <span class="text-xs font-bold block">2. Kwitansi / Bill Pembayaran:</span>
-            <div class="h-40 rounded-2xl overflow-hidden border border-theme-border">
-              <img :src="selectedOrderForBill.paymentBillUrl" alt="Bill Pembayaran" class="w-full h-full object-cover" />
+          <!-- 2. Kwitansi / Bill Pembayaran -->
+          <div v-if="selectedOrderForBill.paymentBillUrl" class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-extrabold text-theme-primary block">2. Kwitansi / Bill Pembayaran:</span>
+              <a
+                :href="selectedOrderForBill.paymentBillUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-[11px] font-bold text-forest dark:text-forest-glow hover:underline inline-flex items-center gap-1"
+              >
+                <span>Buka Dokumen</span>
+                <span class="text-xs">↗</span>
+              </a>
+            </div>
+
+            <!-- PDF Mode -->
+            <div
+              v-if="isPdf(selectedOrderForBill.paymentBillUrl)"
+              class="p-4 rounded-2xl bg-stone-50 dark:bg-stone-900 border border-theme-border flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+            >
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-red-500/10 text-red-500 flex items-center justify-center font-black text-xs shrink-0 border border-red-500/20">
+                  PDF
+                </div>
+                <div class="min-w-0">
+                  <p class="font-bold text-xs text-theme-primary truncate max-w-xs sm:max-w-sm">
+                    {{ getFileName(selectedOrderForBill.paymentBillUrl) }}
+                  </p>
+                  <p class="text-[10px] text-stone-400">Dokumen Kwitansi Tagihan PDF</p>
+                </div>
+              </div>
+              <a
+                :href="selectedOrderForBill.paymentBillUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="px-4 py-2 rounded-xl bg-[#244E33] hover:bg-[#1B3B26] dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white text-xs font-bold transition text-center shrink-0 shadow-xs"
+              >
+                Buka PDF ↗
+              </a>
+            </div>
+
+            <!-- Image Mode -->
+            <div v-else class="rounded-2xl overflow-hidden border border-theme-border bg-stone-100 dark:bg-stone-900 p-1">
+              <img :src="selectedOrderForBill.paymentBillUrl" alt="Bill Pembayaran" class="w-full max-h-72 object-contain mx-auto rounded-xl" />
             </div>
           </div>
         </div>
 
         <div class="flex justify-end pt-2">
-          <button @click="selectedOrderForBill = null" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#244E33] hover:bg-[#1B3B26] text-white text-xs font-bold transition cursor-pointer">
+          <button @click="selectedOrderForBill = null" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#244E33] hover:bg-[#1B3B26] dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white text-xs font-bold transition cursor-pointer">
             Tutup
           </button>
         </div>
