@@ -26,3 +26,7 @@ dist-ssr
 
 # API SERVICE
 api-service/.env
+
+# Logs
+.logs
+*.pid
