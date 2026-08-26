@@ -63,11 +63,6 @@ import { IconLogo, IconLocation } from '@/presentation/components/icons'
             <p>WhatsApp CS: <span class="font-semibold text-stone-200">{{ APP_CONFIG.SUPPORT_PHONE }}</span></p>
             <p>Email: <span class="font-semibold text-stone-200">{{ APP_CONFIG.SUPPORT_EMAIL }}</span></p>
           </div>
-          <div class="pt-1.5">
-            <span class="text-[10px] uppercase font-bold tracking-wider text-forest-soft bg-emerald-950/80 border border-emerald-800/40 px-2.5 py-1 rounded-full">
-              Reservasi Mudah • Transaksi Langsung & Transparan
-            </span>
-          </div>
         </div>
       </div>
 
