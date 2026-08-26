@@ -7,7 +7,9 @@ import { formatRupiah } from '@/core/utils/currency'
 import AppHeader from '@/presentation/components/common/AppHeader.vue'
 import AppFooter from '@/presentation/components/common/AppFooter.vue'
 import RentalReviewModal from '@/presentation/components/orders/RentalReviewModal.vue'
-import type { OrderDto } from '@/infrastructure/services/api/OrderService'
+import ExtendRentalModal from '@/presentation/components/orders/ExtendRentalModal.vue'
+import { OrderService, type OrderDto } from '@/infrastructure/services/api/OrderService'
+import { useToast } from '@/presentation/composables/useToast'
 import {
   IconCalendarDate,
   IconLocation,
@@ -22,12 +24,14 @@ import {
 
 const router = useRouter()
 const { currentUser, isLoggedIn } = useAuth()
+const { showToast } = useToast()
 
 const { orders, filteredOrders, isLoading, selectedTab, loadOrders } = useMyOrders()
 
 const selectedOrderForReview = ref<OrderDto | null>(null)
 const selectedOrderForBill = ref<OrderDto | null>(null)
 const selectedOrderForTnc = ref<OrderDto | null>(null)
+const selectedOrderForExtend = ref<OrderDto | null>(null)
 
 const tabs: { id: OrderStatusFilter; label: string }[] = [
   { id: 'ALL', label: 'Semua Booking' },
@@ -57,6 +61,30 @@ function handleReviewSubmitted(updated: OrderDto) {
   const idx = orders.value.findIndex((o) => o.id === updated.id)
   if (idx >= 0) {
     orders.value[idx] = updated
+  }
+}
+
+async function handleConfirmExtension(orderId: string, additionalDays: number) {
+  try {
+    const res = await OrderService.extendRental(orderId, additionalDays)
+    if (res.status === 'success' && res.data) {
+      const idx = orders.value.findIndex((o) => o.id === orderId)
+      if (idx >= 0) {
+        orders.value[idx] = res.data
+      }
+      showToast({
+        type: 'success',
+        title: 'Masa Sewa Diperpanjang',
+        message: `Durasi sewa bertambah +${additionalDays} hari. Estimasi tagihan telah disesuaikan.`,
+      })
+      selectedOrderForExtend.value = null
+    }
+  } catch (err: any) {
+    showToast({
+      type: 'error',
+      title: 'Gagal Perpanjang',
+      message: err.message || 'Terjadi kesalahan sistem.',
+    })
   }
 }
 </script>
@@ -258,6 +286,17 @@ function handleReviewSubmitted(updated: OrderDto) {
                   Lihat Berkas TTD & Bill
                 </button>
 
+                <!-- Button Perpanjang Sewa (if active/confirmed) -->
+                <button
+                  v-if="order.lifecycleStatus === 'ACTIVE_RENTAL' || order.lifecycleStatus === 'CONFIRMED'"
+                  type="button"
+                  @click="selectedOrderForExtend = order"
+                  class="px-3.5 py-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 text-amber-800 dark:text-amber-300 hover:bg-amber-500/20 text-xs font-bold transition cursor-pointer flex items-center gap-1.5"
+                >
+                  <IconCalendarDate :size="12" />
+                  <span>Perpanjang Sewa</span>
+                </button>
+
                 <!-- Button Review Provider (if completed) -->
                 <button
                   v-if="order.lifecycleStatus === 'COMPLETED' && !order.userReview"
@@ -355,6 +394,14 @@ function handleReviewSubmitted(updated: OrderDto) {
       reviewRole="TENANT"
       @close="selectedOrderForReview = null"
       @submitted="handleReviewSubmitted"
+    />
+
+    <!-- Modal Extend Rental Duration -->
+    <ExtendRentalModal
+      v-if="selectedOrderForExtend"
+      :order="selectedOrderForExtend"
+      @close="selectedOrderForExtend = null"
+      @confirm-extension="handleConfirmExtension"
     />
 
     <!-- Modal View Uploaded Bill & Signed Agreement -->

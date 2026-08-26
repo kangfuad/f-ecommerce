@@ -230,6 +230,55 @@ export class OrderService {
   }
 
   /**
+   * Extend rental duration for an active order
+   */
+  public static async extendRental(orderId: string, additionalDays: number): Promise<ApiResponse<OrderDto>> {
+    const res = await this.getOrderById(orderId)
+    if (!res.data) {
+      return { status: 'error', data: null as any, message: 'Booking tidak ditemukan' }
+    }
+
+    const order = res.data
+    let additionalAmount = 0
+
+    const updatedItems = order.items.map((item) => {
+      const currentEnd = new Date(item.endDate)
+      currentEnd.setDate(currentEnd.getDate() + additionalDays)
+      const newEndDateStr = currentEnd.toISOString().slice(0, 10)
+      const newRentalDays = item.rentalDays + additionalDays
+      const itemAdditional = item.dailyRate * item.quantity * additionalDays
+      additionalAmount += itemAdditional
+      return {
+        ...item,
+        rentalDays: newRentalDays,
+        endDate: newEndDateStr,
+        totalAmount: item.totalAmount + itemAdditional,
+      }
+    })
+
+    const newSubtotal = order.pricing.subtotalRental + additionalAmount
+    const newGrandTotal = (order.pricing.grandTotal || order.pricing.subtotalRental) + additionalAmount
+
+    const updated: OrderDto = {
+      ...order,
+      items: updatedItems,
+      pricing: {
+        ...order.pricing,
+        subtotalRental: newSubtotal,
+        grandTotal: newGrandTotal,
+      },
+    }
+
+    this.saveOrderLocally(updated)
+
+    return {
+      status: 'success',
+      data: updated,
+      message: `Masa sewa berhasil diperpanjang +${additionalDays} hari.`,
+    }
+  }
+
+  /**
    * Complete rental after offline handover and return
    */
   public static async completeRental(orderId: string): Promise<ApiResponse<OrderDto>> {
