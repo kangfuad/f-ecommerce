@@ -10,6 +10,7 @@ import {
   IconDeliveryTruck,
   IconBoxPackage,
   IconCalendarDate,
+  IconArrowRight,
   IconChevronDown,
   IconStar,
   IconSearch,

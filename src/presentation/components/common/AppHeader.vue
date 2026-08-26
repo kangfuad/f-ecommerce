@@ -9,6 +9,7 @@ import {
   IconLogo,
   IconHeartWishlist,
   IconCartBag,
+  IconCalendarDate,
   IconUser,
   IconChevronDown,
   IconCheck,
