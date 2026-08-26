@@ -21,13 +21,40 @@ export class AuthService {
   ) {}
 
   async login(dto: LoginDto) {
-    const identifier = dto.identifier.trim();
+    const rawIdentifier = dto.identifier.trim();
+    const identifierLower = rawIdentifier.toLowerCase();
 
-    // Check if identifier is email or phone
+    // Support:
+    // 1. Exact email (e.g. "auri.fuad@example.com")
+    // 2. Username / email prefix (e.g. "auri.fuad" matching "auri.fuad@...")
+    // 3. Exact phone number (e.g. "081234567890")
+    const isEmailFormat = identifierLower.includes('@');
+    const isPhoneFormat = /^08[0-9]{8,13}$/.test(rawIdentifier);
+
+    let whereClause: any;
+
+    if (isEmailFormat) {
+      whereClause = { email: identifierLower };
+    } else if (isPhoneFormat) {
+      whereClause = {
+        OR: [
+          { phone: rawIdentifier },
+          { email: { startsWith: `${identifierLower}@`, mode: 'insensitive' } },
+        ],
+      };
+    } else {
+      // Username prefix lookup or exact matches
+      whereClause = {
+        OR: [
+          { email: { startsWith: `${identifierLower}@`, mode: 'insensitive' } },
+          { email: identifierLower },
+          { phone: rawIdentifier },
+        ],
+      };
+    }
+
     const user = await this.prisma.user.findFirst({
-      where: {
-        OR: [{ email: identifier }, { phone: identifier }],
-      },
+      where: whereClause,
       include: {
         profile: true,
         providerStore: true,
@@ -35,7 +62,9 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('Identitas atau kata sandi tidak valid.');
+      throw new UnauthorizedException(
+        'Identitas login (email / username / no telepon) atau kata sandi tidak valid.',
+      );
     }
 
     if (!user.isActive) {
@@ -44,7 +73,9 @@ export class AuthService {
 
     const isPasswordValid = await argon2.verify(user.passwordHash, dto.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Identitas atau kata sandi tidak valid.');
+      throw new UnauthorizedException(
+        'Identitas login (email / username / no telepon) atau kata sandi tidak valid.',
+      );
     }
 
     const payload = {
@@ -56,7 +87,10 @@ export class AuthService {
 
     const token = this.jwtService.sign(payload);
     const refreshToken = this.jwtService.sign(payload, {
-      secret: this.configService.get<string>('jwt.refreshSecret', 'epunyasewa-default-refresh-secret-key-2026'),
+      secret: this.configService.get<string>(
+        'jwt.refreshSecret',
+        'epunyasewa-default-refresh-secret-key-2026',
+      ),
       expiresIn: this.configService.get<string>('jwt.refreshExpiresIn', '30d'),
     });
 
@@ -67,6 +101,7 @@ export class AuthService {
         id: user.id,
         fullName: user.fullName,
         displayName: user.displayName || user.fullName,
+        username: user.email.split('@')[0],
         email: user.email,
         phone: user.phone,
         initials: user.initials || extractInitials(user.fullName),
@@ -90,18 +125,39 @@ export class AuthService {
   }
 
   async register(dto: RegisterDto) {
+    const email = dto.email.toLowerCase().trim();
+    const phone = dto.phone.trim();
+    const desiredUsername = dto.username
+      ? dto.username.toLowerCase().trim()
+      : email.split('@')[0];
+
+    // 1. Check Email Uniqueness
     const existingEmail = await this.prisma.user.findUnique({
-      where: { email: dto.email.toLowerCase() },
+      where: { email },
     });
     if (existingEmail) {
       throw new ConflictException('Alamat email sudah terdaftar.');
     }
 
+    // 2. Check Phone Uniqueness
     const existingPhone = await this.prisma.user.findUnique({
-      where: { phone: dto.phone.trim() },
+      where: { phone },
     });
     if (existingPhone) {
       throw new ConflictException('Nomor telepon sudah terdaftar.');
+    }
+
+    // 3. Check Username Prefix Uniqueness
+    const existingPrefix = await this.prisma.user.findFirst({
+      where: {
+        email: {
+          startsWith: `${desiredUsername}@`,
+          mode: 'insensitive',
+        },
+      },
+    });
+    if (existingPrefix && dto.username) {
+      throw new ConflictException('Username sudah digunakan oleh akun lain.');
     }
 
     const passwordHash = await argon2.hash(dto.password);
@@ -111,8 +167,8 @@ export class AuthService {
       data: {
         fullName: dto.fullName.trim(),
         displayName: dto.fullName.trim(),
-        email: dto.email.toLowerCase().trim(),
-        phone: dto.phone.trim(),
+        email,
+        phone,
         passwordHash,
         initials,
         hasProviderStore: false,
@@ -141,6 +197,7 @@ export class AuthService {
       user: {
         id: user.id,
         fullName: user.fullName,
+        username: user.email.split('@')[0],
         email: user.email,
         phone: user.phone,
         initials: user.initials,

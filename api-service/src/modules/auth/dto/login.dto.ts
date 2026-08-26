@@ -4,9 +4,9 @@ import { IsNotEmpty, IsString, MinLength } from 'class-validator';
 export class LoginDto {
   @ApiProperty({
     example: 'auri.fuad@example.com',
-    description: 'Email atau nomor telepon (WhatsApp) terdaftar',
+    description: 'Email, username (misal: auri.fuad), atau nomor WhatsApp terdaftar',
   })
-  @IsNotEmpty({ message: 'Identitas login (email/telepon) wajib diisi' })
+  @IsNotEmpty({ message: 'Identitas login (email / username / nomor telepon) wajib diisi' })
   @IsString()
   identifier: string;
 

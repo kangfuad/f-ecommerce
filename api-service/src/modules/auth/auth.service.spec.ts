@@ -45,7 +45,7 @@ describe('AuthService', () => {
     jest.clearAllMocks();
   });
 
-  it('should authenticate valid user and return JWT token with provider flag', async () => {
+  it('should authenticate valid user with full email', async () => {
     const password = 'PasswordRahasia123!';
     const passwordHash = await argon2.hash(password);
 
@@ -73,8 +73,54 @@ describe('AuthService', () => {
 
     expect(result.token).toBe('mock-jwt-token');
     expect(result.user.hasProviderStore).toBe(true);
-    expect(result.user.providerStoreName).toBe('CinemaTech Rental Jakarta');
+    expect(result.user.username).toBe('auri.fuad');
     expect(result.user.email).toBe('auri.fuad@example.com');
+  });
+
+  it('should authenticate valid user with username (auri.fuad)', async () => {
+    const password = 'PasswordRahasia123!';
+    const passwordHash = await argon2.hash(password);
+
+    mockPrisma.user.findFirst.mockResolvedValue({
+      id: 'usr_01',
+      fullName: 'Auri Fuad',
+      email: 'auri.fuad@example.com',
+      phone: '081234567890',
+      passwordHash,
+      isActive: true,
+      createdAt: new Date(),
+    });
+
+    const result = await service.login({
+      identifier: 'auri.fuad',
+      password,
+    });
+
+    expect(result.token).toBe('mock-jwt-token');
+    expect(result.user.username).toBe('auri.fuad');
+  });
+
+  it('should authenticate valid user with phone number (081234567890)', async () => {
+    const password = 'PasswordRahasia123!';
+    const passwordHash = await argon2.hash(password);
+
+    mockPrisma.user.findFirst.mockResolvedValue({
+      id: 'usr_01',
+      fullName: 'Auri Fuad',
+      email: 'auri.fuad@example.com',
+      phone: '081234567890',
+      passwordHash,
+      isActive: true,
+      createdAt: new Date(),
+    });
+
+    const result = await service.login({
+      identifier: '081234567890',
+      password,
+    });
+
+    expect(result.token).toBe('mock-jwt-token');
+    expect(result.user.phone).toBe('081234567890');
   });
 
   it('should throw UnauthorizedException on wrong password', async () => {

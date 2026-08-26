@@ -76,6 +76,7 @@ async function bootstrap() {
     .addTag('3. Modul Reservasi & Pesanan Penyewa', 'Submit booking, riwayat pesanan, perpanjangan, dan ulasan')
     .addTag('4. Modul Panel Mitra Penyedia Sewa', 'Manajemen pesanan toko, konfirmasi, upload dokumen SP-EPS/bill, dan ulasan reputasi penyewa')
     .addTag('5. Modul Wilayah & Data Master', 'Cascading wilayah administratif Indonesia dan FAQ pusat bantuan')
+    .addTag('6. Modul Media & File Upload', 'Penyimpanan berkas foto dan dokumen PDF di server lokal')
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);

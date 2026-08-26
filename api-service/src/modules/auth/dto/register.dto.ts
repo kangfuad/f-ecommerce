@@ -1,5 +1,13 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, Length, Matches, MinLength } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Length,
+  Matches,
+  MinLength,
+} from 'class-validator';
 
 export class RegisterDto {
   @ApiProperty({
@@ -10,6 +18,18 @@ export class RegisterDto {
   @IsString()
   @Length(3, 150, { message: 'Nama lengkap harus antara 3 - 150 karakter' })
   fullName: string;
+
+  @ApiPropertyOptional({
+    example: 'budi.santoso',
+    description: 'Username unik (opsional, jika kosong akan di-generate dari email)',
+  })
+  @IsOptional()
+  @IsString()
+  @Length(3, 50, { message: 'Username harus antara 3 - 50 karakter' })
+  @Matches(/^[a-zA-Z0-9._-]+$/, {
+    message: 'Username hanya boleh memuat huruf, angka, titik (.), strip (-), dan garis bawah (_)',
+  })
+  username?: string;
 
   @ApiProperty({
     example: 'budi.santoso@example.com',

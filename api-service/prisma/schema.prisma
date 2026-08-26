@@ -274,3 +274,65 @@ model RentalReview {
 
   @@map("rental_reviews")
 }
+
+// ==========================================
+// MASTER WILAYAH ADMINISTRATIF INDONESIA
+// ==========================================
+
+model Province {
+  id        String    @id @db.VarChar(10)
+  name      String    @db.VarChar(100)
+  altName   String?   @map("alt_name") @db.VarChar(150)
+  latitude  Float?
+  longitude Float?
+  regencies Regency[]
+
+  @@index([name])
+  @@map("provinces")
+}
+
+model Regency {
+  id         String     @id @db.VarChar(10)
+  provinceId String     @map("province_id") @db.VarChar(10)
+  name       String     @db.VarChar(150)
+  altName    String?    @map("alt_name") @db.VarChar(200)
+  latitude   Float?
+  longitude  Float?
+  province   Province   @relation(fields: [provinceId], references: [id], onDelete: Cascade)
+  districts  District[]
+
+  @@index([provinceId])
+  @@index([name])
+  @@index([provinceId, name])
+  @@map("regencies")
+}
+
+model District {
+  id        String    @id @db.VarChar(15)
+  regencyId String    @map("regency_id") @db.VarChar(10)
+  name      String    @db.VarChar(150)
+  altName   String?   @map("alt_name") @db.VarChar(255)
+  latitude  Float?
+  longitude Float?
+  regency   Regency   @relation(fields: [regencyId], references: [id], onDelete: Cascade)
+  villages  Village[]
+
+  @@index([regencyId])
+  @@index([name])
+  @@index([regencyId, name])
+  @@map("districts")
+}
+
+model Village {
+  id         String   @id @db.VarChar(20)
+  districtId String   @map("district_id") @db.VarChar(15)
+  name       String   @db.VarChar(150)
+  latitude   Float?
+  longitude  Float?
+  district   District @relation(fields: [districtId], references: [id], onDelete: Cascade)
+
+  @@index([districtId])
+  @@index([name])
+  @@index([districtId, name])
+  @@map("villages")
+}
