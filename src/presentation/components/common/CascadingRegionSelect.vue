@@ -21,6 +21,14 @@ const props = withDefaults(
     districtName?: string
     villageId?: string
     villageName?: string
+    initialProvinceId?: string
+    initialProvinceName?: string
+    initialRegencyId?: string
+    initialRegencyName?: string
+    initialDistrictId?: string
+    initialDistrictName?: string
+    initialVillageId?: string
+    initialVillageName?: string
     layout?: 'grid-4' | 'grid-2' | 'stacked'
     required?: boolean
   }>(),
@@ -107,10 +115,10 @@ const currentVillage = computed(() => villages.value.find((v) => v.id === select
 
 // Emit full change payload
 function emitFullChange() {
-  const pName = currentProvince.value ? toTitleCase(currentProvince.value.name) : ''
-  const rName = currentRegency.value ? toTitleCase(currentRegency.value.name) : ''
-  const dName = currentDistrict.value ? toTitleCase(currentDistrict.value.name) : ''
-  const vName = currentVillage.value ? toTitleCase(currentVillage.value.name) : ''
+  const pName = currentProvince.value ? toTitleCase(currentProvince.value.name) : (props.provinceName || props.initialProvinceName || '')
+  const rName = currentRegency.value ? toTitleCase(currentRegency.value.name) : (props.regencyName || props.initialRegencyName || '')
+  const dName = currentDistrict.value ? toTitleCase(currentDistrict.value.name) : (props.districtName || props.initialDistrictName || '')
+  const vName = currentVillage.value ? toTitleCase(currentVillage.value.name) : (props.villageName || props.initialVillageName || '')
 
   emit('update:provinceId', selectedProvinceId.value)
   emit('update:provinceName', pName)
@@ -219,19 +227,28 @@ async function syncCascadeFromProps() {
     await loadProvinces()
   }
 
+  const targetProvId = props.provinceId || props.initialProvinceId
+  const targetProvName = props.provinceName || props.initialProvinceName
+  const targetRegId = props.regencyId || props.initialRegencyId
+  const targetRegName = props.regencyName || props.initialRegencyName
+  const targetDistId = props.districtId || props.initialDistrictId
+  const targetDistName = props.districtName || props.initialDistrictName
+  const targetVillId = props.villageId || props.initialVillageId
+  const targetVillName = props.villageName || props.initialVillageName
+
   // 1. Province match
-  if (props.provinceId || props.provinceName) {
+  if (targetProvId || targetProvName) {
     const foundProv = provinces.value.find((p) => {
-      if (props.provinceId && p.id === props.provinceId) return true
-      if (props.provinceName) {
+      if (targetProvId && p.id === targetProvId) return true
+      if (targetProvName) {
         const name = p.name.toLowerCase()
-        const target = props.provinceName.toLowerCase().trim()
-        return name === target || p.id === props.provinceName || target.includes(name) || name.includes(target)
+        const target = targetProvName.toLowerCase().trim()
+        return name === target || p.id === targetProvName || target.includes(name) || name.includes(target)
       }
       return false
     })
 
-    if (foundProv && selectedProvinceId.value !== foundProv.id) {
+    if (foundProv) {
       selectedProvinceId.value = foundProv.id
       isLoadingRegencies.value = true
       try {
@@ -246,18 +263,18 @@ async function syncCascadeFromProps() {
   }
 
   // 2. Regency match
-  if ((props.regencyId || props.regencyName) && selectedProvinceId.value) {
+  if ((targetRegId || targetRegName) && selectedProvinceId.value) {
     const foundReg = regencies.value.find((r) => {
-      if (props.regencyId && r.id === props.regencyId) return true
-      if (props.regencyName) {
+      if (targetRegId && r.id === targetRegId) return true
+      if (targetRegName) {
         const name = r.name.toLowerCase()
-        const target = props.regencyName.toLowerCase().trim()
-        return name === target || r.id === props.regencyName || target.includes(name) || name.includes(target)
+        const target = targetRegName.toLowerCase().trim()
+        return name === target || r.id === targetRegName || target.includes(name) || name.includes(target)
       }
       return false
     })
 
-    if (foundReg && selectedRegencyId.value !== foundReg.id) {
+    if (foundReg) {
       selectedRegencyId.value = foundReg.id
       isLoadingDistricts.value = true
       try {
@@ -272,18 +289,18 @@ async function syncCascadeFromProps() {
   }
 
   // 3. District match
-  if ((props.districtId || props.districtName) && selectedRegencyId.value) {
+  if ((targetDistId || targetDistName) && selectedRegencyId.value) {
     const foundDist = districts.value.find((d) => {
-      if (props.districtId && d.id === props.districtId) return true
-      if (props.districtName) {
+      if (targetDistId && d.id === targetDistId) return true
+      if (targetDistName) {
         const name = d.name.toLowerCase()
-        const target = props.districtName.toLowerCase().trim()
-        return name === target || d.id === props.districtName || target.includes(name) || name.includes(target)
+        const target = targetDistName.toLowerCase().trim()
+        return name === target || d.id === targetDistName || target.includes(name) || name.includes(target)
       }
       return false
     })
 
-    if (foundDist && selectedDistrictId.value !== foundDist.id) {
+    if (foundDist) {
       selectedDistrictId.value = foundDist.id
       isLoadingVillages.value = true
       try {
@@ -298,18 +315,18 @@ async function syncCascadeFromProps() {
   }
 
   // 4. Village match
-  if ((props.villageId || props.villageName) && selectedDistrictId.value) {
+  if ((targetVillId || targetVillName) && selectedDistrictId.value) {
     const foundVill = villages.value.find((v) => {
-      if (props.villageId && v.id === props.villageId) return true
-      if (props.villageName) {
+      if (targetVillId && v.id === targetVillId) return true
+      if (targetVillName) {
         const name = v.name.toLowerCase()
-        const target = props.villageName.toLowerCase().trim()
-        return name === target || v.id === props.villageName || target.includes(name) || name.includes(target)
+        const target = targetVillName.toLowerCase().trim()
+        return name === target || v.id === targetVillName || target.includes(name) || name.includes(target)
       }
       return false
     })
 
-    if (foundVill && selectedVillageId.value !== foundVill.id) {
+    if (foundVill) {
       selectedVillageId.value = foundVill.id
     }
   }
@@ -344,6 +361,14 @@ watch(
     props.districtName,
     props.villageId,
     props.villageName,
+    props.initialProvinceId,
+    props.initialProvinceName,
+    props.initialRegencyId,
+    props.initialRegencyName,
+    props.initialDistrictId,
+    props.initialDistrictName,
+    props.initialVillageId,
+    props.initialVillageName,
   ],
   () => {
     syncCascadeFromProps()

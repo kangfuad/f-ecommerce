@@ -6,6 +6,7 @@ export interface ProvinceDto {
   id: string
   name: string
   alt_name?: string
+  altName?: string
   latitude?: number
   longitude?: number
 }
@@ -14,8 +15,10 @@ export interface RegencyDto {
   id: string
   province_id?: string
   provinceId?: string
+  parentId?: string
   name: string
   alt_name?: string
+  altName?: string
   latitude?: number
   longitude?: number
 }
@@ -24,8 +27,10 @@ export interface DistrictDto {
   id: string
   regency_id?: string
   regencyId?: string
+  parentId?: string
   name: string
   alt_name?: string
+  altName?: string
   latitude?: number
   longitude?: number
 }
@@ -34,6 +39,7 @@ export interface VillageDto {
   id: string
   district_id?: string
   districtId?: string
+  parentId?: string
   name: string
   latitude?: number | null
   longitude?: number | null
@@ -56,9 +62,14 @@ export class RegionService {
 
   public static async getProvinces(search?: string): Promise<ApiResponse<ProvinceDto[]>> {
     // 1. Try real API
-    const realRes = await apiClient.get<ProvinceDto[]>(`${API_ENDPOINTS.REGIONS.PROVINCES}${search ? `?search=${encodeURIComponent(search)}` : ''}`)
-    if (realRes.status === 'success' && Array.isArray(realRes.data) && realRes.data.length > 0) {
-      return realRes
+    try {
+      const realRes = await apiClient.get<ProvinceDto[]>(`${API_ENDPOINTS.REGIONS.PROVINCES}${search ? `?search=${encodeURIComponent(search)}` : ''}`)
+      if (realRes.status === 'success' && Array.isArray(realRes.data) && realRes.data.length > 0) {
+        this.cachedProvinces = realRes.data
+        return realRes
+      }
+    } catch {
+      // ignore & fallback
     }
 
     // 2. Fallback to local master-wilayah
@@ -80,9 +91,13 @@ export class RegionService {
   public static async getRegencies(provinceId?: string, search?: string): Promise<ApiResponse<RegencyDto[]>> {
     // 1. Try real API
     if (provinceId) {
-      const realRes = await apiClient.get<RegencyDto[]>(`${API_ENDPOINTS.REGIONS.REGENCIES_BY_PROVINCE(provinceId)}${search ? `?search=${encodeURIComponent(search)}` : ''}`)
-      if (realRes.status === 'success' && Array.isArray(realRes.data) && realRes.data.length > 0) {
-        return realRes
+      try {
+        const realRes = await apiClient.get<RegencyDto[]>(`${API_ENDPOINTS.REGIONS.REGENCIES_BY_PROVINCE(provinceId)}${search ? `?search=${encodeURIComponent(search)}` : ''}`)
+        if (realRes.status === 'success' && Array.isArray(realRes.data) && realRes.data.length > 0) {
+          return realRes
+        }
+      } catch {
+        // ignore & fallback
       }
     }
 
@@ -98,7 +113,7 @@ export class RegionService {
 
     const list = this.cachedRegencies || []
     const filtered = provinceId
-      ? list.filter((r) => String(r.province_id || r.provinceId) === String(provinceId))
+      ? list.filter((r) => String(r.parentId || r.province_id || r.provinceId) === String(provinceId))
       : list
 
     return { status: 'success', data: filtered, message: 'Regencies retrieved' }
@@ -107,9 +122,13 @@ export class RegionService {
   public static async getDistricts(regencyId?: string, search?: string): Promise<ApiResponse<DistrictDto[]>> {
     // 1. Try real API
     if (regencyId) {
-      const realRes = await apiClient.get<DistrictDto[]>(`${API_ENDPOINTS.REGIONS.DISTRICTS_BY_REGENCY(regencyId)}${search ? `?search=${encodeURIComponent(search)}` : ''}`)
-      if (realRes.status === 'success' && Array.isArray(realRes.data) && realRes.data.length > 0) {
-        return realRes
+      try {
+        const realRes = await apiClient.get<DistrictDto[]>(`${API_ENDPOINTS.REGIONS.DISTRICTS_BY_REGENCY(regencyId)}${search ? `?search=${encodeURIComponent(search)}` : ''}`)
+        if (realRes.status === 'success' && Array.isArray(realRes.data) && realRes.data.length > 0) {
+          return realRes
+        }
+      } catch {
+        // ignore & fallback
       }
     }
 
@@ -125,7 +144,7 @@ export class RegionService {
 
     const list = this.cachedDistricts || []
     const filtered = regencyId
-      ? list.filter((d) => String(d.regency_id || d.regencyId) === String(regencyId))
+      ? list.filter((d) => String(d.parentId || d.regency_id || d.regencyId) === String(regencyId))
       : list
 
     return { status: 'success', data: filtered, message: 'Districts retrieved' }
@@ -134,9 +153,13 @@ export class RegionService {
   public static async getVillages(districtId?: string, search?: string): Promise<ApiResponse<VillageDto[]>> {
     // 1. Try real API
     if (districtId) {
-      const realRes = await apiClient.get<VillageDto[]>(`${API_ENDPOINTS.REGIONS.VILLAGES_BY_DISTRICT(districtId)}${search ? `?search=${encodeURIComponent(search)}` : ''}`)
-      if (realRes.status === 'success' && Array.isArray(realRes.data) && realRes.data.length > 0) {
-        return realRes
+      try {
+        const realRes = await apiClient.get<VillageDto[]>(`${API_ENDPOINTS.REGIONS.VILLAGES_BY_DISTRICT(districtId)}${search ? `?search=${encodeURIComponent(search)}` : ''}`)
+        if (realRes.status === 'success' && Array.isArray(realRes.data) && realRes.data.length > 0) {
+          return realRes
+        }
+      } catch {
+        // ignore & fallback
       }
     }
 
@@ -152,7 +175,7 @@ export class RegionService {
 
     const list = this.cachedVillages || []
     const filtered = districtId
-      ? list.filter((v) => String(v.district_id || v.districtId) === String(districtId))
+      ? list.filter((v) => String(v.parentId || v.district_id || v.districtId) === String(districtId))
       : list
 
     return { status: 'success', data: filtered, message: 'Villages retrieved' }

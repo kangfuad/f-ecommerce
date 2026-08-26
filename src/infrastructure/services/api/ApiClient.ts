@@ -4,6 +4,7 @@ export const AUTH_TOKEN_KEY = 'epunyasewa_auth_token'
 
 export class ApiClient {
   private readonly baseUrl: string
+  private readonly defaultTimeoutMs = 5000
 
   constructor(baseUrl?: string) {
     const envBaseUrl = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env.VITE_API_BASE_URL : ''
@@ -52,12 +53,23 @@ export class ApiClient {
     return headers
   }
 
+  private createTimeoutSignal(timeoutMs: number = this.defaultTimeoutMs): { signal: AbortSignal; cleanup: () => void } {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(new Error(`Request timeout after ${timeoutMs}ms`)), timeoutMs)
+    return {
+      signal: controller.signal,
+      cleanup: () => clearTimeout(timeoutId),
+    }
+  }
+
   public async get<T>(endpoint: string, options?: RequestInit): Promise<ApiResponse<T>> {
     const url = this.resolveUrl(endpoint)
+    const { signal, cleanup } = this.createTimeoutSignal()
     try {
       const response = await fetch(url, {
         method: 'GET',
         headers: this.getHeaders(options?.headers),
+        signal: options?.signal || signal,
         ...options,
       })
 
@@ -74,16 +86,20 @@ export class ApiClient {
         data: null as unknown as T,
         message: error.message || 'Gagal memuat data dari server',
       }
+    } finally {
+      cleanup()
     }
   }
 
   public async post<T>(endpoint: string, body?: any, options?: RequestInit): Promise<ApiResponse<T>> {
     const url = this.resolveUrl(endpoint)
+    const { signal, cleanup } = this.createTimeoutSignal()
     try {
       const response = await fetch(url, {
         method: 'POST',
         headers: this.getHeaders(options?.headers),
         body: body !== undefined ? JSON.stringify(body) : undefined,
+        signal: options?.signal || signal,
         ...options,
       })
 
@@ -102,16 +118,20 @@ export class ApiClient {
         data: null as unknown as T,
         message: error.message || 'Gagal mengirim data ke server',
       }
+    } finally {
+      cleanup()
     }
   }
 
   public async put<T>(endpoint: string, body?: any, options?: RequestInit): Promise<ApiResponse<T>> {
     const url = this.resolveUrl(endpoint)
+    const { signal, cleanup } = this.createTimeoutSignal()
     try {
       const response = await fetch(url, {
         method: 'PUT',
         headers: this.getHeaders(options?.headers),
         body: body !== undefined ? JSON.stringify(body) : undefined,
+        signal: options?.signal || signal,
         ...options,
       })
 
@@ -130,16 +150,20 @@ export class ApiClient {
         data: null as unknown as T,
         message: error.message || 'Gagal memperbarui data di server',
       }
+    } finally {
+      cleanup()
     }
   }
 
   public async patch<T>(endpoint: string, body?: any, options?: RequestInit): Promise<ApiResponse<T>> {
     const url = this.resolveUrl(endpoint)
+    const { signal, cleanup } = this.createTimeoutSignal()
     try {
       const response = await fetch(url, {
         method: 'PATCH',
         headers: this.getHeaders(options?.headers),
         body: body !== undefined ? JSON.stringify(body) : undefined,
+        signal: options?.signal || signal,
         ...options,
       })
 
@@ -158,15 +182,19 @@ export class ApiClient {
         data: null as unknown as T,
         message: error.message || 'Gagal memperbarui sebagian data',
       }
+    } finally {
+      cleanup()
     }
   }
 
   public async delete<T>(endpoint: string, options?: RequestInit): Promise<ApiResponse<T>> {
     const url = this.resolveUrl(endpoint)
+    const { signal, cleanup } = this.createTimeoutSignal()
     try {
       const response = await fetch(url, {
         method: 'DELETE',
         headers: this.getHeaders(options?.headers),
+        signal: options?.signal || signal,
         ...options,
       })
 
@@ -185,6 +213,8 @@ export class ApiClient {
         data: null as unknown as T,
         message: error.message || 'Gagal menghapus data dari server',
       }
+    } finally {
+      cleanup()
     }
   }
 
@@ -193,11 +223,13 @@ export class ApiClient {
    */
   public async postFormData<T>(endpoint: string, formData: FormData, options?: RequestInit): Promise<ApiResponse<T>> {
     const url = this.resolveUrl(endpoint)
+    const { signal, cleanup } = this.createTimeoutSignal(15000)
     try {
       const response = await fetch(url, {
         method: 'POST',
-        headers: this.getHeaders(options?.headers, true), // Do not set Content-Type, browser will set boundary automatically
+        headers: this.getHeaders(options?.headers, true),
         body: formData,
+        signal: options?.signal || signal,
         ...options,
       })
 
@@ -216,6 +248,8 @@ export class ApiClient {
         data: null as unknown as T,
         message: error.message || 'Gagal mengunggah berkas ke server',
       }
+    } finally {
+      cleanup()
     }
   }
 

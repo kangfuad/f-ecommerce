@@ -521,6 +521,14 @@ function handleSaveProfile() {
           <div class="pt-2 border-t border-theme-border space-y-3">
             <span class="font-bold block text-theme-primary">Wilayah Domisili:</span>
             <CascadingRegionSelect
+              v-model:province-id="editProvinceId"
+              v-model:province-name="editProvinceName"
+              v-model:regency-id="editRegencyId"
+              v-model:regency-name="editRegencyName"
+              v-model:district-id="editDistrictId"
+              v-model:district-name="editDistrictName"
+              v-model:village-id="editVillageId"
+              v-model:village-name="editVillageName"
               :initial-province-id="editProvinceId"
               :initial-regency-id="editRegencyId"
               :initial-district-id="editDistrictId"
