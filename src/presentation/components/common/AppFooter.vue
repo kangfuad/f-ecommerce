@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { APP_CONFIG } from '@/core/config/app.config'
-import { IconLogo, IconLocation } from '@/presentation/components/icons'
+import { IconLogo } from '@/presentation/components/icons'
 </script>
 
 <template>
@@ -20,10 +20,6 @@ import { IconLogo, IconLocation } from '@/presentation/components/icons'
           <p class="text-xs sm:text-sm text-stone-400 leading-relaxed font-light max-w-sm">
             Platform reservasi & informasi persewaan perlengkapan modern (kamera sinema, drone, gadget/laptop, audio visual, outdoor, & event). Booking mudah dengan kesepakatan dan transaksi langsung yang transparan.
           </p>
-          <div class="flex items-center gap-2 text-xs text-stone-400 pt-1">
-            <IconLocation :size="13" class="text-forest-soft shrink-0" />
-            <span>Jangkauan Wilayah: Jabodetabek, Bandung, Surabaya, Bali & Kota Besar</span>
-          </div>
         </div>
 
         <!-- Col 2: Eksplorasi Kategori (3 cols) -->
