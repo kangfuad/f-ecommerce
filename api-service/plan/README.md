@@ -1,4 +1,4 @@
-# 🚀 Spesifikasi & Rencana Pembangunan API Service (FE Front Office)
+# 🚀 Arsitektur Database & Spesifikasi API Service (FE Front Office)
 **Platform:** e-punyasewa — Platform Informasi & Reservasi Sewa Perlengkapan Modern  
 **Versi API:** `v1` (`/api/v1/...`)  
 **Format Amplop Respons:** Standard RESTful JSON Envelope
@@ -22,20 +22,240 @@
 
 ---
 
-## 📑 DAFTAR ISI MODUL
-1. [Modul 1: Autentikasi & Profil Pengguna (Auth & User Profile)](#1-modul-autentikasi--profil-pengguna)
-2. [Modul 2: Katalog & Penemuan Unit Sewa (Catalog & Products)](#2-modul-katalog--penemuan-unit-sewa)
-3. [Modul 3: Reservasi & Manajemen Pesanan Penyewa (Tenant Bookings & Orders)](#3-modul-reservasi--pesanan-penyewa)
-4. [Modul 4: Panel Mitra Penyedia Sewa (Provider Store & Timeline)](#4-modul-panel-mitra-penyedia-sewa)
-5. [Modul 5: Wilayah Administratif & Data Master (Regions & Master Data)](#5-modul-wilayah--data-master)
+## 📊 1. ENTITY RELATIONSHIP DIAGRAM (ERD) & RELASI TABEL
+
+Berikut adalah diagram relasi entitas database relasional (PostgreSQL / MySQL) untuk backend e-punyasewa:
+
+```mermaid
+erDiagram
+    USERS ||--|| USER_PROFILES : "has profile"
+    USERS ||--o| PROVIDER_STORES : "owns provider store"
+    USERS ||--o{ RENTAL_ORDERS : "places as tenant"
+    USERS ||--o{ RENTAL_REVIEWS : "authors / receives"
+    
+    PROVIDER_STORES ||--o{ PRODUCTS : "lists inventory"
+    PROVIDER_STORES ||--o{ RENTAL_ORDERS : "receives orders"
+    
+    CATEGORIES ||--o{ PRODUCTS : "categorizes"
+    
+    PRODUCTS ||--o{ PRODUCT_IMAGES : "has gallery"
+    PRODUCTS ||--o{ PRODUCT_INCLUDED_ITEMS : "includes gear"
+    PRODUCTS ||--o{ ORDER_ITEMS : "ordered in"
+    
+    RENTAL_ORDERS ||--|{ ORDER_ITEMS : "contains items"
+    RENTAL_ORDERS ||--|| ORDER_MEETUPS : "has meetup schedule"
+    RENTAL_ORDERS ||--|| ORDER_PRICINGS : "has pricing breakdown"
+    RENTAL_ORDERS ||--o{ RENTAL_REVIEWS : "evaluated in"
+
+    USERS {
+        uuid id PK
+        varchar full_name
+        varchar display_name
+        varchar email UK
+        varchar phone UK
+        varchar password_hash
+        varchar initials
+        boolean is_kyc_verified
+        varchar kyc_status
+        boolean has_provider_store
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    USER_PROFILES {
+        uuid id PK
+        uuid user_id FK "1:1 with USERS"
+        varchar profession
+        varchar company_or_studio
+        varchar social_media_instagram
+        varchar province_id
+        varchar province_name
+        varchar regency_id
+        varchar regency_name
+        varchar district_id
+        varchar district_name
+        varchar village_id
+        varchar village_name
+        text city_text
+        text address
+        varchar postal_code
+        varchar emergency_contact_name
+        varchar emergency_phone
+        varchar emergency_relation
+        text bio
+        timestamp updated_at
+    }
+
+    PROVIDER_STORES {
+        uuid id PK
+        uuid user_id FK "1:1 with USERS"
+        varchar store_name
+        varchar slug UK
+        text description
+        varchar phone
+        varchar email
+        text address
+        varchar province_id
+        varchar regency_id
+        numeric rating
+        integer review_count
+        boolean is_verified
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    CATEGORIES {
+        varchar id PK "e.g. CAMERA, DRONE_AUDIO"
+        varchar code UK
+        varchar name
+        varchar slug UK
+        varchar icon_name
+        text description
+        integer display_order
+        boolean is_active
+    }
+
+    PRODUCTS {
+        varchar id PK "e.g. eps_cam_01"
+        uuid provider_store_id FK
+        varchar category_id FK
+        varchar name
+        varchar slug UK
+        text description
+        numeric daily_rate
+        numeric deposit_amount
+        varchar condition "NEW | LIKE_NEW | EXCELLENT"
+        varchar badge_text "POPULAR | RECOMMENDED"
+        varchar location
+        integer stock_total
+        integer stock_available
+        boolean is_published
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    PRODUCT_IMAGES {
+        uuid id PK
+        varchar product_id FK
+        text image_url
+        boolean is_primary
+        integer display_order
+        timestamp created_at
+    }
+
+    PRODUCT_INCLUDED_ITEMS {
+        uuid id PK
+        varchar product_id FK
+        varchar item_name
+        integer quantity
+        integer display_order
+    }
+
+    RENTAL_ORDERS {
+        varchar id PK "EPS-YYYYMMDD-XXXX"
+        uuid tenant_user_id FK
+        uuid provider_store_id FK
+        varchar lifecycle_status "PENDING_CONFIRMATION | CONFIRMED | ACTIVE_RENTAL | COMPLETED | REJECTED"
+        text booking_notes
+        text rejection_reason
+        timestamp confirmed_at
+        timestamp completed_at
+        text signed_agreement_url
+        text payment_bill_url
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    ORDER_ITEMS {
+        uuid id PK
+        varchar order_id FK
+        varchar product_id FK
+        varchar product_name
+        text primary_image_url
+        integer quantity
+        integer rental_days
+        date start_date
+        date end_date
+        numeric daily_rate
+        numeric deposit_rate
+        numeric total_amount
+        timestamp created_at
+    }
+
+    ORDER_MEETUPS {
+        uuid id PK
+        varchar order_id FK "1:1 with RENTAL_ORDERS"
+        varchar location_type "PROVIDER_HUB | TENANT_ADDRESS | CUSTOM_MEETUP"
+        varchar location_name
+        text location_address
+        date schedule_date
+        varchar schedule_time
+        text notes
+        timestamp created_at
+    }
+
+    ORDER_PRICINGS {
+        uuid id PK
+        varchar order_id FK "1:1 with RENTAL_ORDERS"
+        numeric subtotal_rental
+        numeric total_deposit
+        numeric delivery_fee
+        numeric grand_total
+        timestamp created_at
+    }
+
+    RENTAL_REVIEWS {
+        uuid id PK
+        varchar order_id FK
+        uuid author_user_id FK
+        uuid target_user_id FK
+        varchar author_role "TENANT | PROVIDER"
+        integer overall_rating "1 to 5"
+        text comment
+        jsonb tags
+        timestamp created_at
+    }
+```
 
 ---
 
-## 1. MODUL AUTENTIKASI & PROFIL PENGGUNA
+## 🗄️ 2. SPESIFIKASI SKEMA & RELASI DATABASE
 
-### 1.1 Login Kredensial (Email / Nomor WhatsApp)
+| Relasi | Tipe | Penjelasan Relasi |
+| :--- | :---: | :--- |
+| `USERS` $\rightarrow$ `USER_PROFILES` | `1 : 1` | Satu pengguna memiliki satu profil rinci (domisili, kontak darurat, profesi). |
+| `USERS` $\rightarrow$ `PROVIDER_STORES` | `1 : 1 (Opsional)` | Pengguna dapat memiliki 1 lapak mitra penyedia (`has_provider_store = true`). |
+| `PROVIDER_STORES` $\rightarrow$ `PRODUCTS` | `1 : N` | Satu toko penyedia dapat mendaftarkan banyak unit perlengkapan sewa. |
+| `CATEGORIES` $\rightarrow$ `PRODUCTS` | `1 : N` | Satu kategori mengelompokkan banyak unit produk perlengkapan. |
+| `PRODUCTS` $\rightarrow$ `PRODUCT_IMAGES` | `1 : N` | Galeri foto unit produk dengan flag `is_primary`. |
+| `PRODUCTS` $\rightarrow$ `PRODUCT_INCLUDED_ITEMS` | `1 : N` | Daftar perlengkapan bawaan unit (kabel, charger, hardcase, baterai cadangan). |
+| `USERS` (Penyewa) $\rightarrow$ `RENTAL_ORDERS` | `1 : N` | Penyewa dapat membuat banyak transaksi booking sewa. |
+| `PROVIDER_STORES` $\rightarrow$ `RENTAL_ORDERS` | `1 : N` | Mitra penyedia menerima banyak pesanan booking sewa. |
+| `RENTAL_ORDERS` $\rightarrow$ `ORDER_ITEMS` | `1 : N` | Satu transaksi booking dapat berisi satu atau beberapa unit sewa sekaligus. |
+| `RENTAL_ORDERS` $\rightarrow$ `ORDER_MEETUPS` | `1 : 1` | Setiap pesanan memiliki tepat 1 jadwal dan lokasi serah terima unit di tempat. |
+| `RENTAL_ORDERS` $\rightarrow$ `ORDER_PRICINGS` | `1 : 1` | Snapshot kalkulasi rincian biaya sewa. |
+| `RENTAL_ORDERS` $\rightarrow$ `RENTAL_REVIEWS` | `1 : 2 (Maks)` | Satu ulasan dari pihak penyewa untuk penyedia, dan satu ulasan reputasi dari penyedia untuk penyewa. |
+
+---
+
+## 📑 3. DAFTAR LENGKAP ENDPOINT API SERVICE
+
+1. [Modul 1: Autentikasi & Pengguna (Auth & User Profile)](#modul-1-autentikasi--profil-pengguna)
+2. [Modul 2: Katalog & Inventaris Unit (Catalog & Products)](#modul-2-katalog--penemuan-unit-sewa)
+3. [Modul 3: Reservasi & Pesanan Penyewa (Tenant Bookings & Orders)](#modul-3-reservasi--pesanan-penyewa)
+4. [Modul 4: Panel Mitra Penyedia Sewa (Provider Store & Timeline)](#modul-4-panel-mitra-penyedia-sewa)
+5. [Modul 5: Wilayah Administratif & Data Master (Regions & Master Data)](#modul-5-wilayah--data-master)
+
+---
+
+### MODUL 1: AUTENTIKASI & PROFIL PENGGUNA
+
+#### 1.1 Login Kredensial
 * **Endpoint:** `POST /api/v1/auth/login`
-* **Deskripsi dari API ini:** Memverifikasi kredensial pengguna (email/nomor WhatsApp dan kata sandi), mengembalikan token akses JWT, status kepemilikan lapak mitra (`hasProviderStore`), dan ringkasan profil.
+* **Deskripsi:** Memverifikasi kredensial pengguna (email/WhatsApp dan password), mengembalikan token akses JWT, status kepemilikan lapak mitra (`hasProviderStore`), dan data profil pengguna.
 * **Payload (Request Body):**
 ```json
 {
@@ -78,17 +298,16 @@
 }
 ```
 * **Logika yang Dilakukan:**
-  1. Validasi kelengkapan format email / nomor WhatsApp dan kata sandi.
-  2. Verifikasi hash password (Argon2id / Bcrypt) pada basis data `users`.
-  3. Cek relasi ke tabel `provider_stores` untuk mengisi flag `hasProviderStore` (menentukan visibilitas menu *Panel Penyedia Sewa* di FE).
-  4. Generate JWT Access Token (expired 24 jam) dan Refresh Token.
-  5. Catat log waktu masuk (*last_login_at*).
+  1. Validasi format email / nomor WhatsApp.
+  2. Verifikasi hash password (Argon2id/Bcrypt) pada tabel `users`.
+  3. Cek relasi ke tabel `provider_stores` untuk mengisi flag `hasProviderStore` (penentu munculnya menu *Panel Penyedia Sewa*).
+  4. Terbitkan JWT Access Token dan Refresh Token.
 
 ---
 
-### 1.2 Registrasi Akun Pengguna Baru
+#### 1.2 Registrasi Akun Penyewa
 * **Endpoint:** `POST /api/v1/auth/register`
-* **Deskripsi dari API ini:** Mendaftarkan akun penyewa baru dengan data identitas dasar (Nama Sesuai KTP, WhatsApp, Email, dan Password).
+* **Deskripsi:** Mendaftarkan akun pengguna baru dengan nama sesuai KTP, WhatsApp, Email, dan Password.
 * **Payload (Request Body):**
 ```json
 {
@@ -119,18 +338,16 @@
 }
 ```
 * **Logika yang Dilakukan:**
-  1. Validasi keunikan email & nomor WhatsApp.
-  2. Hash password pengguna.
-  3. Buat inisial nama otomatis (contoh: "BS").
-  4. Simpan record akun ke tabel `users`. Default `hasProviderStore: false`.
-  5. Terbitkan token JWT instan untuk auto-login.
+  1. Cek keunikan email & nomor telepon.
+  2. Enkripsi kata sandi dan buat inisial otomatis.
+  3. Simpan record akun ke tabel `users`. Default `hasProviderStore: false`.
 
 ---
 
-### 1.3 Update Profil & Domisili Pengguna
+#### 1.3 Update Profil & Domisili Pengguna
 * **Endpoint:** `PUT /api/v1/user/profile`
 * **Headers:** `Authorization: Bearer <TOKEN>`
-* **Deskripsi dari API ini:** Memperbarui data identitas pemesan, profesi, domisili berjenjang (BPS/Kemendagri), kontak darurat, dan bio.
+* **Deskripsi:** Memperbarui data profil pengguna, profesi, domisili berjenjang BPS/Kemendagri, kontak darurat, dan bio.
 * **Payload (Request Body):**
 ```json
 {
@@ -172,14 +389,13 @@
 ```
 * **Logika yang Dilakukan:**
   1. Ekstrak `userId` dari token JWT.
-  2. Sanitasi input form.
-  3. Perbarui baris pada tabel `users` dan `user_profiles`.
+  2. Simpan atau perbarui baris tabel `user_profiles`.
 
 ---
 
-## 2. MODUL KATALOG & PENEMUAN UNIT SEWA
+### MODUL 2: KATALOG & PENEMUAN UNIT SEWA
 
-### 2.1 Mengambil Daftar Katalog Unit Sewa
+#### 2.1 Mengambil Daftar Katalog Unit Sewa
 * **Endpoint:** `GET /api/v1/products`
 * **Query Parameters:**
   * `category` (opsional): `CAMERA` | `DRONE_AUDIO` | `OUTDOOR` | `LAPTOP_GADGET` | `STAGE_EVENT`
@@ -189,7 +405,7 @@
   * `location` (opsional): Nama wilayah/kota
   * `sortBy` (opsional): `popular` | `price_asc` | `price_desc` | `rating` | `newest`
   * `page` (default: 1) & `limit` (default: 12)
-* **Deskripsi dari API ini:** Mengambil inventaris unit perlengkapan sewa yang aktif dengan filter multi-dimensi, pencarian, dan paginasi.
+* **Deskripsi:** Mengambil daftar unit sewa yang aktif dengan filter multi-dimensi, pencarian, dan paginasi.
 * **Respon (Success - 200 OK):**
 ```json
 {
@@ -241,16 +457,12 @@
   }
 }
 ```
-* **Logika yang Dilakukan:**
-  1. Filter query database hanya unit dengan status `is_published = true` dan `is_active = true`.
-  2. Join tabel `provider_stores` untuk menyertakan nama toko penyedia dan skor reputasi.
-  3. Kembalikan data sesuai DTO katalog.
 
 ---
 
-### 2.2 Mengambil Detail Lengkap Unit Sewa
+#### 2.2 Mengambil Detail Unit Sewa
 * **Endpoint:** `GET /api/v1/products/:id` (atau `GET /api/v1/products/slug/:slug`)
-* **Deskripsi dari API ini:** Menampilkan spesifikasi mendalam, daftar kelengkapan paket unit, rincian tarif per hari, dan data penyedia sewa.
+* **Deskripsi:** Mengambil spesifikasi teknis lengkap, daftar kelengkapan paket unit, dan data kontak mitra penyedia.
 * **Respon (Success - 200 OK):**
 ```json
 {
@@ -288,12 +500,12 @@
 
 ---
 
-## 3. MODUL RESERVASI & PESANAN PENYEWA
+### MODUL 3: RESERVASI & PESANAN PENYEWA
 
-### 3.1 Mengajukan Booking Sewa (*Submit Booking*)
+#### 3.1 Mengajukan Booking Sewa (*Submit Booking*)
 * **Endpoint:** `POST /api/v1/bookings`
 * **Headers:** `Authorization: Bearer <TOKEN>`
-* **Deskripsi dari API ini:** Membuat draf reservasi sewa baru. Menentukan unit, durasi sewa, titik temu serah terima, dan kontak pemesan. Status awal adalah `PENDING_CONFIRMATION`.
+* **Deskripsi:** Membuat draf reservasi sewa baru. Menentukan unit, durasi sewa, titik temu serah terima, dan kontak pemesan. Status awal adalah `PENDING_CONFIRMATION`.
 * **Payload (Request Body):**
 ```json
 {
@@ -338,20 +550,14 @@
   }
 }
 ```
-* **Logika yang Dilakukan:**
-  1. Validasi tanggal sewa (`endDate` > `startDate`).
-  2. Validasi stok unit pada rentang tanggal yang diminta.
-  3. Hitung total murni: $\text{dailyRate} \times \text{rentalDays} \times \text{quantity}$.
-  4. Simpan pesanan ke tabel `rental_orders` dengan status `PENDING_CONFIRMATION`.
-  5. Kirim event/notifikasi ke penyedia terkait.
 
 ---
 
-### 3.2 Mengambil Riwayat Pesanan Penyewa (*My Orders*)
+#### 3.2 Mengambil Riwayat Pesanan Penyewa (*My Orders*)
 * **Endpoint:** `GET /api/v1/orders/my-orders`
 * **Headers:** `Authorization: Bearer <TOKEN>`
 * **Query Parameters:** `status` (opsional: `PENDING` | `ACTIVE` | `COMPLETED` | `ALL`)
-* **Deskripsi dari API ini:** Menampilkan daftar seluruh transaksi booking yang diajukan oleh penyewa yang sedang login beserta status konfirmasi dan dokumen bukti sewa bertandatangan jika sudah diupload penyedia.
+* **Deskripsi:** Mengambil daftar transaksi booking yang diajukan oleh penyewa yang login, beserta berkas TTD dan kuitansi pembayaran bila sudah diunggah oleh penyedia.
 * **Respon (Success - 200 OK):**
 ```json
 {
@@ -406,10 +612,10 @@
 
 ---
 
-### 3.3 Mengajukan Perpanjangan Sewa (*Extend Rental*)
+#### 3.3 Mengajukan Perpanjangan Sewa (*Extend Rental*)
 * **Endpoint:** `POST /api/v1/orders/:id/extend`
 * **Headers:** `Authorization: Bearer <TOKEN>`
-* **Deskripsi dari API ini:** Mengajukan perpanjangan durasi sewa saat unit sedang aktif digunakan.
+* **Deskripsi:** Mengajukan penambahan durasi sewa saat unit sedang aktif digunakan.
 * **Payload (Request Body):**
 ```json
 {
@@ -433,10 +639,10 @@
 
 ---
 
-### 3.4 Penyewa Mengirim Review untuk Penyedia Sewa
+#### 3.4 Penyewa Mengirim Review untuk Penyedia Sewa
 * **Endpoint:** `POST /api/v1/orders/:id/review`
 * **Headers:** `Authorization: Bearer <TOKEN>`
-* **Deskripsi dari API ini:** Penyewa memberikan rating bintang (1-5) dan review pelayanan mitra sewa setelah masa sewa selesai.
+* **Deskripsi:** Penyewa memberikan rating bintang (1-5) dan review pelayanan mitra sewa setelah masa sewa selesai.
 * **Payload (Request Body):**
 ```json
 {
@@ -448,14 +654,14 @@
 
 ---
 
-## 4. MODUL PANEL MITRA PENYEDIA SEWA
+### MODUL 4: PANEL MITRA PENYEDIA SEWA
 
 > 🔒 **Hak Akses:** Hanya dapat diakses oleh user dengan flag `hasProviderStore: true`.
 
-### 4.1 Mengambil Timeline Pesanan Toko (*Provider Orders Timeline*)
+#### 4.1 Mengambil Timeline Pesanan Toko (*Provider Orders Timeline*)
 * **Endpoint:** `GET /api/v1/provider/orders`
 * **Headers:** `Authorization: Bearer <TOKEN>`
-* **Deskripsi dari API ini:** Mengambil seluruh daftar pesanan yang masuk ke lapak mitra penyedia, dikelompokkan dalam tab: `PENDING_CONFIRMATION`, `ACTIVE_RENTAL`, dan `COMPLETED`.
+* **Deskripsi:** Mengambil seluruh daftar pesanan yang masuk ke lapak mitra penyedia, dikelompokkan dalam tab: `PENDING_CONFIRMATION`, `ACTIVE_RENTAL`, dan `COMPLETED`.
 * **Respon (Success - 200 OK):**
 ```json
 {
@@ -507,10 +713,10 @@
 
 ---
 
-### 4.2 Menerima & Konfirmasi Pesanan (*Accept Booking*)
+#### 4.2 Menerima & Konfirmasi Pesanan (*Accept Booking*)
 * **Endpoint:** `PUT /api/v1/provider/orders/:id/confirm`
 * **Headers:** `Authorization: Bearer <TOKEN>`
-* **Deskripsi dari API ini:** Penyedia sewa menyetujui booking dan mengonfirmasi jadwal temu. Status pesanan berubah menjadi `CONFIRMED`.
+* **Deskripsi:** Penyedia sewa menyetujui booking dan mengonfirmasi jadwal temu. Status pesanan berubah menjadi `CONFIRMED`.
 * **Payload:** `{}`
 * **Respon (Success - 200 OK):**
 ```json
@@ -527,10 +733,10 @@
 
 ---
 
-### 4.3 Menolak Pesanan Booking (*Reject Booking*)
+#### 4.3 Menolak Pesanan Booking (*Reject Booking*)
 * **Endpoint:** `PUT /api/v1/provider/orders/:id/reject`
 * **Headers:** `Authorization: Bearer <TOKEN>`
-* **Deskripsi dari API ini:** Penyedia sewa menolak booking karena unit sedang diservis atau bentrok jadwal.
+* **Deskripsi:** Penyedia sewa menolak booking karena unit sedang diservis atau bentrok jadwal.
 * **Payload (Request Body):**
 ```json
 {
@@ -551,10 +757,10 @@
 
 ---
 
-### 4.4 Mengunggah Berkas TTD & Bukti Pembayaran (*Upload Agreement & Bill*)
+#### 4.4 Mengunggah Berkas TTD & Bukti Pembayaran (*Upload Agreement & Bill*)
 * **Endpoint:** `POST /api/v1/provider/orders/:id/upload-documents`
 * **Headers:** `Authorization: Bearer <TOKEN>`, `Content-Type: multipart/form-data`
-* **Deskripsi dari API ini:** Mengunggah file PDF / Foto Surat Perjanjian Sewa (SP-EPS) bertandatangan dan bukti kuitansi pembayaran (bill) setelah serah terima unit di lokasi selesai.
+* **Deskripsi:** Mengunggah file PDF / Foto Surat Perjanjian Sewa (SP-EPS) bertandatangan dan bukti kuitansi pembayaran (bill) setelah serah terima unit di lokasi selesai.
 * **Payload (`multipart/form-data`):**
   * `signedAgreementFile` (File: `.pdf`, `.jpg`, `.png`, max 10MB)
   * `paymentBillFile` (File: `.pdf`, `.jpg`, `.png`, max 10MB)
@@ -571,17 +777,13 @@
   }
 }
 ```
-* **Logika yang Dilakukan:**
-  1. Validasi file dan simpan ke cloud storage.
-  2. Perbarui URL berkas pada data pesanan.
-  3. Aktifkan visibilitas tombol **"Selesaikan Sewa"** pada Panel Penyedia.
 
 ---
 
-### 4.5 Menyelesaikan Masa Sewa Unit (*Complete Rental*)
+#### 4.5 Menyelesaikan Masa Sewa Unit (*Complete Rental*)
 * **Endpoint:** `PUT /api/v1/provider/orders/:id/complete`
 * **Headers:** `Authorization: Bearer <TOKEN>`
-* **Deskripsi dari API ini:** Menutup transaksi sewa secara resmi setelah masa sewa berakhir dan unit dikembalikan dalam kondisi normal.
+* **Deskripsi:** Menutup transaksi sewa secara resmi setelah masa sewa berakhir dan unit dikembalikan dalam kondisi normal.
 * **Respon (Success - 200 OK):**
 ```json
 {
@@ -597,10 +799,10 @@
 
 ---
 
-### 4.6 Penyedia Memberikan Review Reputasi Penyewa
+#### 4.6 Penyedia Memberikan Review Reputasi Penyewa
 * **Endpoint:** `POST /api/v1/provider/orders/:id/review-tenant`
 * **Headers:** `Authorization: Bearer <TOKEN>`
-* **Deskripsi dari API ini:** Penyedia sewa memberikan penilaian integritas penyewa (ketepatan waktu pengembalian, kebersihan unit, dan komunikasi).
+* **Deskripsi:** Penyedia sewa memberikan penilaian integritas penyewa (ketepatan waktu pengembalian, kebersihan unit, dan komunikasi).
 * **Payload (Request Body):**
 ```json
 {
@@ -612,14 +814,14 @@
 
 ---
 
-## 5. MODUL WILAYAH & DATA MASTER
+### MODUL 5: WILAYAH & DATA MASTER
 
-### 5.1 Cascading Wilayah Administratif Indonesia (BPS / Kemendagri)
+#### 5.1 Cascading Wilayah Administratif Indonesia (BPS / Kemendagri)
 * **Endpoint:** `GET /api/v1/regions`
 * **Query Parameters:**
   * `type`: `provinces` | `regencies` | `districts` | `villages`
   * `parentId` (wajib jika type bukan `provinces`)
-* **Deskripsi dari API ini:** Menyediakan data berjenjang wilayah Indonesia untuk fitur pemilihan domisili profil dan alamat temu.
+* **Deskripsi:** Menyediakan data berjenjang wilayah Indonesia untuk fitur pemilihan domisili profil dan alamat temu.
 * **Respon (Success - 200 OK):**
 ```json
 {
@@ -634,9 +836,9 @@
 
 ---
 
-### 5.2 Pusat Bantuan & FAQ Prosedur
+#### 5.2 Pusat Bantuan & FAQ Prosedur
 * **Endpoint:** `GET /api/v1/faqs`
-* **Deskripsi dari API ini:** Mengambil daftar tanya-jawab resmi alur booking, serah terima, ketentuan QC, dan tanggung jawab unit.
+* **Deskripsi:** Mengambil daftar tanya-jawab resmi alur booking, serah terima, ketentuan QC, dan tanggung jawab unit.
 * **Respon (Success - 200 OK):**
 ```json
 {
