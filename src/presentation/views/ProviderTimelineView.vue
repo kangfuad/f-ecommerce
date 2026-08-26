@@ -517,7 +517,9 @@ function handleReviewSubmitted(updated: OrderDto) {
                     {{ order.signedAgreementUrl ? 'Update Berkas TTD & Bill' : 'Upload Berkas TTD & Bill' }}
                   </button>
 
+                  <!-- Button Selesaikan Sewa only visible AFTER documents (TTD & Bill) are uploaded -->
                   <button
+                    v-if="order.signedAgreementUrl || order.paymentBillUrl"
                     type="button"
                     @click="handleComplete(order.id)"
                     class="px-4 py-2 rounded-xl bg-[#244E33] hover:bg-[#1B3B26] dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-stone-950 text-xs font-black transition cursor-pointer shadow-xs"
